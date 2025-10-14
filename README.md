@@ -83,3 +83,15 @@ Este proyecto busca:
 1. Clonar el repositorio:
    ```bash
    git clone https://github.com/tuusuario/LashesLam.git
+
+---
+
+## 📸 Capturas
+
+---
+
+## 🧑‍💻 Autor
+
+📍 México
+💼 Android Developer
+📧 mevi.and.my.monkey@gmail.com
