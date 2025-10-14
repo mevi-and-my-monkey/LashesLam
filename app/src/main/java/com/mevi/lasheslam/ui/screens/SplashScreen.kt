@@ -48,7 +48,7 @@ fun SplashScreen(navController: NavController) {
     val offsetX = remember { Animatable(-200f) }
     val offsetY = remember { Animatable(200f) }
 
-    // 🎨 Degradado animado tipo "brillo rosa"
+    // Degradado animado tipo "brillo rosa"
     val infiniteTransition = rememberInfiniteTransition(label = "")
     val shimmerShift by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -71,14 +71,14 @@ fun SplashScreen(navController: NavController) {
     )
 
     LaunchedEffect(Unit) {
-        // 1️⃣ Animación inicial de las dos "L"
+        // Animación inicial de las dos "L"
         offsetX.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
         offsetY.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
 
         delay(300)
         showFullName = true
 
-        // 2️⃣ Animar escritura de cada letra
+        // Animar escritura de cada letra
         fullText.forEachIndexed { index, _ ->
             visibleText = fullText.substring(0, index + 1)
             delay(100)
