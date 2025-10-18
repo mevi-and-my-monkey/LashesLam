@@ -16,7 +16,6 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             LashesLamTheme {
                 val navController = rememberNavController()

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- Fondo negro -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M0,0h512v512h-512z" />
+
+    <!-- Círculo dorado (borde fino) -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M256,48
+                          A208,208 0 1,0 255.999,48 Z"
+        android:strokeWidth="12"
+        android:strokeColor="#D4AF37"
+        android:strokeLineCap="butt"
+        android:strokeLineJoin="miter" />
+
+    <!-- Primera L (más arriba, dorada) -->
+    <!-- cuerpo vertical -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M140,120 h56 v220 h-56 z" />
+    <!-- pata horizontal -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M140,320 h140 v32 h-140 z" />
+
+    <!-- Segunda L (más abajo y a la derecha, dorada) -->
+    <!-- cuerpo vertical -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M260,180 h56 v160 h-56 z" />
+    <!-- pata horizontal -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M260,340 h140 v32 h-140 z" />
+
+</vector>
