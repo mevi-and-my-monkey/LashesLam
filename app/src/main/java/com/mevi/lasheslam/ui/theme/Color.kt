@@ -22,7 +22,7 @@ val SurfaceVariantDark = Color(0xFF2C2C2C)
 // --- Texto ---
 val OnPrimaryLight = Color.White
 val OnPrimaryDark = Color.Black
-val OnSecondaryLight = Color.White
+val OnSecondaryLight = Color.Black
 val OnSecondaryDark = Color.Gray
 val OnBackgroundLight = Color(0xFF1C1C1C)
 val OnBackgroundDark = Color(0xFFE1E1E1)
