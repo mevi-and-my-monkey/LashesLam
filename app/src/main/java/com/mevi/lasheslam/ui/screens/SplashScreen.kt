@@ -1,7 +1,6 @@
 package com.mevi.lasheslam.ui.screens
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -36,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mevi.lasheslam.Strings
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
 fun SplashScreen(navController: NavController) {
     var showFullName by remember { mutableStateOf(false) }
     var visibleText by remember { mutableStateOf("") }
-    val fullText = "LashesLam"
+    val fullText = Strings.appName
 
     val offsetX = remember { Animatable(-200f) }
     val offsetY = remember { Animatable(200f) }

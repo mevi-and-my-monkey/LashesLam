@@ -4,23 +4,27 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
-
-// Puedes cambiar estos colores por los que prefieras
-val PinkBackground = Color(0xFFFEEEEE)
-val WhiteSurface = Color.White
+import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
-fun WavyBackground(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun WavyBackground(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    bigWaveColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    smallWaveColor: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(PinkBackground),
+            .background(backgroundColor),
         contentAlignment = Alignment.TopCenter
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -56,8 +60,8 @@ fun WavyBackground(modifier: Modifier = Modifier, content: @Composable () -> Uni
             }
 
             // Dibuja ambas olas
-            drawPath(path = bigWave, color = Color(0xFFFFF4F4)) // tono más claro
-            drawPath(path = smallWave, color = WhiteSurface)
+            drawPath(path = bigWave, color = bigWaveColor) // tono más claro
+            drawPath(path = smallWave, color = smallWaveColor)
         }
         content()
     }
@@ -65,16 +69,24 @@ fun WavyBackground(modifier: Modifier = Modifier, content: @Composable () -> Uni
 
 @Preview(name = "Phone", widthDp = 360, heightDp = 800, showBackground = true)
 @Composable
-fun WavyBackgroundPhonePreview() { WavyBackground { } }
+fun WavyBackgroundPhonePreview() {
+    LashesLamTheme {
+        WavyBackground { }
+    }
+}
 
 @Preview(name = "Tablet", widthDp = 1280, heightDp = 800, showBackground = true)
 @Composable
-fun WavyBackgroundTabletPreview() { WavyBackground { } }
+fun WavyBackgroundTabletPreview() {
+    LashesLamTheme {
+        WavyBackground { }
+    }
+}
 
 @Preview(showBackground = true, showSystemUi = true, name = "Wavy BG")
 @Composable
 fun WavyBackgroundPreview() {
-    WavyBackground{
-
+    LashesLamTheme {
+        WavyBackground {}
     }
 }
