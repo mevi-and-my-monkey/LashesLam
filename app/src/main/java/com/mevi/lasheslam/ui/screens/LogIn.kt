@@ -26,7 +26,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mevi.lasheslam.AnimatedLogo
 import com.mevi.lasheslam.GenericButton
+import com.mevi.lasheslam.GenericIconButton
 import com.mevi.lasheslam.GenericOutlinedButton
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.Strings
@@ -53,13 +55,7 @@ fun LogIn() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 100.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logo_app),
-                    contentDescription = Strings.logoContentDescription,
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                )
+                AnimatedLogo()
             }
 
             // --- Parte central (texto + botones) ---
@@ -87,8 +83,6 @@ fun LogIn() {
                 GenericOutlinedButton(
                     text = Strings.register,
                     onClick = { /* Acción Registro */ },
-                    textColor = Color.Gray,
-                    borderColor = Color.Gray
                 )
             }
 
@@ -122,12 +116,12 @@ fun LogIn() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                GenericOutlinedButton(
-                    text = Strings.google,
-                    onClick = { /* Acción Google */ },
-                    textColor = Color.Gray,
-                    borderColor = Color.Gray,
-                    icon = painterResource(id = R.drawable.ic_google_one)
+                GenericIconButton(
+                    icon = painterResource(id = R.drawable.ic_google_one),
+                    contentDescription = "Acceder con Google",
+                    onClick = { /* Acción Registro */ },
+                    backgroundColor = Color.White,
+                    iconTint = Color.Unspecified
                 )
 
                 Spacer(modifier = Modifier.height(16.dp)) // margen final
