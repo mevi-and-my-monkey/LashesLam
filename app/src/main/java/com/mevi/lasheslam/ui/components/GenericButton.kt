@@ -27,7 +27,8 @@ fun GenericButton(
     modifier: Modifier = Modifier.Companion,
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
     textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    icon: ImageVector? = null
+    icon: ImageVector? = null,
+    enabled: Boolean? = true
 ) {
     Button(
         onClick = onClick,
@@ -38,7 +39,8 @@ fun GenericButton(
             contentColor = textColor
         ),
         shape = RoundedCornerShape(12.dp),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+        enabled = enabled ?: true
     ) {
         if (icon != null) {
             Icon(

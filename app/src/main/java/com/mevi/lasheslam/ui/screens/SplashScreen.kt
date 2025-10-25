@@ -85,10 +85,10 @@ fun SplashScreen(loginViewModel: LoginViewModel) {
     if (adminEmails.value != null) {
         Log.i("USERS_EMAIL", adminEmails.value.toString())
         LaunchedEffect(Unit) {
-            delay(2000)
+            delay(2200)
             GlobalNavigation.navContoller.navigate(firstpage) {
                 if (isLoggedIn) {
-                    popUpTo("login") { inclusive = true }
+                    popUpTo("home") { inclusive = true }
                 } else {
                     popUpTo("login") { inclusive = true }
                 }

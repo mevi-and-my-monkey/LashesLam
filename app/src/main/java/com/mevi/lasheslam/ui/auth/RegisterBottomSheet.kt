@@ -1,14 +1,20 @@
 package com.mevi.lasheslam.ui.auth
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -24,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,13 +47,17 @@ import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
+import com.mevi.lasheslam.utils.InputValidator
+import com.mevi.lasheslam.utils.ValidationResult
 
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnrememberedMutableState")
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun RegisterBottomSheet(
     onCancel: () -> Unit,
     onRegister: (String, String, String, String, String) -> Unit
 ) {
+    val scrollState = rememberScrollState()
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,6 +65,25 @@ fun RegisterBottomSheet(
     var phone by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val nameValidation = remember { mutableStateOf(ValidationResult(true)) }
+    val emailValidation = remember { mutableStateOf(ValidationResult(true)) }
+    val passwordValidation = remember { mutableStateOf(ValidationResult(true)) }
+    val confirmValidation = remember { mutableStateOf(ValidationResult(true)) }
+    val phoneValidation = remember { mutableStateOf(ValidationResult(true)) }
+
+    val isFormValid by derivedStateOf {
+        nameValidation.value.isValid &&
+                emailValidation.value.isValid &&
+                passwordValidation.value.isValid &&
+                confirmValidation.value.isValid &&
+                phoneValidation.value.isValid &&
+                fullName.isNotBlank() &&
+                email.isNotBlank() &&
+                password.isNotBlank() &&
+                confirmPassword.isNotBlank() &&
+                phone.isNotBlank()
+    }
 
     ModalBottomSheet(
         onDismissRequest = onCancel,
@@ -65,6 +95,8 @@ fun RegisterBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .imeNestedScroll() // 👈 permite que el teclado “empuje” el contenido
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -85,30 +117,61 @@ fun RegisterBottomSheet(
             // 🔹 Campos de formulario
             OutlinedTextField(
                 value = fullName,
-                onValueChange = { fullName = it },
+                onValueChange = {
+                    fullName = it
+                    nameValidation.value = InputValidator.validateName(it)
+                },
                 label = { Text(Strings.fullName) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.AccountCircle,
+                        contentDescription = Strings.fullName
+                    )
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = !nameValidation.value.isValid
             )
+            if (!nameValidation.value.isValid) {
+                Text(
+                    text = nameValidation.value.errorMessage ?: "",
+                    color = Color(0xFFFF6F6F),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    emailValidation.value = InputValidator.validateEmail(it)
+                },
                 label = { Text(Strings.email) },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = Strings.emailHint) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = !emailValidation.value.isValid
             )
+            if (!emailValidation.value.isValid) {
+                Text(
+                    text = emailValidation.value.errorMessage ?: "",
+                    color = Color(0xFFFF6F6F),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    passwordValidation.value = InputValidator.validatePassword(it)
+                },
                 label = { Text(Strings.password) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = Strings.password) },
                 trailingIcon = {
@@ -121,14 +184,25 @@ fun RegisterBottomSheet(
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = !passwordValidation.value.isValid
             )
+            if (!passwordValidation.value.isValid) {
+                Text(
+                    text = passwordValidation.value.errorMessage ?: "",
+                    color = Color(0xFFFF6F6F),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = {
+                    confirmPassword = it
+                    confirmValidation.value = InputValidator.validateConfirmPassword(password, it)
+                },
                 label = { Text(Strings.confirmPassword) },
                 leadingIcon = {
                     Icon(
@@ -146,14 +220,25 @@ fun RegisterBottomSheet(
                 singleLine = true,
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = !confirmValidation.value.isValid
             )
+            if (!confirmValidation.value.isValid) {
+                Text(
+                    text = confirmValidation.value.errorMessage ?: "",
+                    color = Color(0xFFFF6F6F),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = phone,
-                onValueChange = { phone = it },
+                onValueChange = {
+                    phone = it
+                    phoneValidation.value = InputValidator.validatePhone(it)
+                },
                 label = { Text(Strings.phoneNumber) },
                 leadingIcon = {
                     Icon(
@@ -163,8 +248,16 @@ fun RegisterBottomSheet(
                 },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                isError = !phoneValidation.value.isValid
             )
+            if (!phoneValidation.value.isValid) {
+                Text(
+                    text = phoneValidation.value.errorMessage ?: "",
+                    color = Color(0xFFFF6F6F),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -181,16 +274,18 @@ fun RegisterBottomSheet(
                             email,
                             password,
                             confirmPassword,
-                            phone)
+                            phone
+                        )
                     },
                     backgroundColor = MaterialTheme.colorScheme.primary,
                     textColor = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.weight(1f),
+                    enabled = isFormValid
                 )
 
                 GenericOutlinedButton(
                     text = Strings.cancelButton,
-                    onClick = { /* Acción Registro */ },
+                    onClick = { onCancel() },
                     textColor = Color.Gray,
                     borderColor = Color.Gray,
                     modifier = Modifier.weight(1f),

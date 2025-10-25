@@ -30,6 +30,7 @@ val OnSurfaceLight = Color(0xFF1C1C1C)
 val OnSurfaceDark = Color(0xFFE1E1E1)
 val OnSurfaceVariantLight = Color(0xFF7D5260)
 val OnSurfaceVariantDark = Color(0xFFD7B2B9)
+val PastelRed = Color(0xFFFF6F6F)
 
 // --- Bordes / Outlines ---
 val OutlineLight = Color(0xFFD7B2B9)
