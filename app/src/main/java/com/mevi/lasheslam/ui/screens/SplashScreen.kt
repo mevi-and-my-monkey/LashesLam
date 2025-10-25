@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.ui.screens
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
@@ -34,13 +35,72 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.remoteconfig.remoteConfig
+import com.mevi.lasheslam.User
 import com.mevi.lasheslam.core.Strings
+import com.mevi.lasheslam.navigation.GlobalNavigation
+import com.mevi.lasheslam.ui.auth.LoginViewModel
+import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.delay
+import org.json.JSONArray
+import kotlin.text.ifEmpty
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(loginViewModel: LoginViewModel) {
+    val adminEmails = remember { mutableStateOf<List<String>?>(null) }
+    val isLoggedIn = Firebase.auth.currentUser != null
+    val firstpage = if (isLoggedIn) "home" else "login"
+    if (isLoggedIn) {
+        Log.i("FIREBASE_USE", Firebase.auth.currentUser?.email.toString())
+        User.userAdmin =
+            Utilities.isAdmin(loginViewModel, Firebase.auth.currentUser?.email.toString())
+        User.userInvited = false
+    }
+    LaunchedEffect(Unit) {
+        val remoteConfig = Firebase.remoteConfig
+        remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val whatsApp = remoteConfig.getString("whatsapp_administrador")
+                val jsonString = remoteConfig.getString("list_admin")
+                User.whatsApp = whatsApp.ifEmpty { "5514023853" }
+                val list = try {
+                    val jsonArray = JSONArray(jsonString)
+                    List(jsonArray.length()) { i -> jsonArray.getString(i) }
+                } catch (e: Exception) {
+                    Log.e("RemoteConfig", "Error al procesar JSON de list_admin", e)
+                    emptyList()
+                }
+                loginViewModel.setAdminEmails(list)
+                adminEmails.value = list
+            } else {
+                loginViewModel.setAdminEmails(emptyList())
+                Log.e("RemoteConfig", "Error al obtener valores de Remote Config")
+            }
+        }
+    }
+
+    if (adminEmails.value != null) {
+        Log.i("USERS_EMAIL", adminEmails.value.toString())
+        LaunchedEffect(Unit) {
+            delay(2000)
+            GlobalNavigation.navContoller.navigate(firstpage) {
+                if (isLoggedIn) {
+                    popUpTo("login") { inclusive = true }
+                } else {
+                    popUpTo("login") { inclusive = true }
+                }
+            }
+        }
+    }
+    Splash()
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun Splash() {
     var showFullName by remember { mutableStateOf(false) }
     var visibleText by remember { mutableStateOf("") }
     val fullText = Strings.appName
@@ -85,7 +145,7 @@ fun SplashScreen(navController: NavController) {
         }
 
         delay(1200)
-        navController.navigate("login") {
+        GlobalNavigation.navContoller.navigate("login") {
             popUpTo("splash") { inclusive = true }
         }
     }
@@ -94,7 +154,7 @@ fun SplashScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF1A1A1A)),
-            //.background(Color(0xFFFFFFFF)),
+        //.background(Color(0xFFFFFFFF)),
         contentAlignment = Alignment.Center
     ) {
         if (!showFullName) {

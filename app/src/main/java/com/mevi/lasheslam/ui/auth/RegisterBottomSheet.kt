@@ -45,7 +45,7 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 @Composable
 fun RegisterBottomSheet(
     onCancel: () -> Unit,
-    onRegister: (String, String, String, String, String?) -> Unit
+    onRegister: (String, String, String, String, String) -> Unit
 ) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -181,7 +181,7 @@ fun RegisterBottomSheet(
                             email,
                             password,
                             confirmPassword,
-                            phone.ifBlank { null })
+                            phone)
                     },
                     backgroundColor = MaterialTheme.colorScheme.primary,
                     textColor = MaterialTheme.colorScheme.onPrimary,
