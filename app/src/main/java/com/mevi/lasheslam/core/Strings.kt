@@ -1,4 +1,4 @@
-package com.mevi.lasheslam
+package com.mevi.lasheslam.core
 
 object Strings {
     const val appName = "LashesLam"

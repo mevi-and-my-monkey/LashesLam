@@ -1,4 +1,4 @@
-package com.mevi.lasheslam
+package com.mevi.lasheslam.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
@@ -21,9 +22,9 @@ fun GenericIconButton(
     icon: Painter,
     contentDescription: String? = null,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
-    iconTint: Color = Color.Unspecified, // deja el PNG con su color original
+    iconTint: Color = Color.Companion.Unspecified, // deja el PNG con su color original
     size: Int = 56 // tamaño más grande tipo FAB
 ) {
     Button(
@@ -33,7 +34,7 @@ fun GenericIconButton(
         shape = CircleShape, // 👈 redondo
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
-            contentColor = Color.Unspecified // 👈 no tintar el icono PNG
+            contentColor = Color.Companion.Unspecified // 👈 no tintar el icono PNG
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 6.dp,
@@ -45,7 +46,7 @@ fun GenericIconButton(
             painter = icon,
             contentDescription = contentDescription,
             tint = iconTint,
-            modifier = Modifier.size((size * 0.55f).dp) // icono proporcional
+            modifier = Modifier.Companion.size((size * 0.55f).dp) // icono proporcional
         )
     }
 }
@@ -58,8 +59,8 @@ fun GenericIconButtonPreview() {
             icon = painterResource(id = R.drawable.ic_google_one),
             contentDescription = "Acceder con Google",
             onClick = { /* Acción */ },
-            backgroundColor = Color.White,
-            iconTint = Color.Unspecified // respeta los colores del PNG
+            backgroundColor = Color.Companion.White,
+            iconTint = Color.Companion.Unspecified // respeta los colores del PNG
         )
     }
 }

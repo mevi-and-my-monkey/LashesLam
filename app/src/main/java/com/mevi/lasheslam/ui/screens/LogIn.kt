@@ -17,6 +17,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,17 +30,22 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mevi.lasheslam.AnimatedLogo
-import com.mevi.lasheslam.GenericButton
-import com.mevi.lasheslam.GenericIconButton
-import com.mevi.lasheslam.GenericOutlinedButton
+import com.mevi.lasheslam.ui.components.AnimatedLogo
+import com.mevi.lasheslam.ui.components.GenericButton
+import com.mevi.lasheslam.ui.components.GenericIconButton
+import com.mevi.lasheslam.ui.components.GenericOutlinedButton
+import com.mevi.lasheslam.ui.auth.LoginBottomSheet
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.Strings
-import com.mevi.lasheslam.WavyBackground
+import com.mevi.lasheslam.ui.auth.RegisterBottomSheet
+import com.mevi.lasheslam.core.Strings
+import com.mevi.lasheslam.ui.components.WavyBackground
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun LogIn() {
+    var showLoginSheet by remember { mutableStateOf(false) }
+    var showRegisterSheet by remember { mutableStateOf(false) }
+
     WavyBackground(
         backgroundColor = MaterialTheme.colorScheme.background,
         bigWaveColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -73,7 +82,7 @@ fun LogIn() {
 
                 GenericButton(
                     text = Strings.login,
-                    onClick = { /* Acción Iniciar */ },
+                    onClick = { showLoginSheet = true },
                     backgroundColor = MaterialTheme.colorScheme.primary,
                     textColor = MaterialTheme.colorScheme.onPrimary
                 )
@@ -82,7 +91,7 @@ fun LogIn() {
 
                 GenericOutlinedButton(
                     text = Strings.register,
-                    onClick = { /* Acción Registro */ },
+                    onClick = { showRegisterSheet = true },
                 )
             }
 
@@ -127,6 +136,20 @@ fun LogIn() {
                 Spacer(modifier = Modifier.height(16.dp)) // margen final
             }
         }
+    }
+
+    if (showLoginSheet) {
+        LoginBottomSheet(
+            onClose = { showLoginSheet = false },
+            onLogin = { email, password ->
+
+            }
+        )
+    }
+
+    if (showRegisterSheet) {
+        RegisterBottomSheet({ showRegisterSheet = false },
+            { _, _, _, _, _ -> })
     }
 }
 

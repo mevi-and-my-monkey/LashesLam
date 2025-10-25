@@ -1,4 +1,4 @@
-package com.mevi.lasheslam
+package com.mevi.lasheslam.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -18,16 +18,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.R
+import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
+/**
+ * Funcion que muestra el logo de la aplicacion con una animacion de fadeIn
+ * **/
 @Composable
 fun AnimatedLogo() {
     var visible by remember { mutableStateOf(false) }
-
+    // Se ejecuta cuando se crea el composable, solo una vez
     LaunchedEffect(Unit) {
         visible = true
     }
-
+    //animacion para mostrar el logo
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(animationSpec = tween(durationMillis = 1200))
@@ -35,13 +40,15 @@ fun AnimatedLogo() {
         Image(
             painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_lashes_dark else R.drawable.logo_lashes),
             contentDescription = Strings.logoContentDescription,
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .size(120.dp)
-                .clip(CircleShape)
         )
     }
 }
 
+/**
+ * Usado para previsualizar el logo en el login
+ * **/
 @Preview(showBackground = true, name = "LoginLogo")
 @Composable
 fun LoginLogoPreview() {

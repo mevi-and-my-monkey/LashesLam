@@ -1,4 +1,4 @@
-package com.mevi.lasheslam
+package com.mevi.lasheslam.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -24,7 +25,7 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 fun GenericOutlinedButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     textColor: Color = MaterialTheme.colorScheme.onBackground,
     borderColor: Color = MaterialTheme.colorScheme.outline,
     borderWidth: Dp = 1.dp,
@@ -33,18 +34,21 @@ fun GenericOutlinedButton(
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 48.dp),
+            .fillMaxWidth(),
         border = BorderStroke(borderWidth, borderColor),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = textColor)
-    ) {
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = textColor,
+            containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+        ),
+
+        ) {
         if (icon != null) {
             Icon(
                 painter = icon,
                 contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier
+                tint = Color.Companion.Unspecified,
+                modifier = Modifier.Companion
                     .size(20.dp)
                     .padding(end = 8.dp)
             )
@@ -52,6 +56,8 @@ fun GenericOutlinedButton(
         Text(
             text = text,
             color = textColor,
+            maxLines = 1,
+            overflow = TextOverflow.Companion.Ellipsis,
             fontSize = 16.sp,
             style = MaterialTheme.typography.labelLarge
         )
@@ -65,8 +71,8 @@ fun GenericOutlinedButtonPreview() {
         GenericOutlinedButton(
             text = "Registrarse",
             onClick = { /* Acción Registro */ },
-            textColor = Color.Gray,
-            borderColor = Color.Gray
+            textColor = Color.Companion.Gray,
+            borderColor = Color.Companion.Gray
         )
     }
 }

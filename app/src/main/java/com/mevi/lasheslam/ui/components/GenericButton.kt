@@ -1,4 +1,4 @@
-package com.mevi.lasheslam
+package com.mevi.lasheslam.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,7 +24,7 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 fun GenericButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
     textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     icon: ImageVector? = null
@@ -30,8 +32,7 @@ fun GenericButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 48.dp),
+            .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
             contentColor = textColor
@@ -44,7 +45,7 @@ fun GenericButton(
                 imageVector = icon,
                 contentDescription = null,
                 tint = textColor,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(20.dp)
                     .padding(end = 8.dp)
             )
@@ -52,8 +53,12 @@ fun GenericButton(
         Text(
             text = text,
             color = textColor,
+            maxLines = 1,
+            overflow = TextOverflow.Companion.Ellipsis,
             fontSize = 16.sp,
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Companion.SemiBold
+            )
         )
     }
 }

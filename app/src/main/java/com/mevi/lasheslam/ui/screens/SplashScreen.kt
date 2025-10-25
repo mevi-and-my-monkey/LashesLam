@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mevi.lasheslam.Strings
+import com.mevi.lasheslam.core.Strings
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
