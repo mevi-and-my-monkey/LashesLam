@@ -20,6 +20,7 @@ class LoginViewModel @Inject constructor() : ViewModel() {
     private val aut = Firebase.auth
     private val firestore = Firebase.firestore
 
+
     var isLoading by mutableStateOf(false)
         private set
 

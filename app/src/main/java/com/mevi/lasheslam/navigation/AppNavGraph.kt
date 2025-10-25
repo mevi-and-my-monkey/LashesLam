@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.auth.LogIn
 import com.mevi.lasheslam.ui.auth.SplashScreen
+import com.mevi.lasheslam.ui.profile.ProfilePage
 
 @Composable
 fun AppNavGraph(
@@ -27,6 +28,9 @@ fun AppNavGraph(
         }
         composable(Screen.Home.route) {
             HomeScreen(navController, modifier)
+        }
+        composable(Screen.Profile.route) {
+            ProfilePage(navController, modifier)
         }
     }
 }

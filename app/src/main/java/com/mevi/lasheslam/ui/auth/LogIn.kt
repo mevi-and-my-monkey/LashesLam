@@ -42,6 +42,7 @@ import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericIconButton
+import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
 import com.mevi.lasheslam.ui.components.WavyBackground
 import com.mevi.lasheslam.utils.Utilities
@@ -50,6 +51,7 @@ import com.mevi.lasheslam.utils.Utilities
 fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hiltViewModel()) {
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }
+    val isLoading = loginViewModel.isLoading
 
     val context = LocalContext.current
 
@@ -182,6 +184,10 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 Spacer(modifier = Modifier.Companion.height(16.dp)) // margen final
             }
         }
+        GenericLoading(
+            isLoading = isLoading,
+            message = "Procesando, por favor espera..."
+        )
     }
 
     if (showLoginSheet) {
