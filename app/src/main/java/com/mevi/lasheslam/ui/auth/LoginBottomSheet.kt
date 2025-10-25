@@ -43,7 +43,8 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 @Composable
 fun LoginBottomSheet(
     onClose: () -> Unit,
-    onLogin: (String, String) -> Unit
+    onLogin: (String, String) -> Unit,
+    loginViewModel: LoginViewModel? = null
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -78,8 +79,10 @@ fun LoginBottomSheet(
 
             // 🔹 Campo de correo
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = loginViewModel?.email ?: "",
+                onValueChange = {
+                    loginViewModel?.onLoginChanged(email = it, password = loginViewModel.password)
+                },
                 label = { Text(Strings.email) },
                 leadingIcon = {
                     Icon(
@@ -97,8 +100,10 @@ fun LoginBottomSheet(
             // 🔹 Campo de contraseña
             var passwordVisible by remember { mutableStateOf(false) }
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = loginViewModel?.password ?: "",
+                onValueChange = {
+                    loginViewModel?.onLoginChanged(email = loginViewModel.email, password = it)
+                },
                 label = { Text(Strings.password) },
                 leadingIcon = {
                     Icon(
@@ -124,12 +129,18 @@ fun LoginBottomSheet(
             // 🔹 Botón de acceder
             GenericButton(
                 Strings.access,
-                onClick = { onLogin(email, password) },
+                onClick = {
+                    onLogin(
+                        loginViewModel?.email ?: "",
+                        loginViewModel?.password ?: ""
+                    )
+                },
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.Companion
                     .fillMaxWidth()
                     .height(52.dp),
+                enabled = loginViewModel?.isLoginEnable ?: false
             )
 
             Spacer(modifier = Modifier.Companion.height(32.dp))

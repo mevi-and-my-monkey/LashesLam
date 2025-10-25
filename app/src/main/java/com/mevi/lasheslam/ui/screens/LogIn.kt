@@ -192,8 +192,26 @@ fun LogIn(loginViewModel: LoginViewModel) {
         LoginBottomSheet(
             onClose = { showLoginSheet = false },
             onLogin = { email, password ->
-
-            }
+                loginViewModel.showLoading()
+                loginViewModel.login(
+                    loginViewModel.email,
+                    loginViewModel.password
+                ) { success, resultMessage ->
+                    if (success) {
+                        User.userAdmin = Utilities.isAdmin(loginViewModel, loginViewModel.email)
+                        User.userInvited = false
+                        loginViewModel.hideLoading()
+                        GlobalNavigation.navContoller.navigate("home") {
+                            launchSingleTop = true
+                        }
+                    } else {
+                        loginViewModel.hideLoading()
+                        Toast.makeText(context, "$resultMessage", Toast.LENGTH_LONG).show()
+                        Log.i("ERROR_MESSAGE", "$resultMessage")
+                    }
+                }
+            },
+            loginViewModel
         )
     }
 
