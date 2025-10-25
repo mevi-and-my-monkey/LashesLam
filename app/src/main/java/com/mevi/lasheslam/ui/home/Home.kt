@@ -18,10 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.mevi.lasheslam.ui.auth.LoginViewModel
-import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
-import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.profile.ProfilePage
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
