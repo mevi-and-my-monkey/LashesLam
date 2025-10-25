@@ -1,37 +1,32 @@
 package com.mevi.lasheslam.navigation
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.home.HomeScreen
-import com.mevi.lasheslam.ui.screens.LogIn
-import com.mevi.lasheslam.ui.screens.SplashScreen
+import com.mevi.lasheslam.ui.auth.LogIn
+import com.mevi.lasheslam.ui.auth.SplashScreen
 
 @Composable
 fun AppNavGraph(
-    modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel,
+    modifier: Modifier = Modifier
 ) {
-
     val navController = rememberNavController()
-    GlobalNavigation.navContoller = navController
 
     NavHost(
         navController = navController,
-        startDestination = "splash"
+        startDestination = Screen.Splash.route
     ) {
-        composable("splash") { SplashScreen(loginViewModel) }
-        composable("login") { LogIn(loginViewModel) }
-        composable("home") { HomeScreen() }
+        composable(Screen.Splash.route) {
+            SplashScreen(navController)
+        }
+        composable(Screen.Login.route) {
+            LogIn(navController)
+        }
+        composable(Screen.Home.route) {
+            HomeScreen(navController, modifier)
+        }
     }
-}
-
-object GlobalNavigation {
-    @SuppressLint("StaticFieldLeak")
-    lateinit var navContoller: NavHostController
 }

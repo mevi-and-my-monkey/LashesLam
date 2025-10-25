@@ -81,6 +81,7 @@ dependencies {
     // Inyeccion de dependecias
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     // dataStore
     implementation(libs.androidx.datastore.preferences)
     // Glide (cambiado a kapt)

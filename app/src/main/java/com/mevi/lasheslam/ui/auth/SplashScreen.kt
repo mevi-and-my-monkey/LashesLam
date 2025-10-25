@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.screens
+package com.mevi.lasheslam.ui.auth
 
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
@@ -35,29 +35,28 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.remoteconfig.remoteConfig
 import com.mevi.lasheslam.User
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.navigation.GlobalNavigation
-import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.delay
 import org.json.JSONArray
-import kotlin.text.ifEmpty
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun SplashScreen(loginViewModel: LoginViewModel) {
+fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = hiltViewModel()) {
     val adminEmails = remember { mutableStateOf<List<String>?>(null) }
     val isLoggedIn = Firebase.auth.currentUser != null
     val firstpage = if (isLoggedIn) "home" else "login"
     if (isLoggedIn) {
         Log.i("FIREBASE_USE", Firebase.auth.currentUser?.email.toString())
-        User.userAdmin =
+        User.Companion.userAdmin =
             Utilities.isAdmin(loginViewModel, Firebase.auth.currentUser?.email.toString())
-        User.userInvited = false
+        User.Companion.userInvited = false
     }
     LaunchedEffect(Unit) {
         val remoteConfig = Firebase.remoteConfig
@@ -65,7 +64,7 @@ fun SplashScreen(loginViewModel: LoginViewModel) {
             if (task.isSuccessful) {
                 val whatsApp = remoteConfig.getString("whatsapp_administrador")
                 val jsonString = remoteConfig.getString("list_admin")
-                User.whatsApp = whatsApp.ifEmpty { "5514023853" }
+                User.Companion.whatsApp = whatsApp.ifEmpty { "5514023853" }
                 val list = try {
                     val jsonArray = JSONArray(jsonString)
                     List(jsonArray.length()) { i -> jsonArray.getString(i) }
@@ -86,7 +85,7 @@ fun SplashScreen(loginViewModel: LoginViewModel) {
         Log.i("USERS_EMAIL", adminEmails.value.toString())
         LaunchedEffect(Unit) {
             delay(2200)
-            GlobalNavigation.navContoller.navigate(firstpage) {
+            navController.navigate(firstpage) {
                 if (isLoggedIn) {
                     popUpTo("home") { inclusive = true }
                 } else {
@@ -95,12 +94,12 @@ fun SplashScreen(loginViewModel: LoginViewModel) {
             }
         }
     }
-    Splash()
+    Splash(navController)
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun Splash() {
+fun Splash(navController: NavController) {
     var showFullName by remember { mutableStateOf(false) }
     var visibleText by remember { mutableStateOf("") }
     val fullText = Strings.appName
@@ -120,7 +119,7 @@ fun Splash() {
         label = ""
     )
 
-    val brush = Brush.linearGradient(
+    val brush = Brush.Companion.linearGradient(
         colors = listOf(
             Color(0xFFFFC1E3), // rosa claro
             Color(0xFFFF69B4), // rosa intenso
@@ -145,33 +144,33 @@ fun Splash() {
         }
 
         delay(1200)
-        GlobalNavigation.navContoller.navigate("login") {
+        navController.navigate("login") {
             popUpTo("splash") { inclusive = true }
         }
     }
 
     Box(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxSize()
             .background(Color(0xFF1A1A1A)),
         //.background(Color(0xFFFFFFFF)),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Companion.Center
     ) {
         if (!showFullName) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 Text(
                     "L",
                     fontSize = 60.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Companion.Bold,
                     style = TextStyle(brush = brush),
-                    modifier = Modifier.offset(x = offsetX.value.dp)
+                    modifier = Modifier.Companion.offset(x = offsetX.value.dp)
                 )
                 Text(
                     "L",
                     fontSize = 60.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Companion.Bold,
                     style = TextStyle(brush = brush),
-                    modifier = Modifier.offset(x = offsetY.value.dp)
+                    modifier = Modifier.Companion.offset(x = offsetY.value.dp)
                 )
             }
         } else {
@@ -183,7 +182,7 @@ fun Splash() {
                 Text(
                     text = text,
                     fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Companion.Bold,
                     style = TextStyle(brush = brush),
                 )
             }

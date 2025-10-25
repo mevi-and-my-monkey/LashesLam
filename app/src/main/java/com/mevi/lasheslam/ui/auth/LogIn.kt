@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.screens
+package com.mevi.lasheslam.ui.auth
 
 import android.util.Log
 import android.widget.Toast
@@ -28,30 +28,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.mevi.lasheslam.R
+import com.mevi.lasheslam.User
+import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericIconButton
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
-import com.mevi.lasheslam.ui.auth.LoginBottomSheet
-import com.mevi.lasheslam.R
-import com.mevi.lasheslam.User
-import com.mevi.lasheslam.ui.auth.RegisterBottomSheet
-import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.navigation.GlobalNavigation
-import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.WavyBackground
-import com.mevi.lasheslam.ui.theme.LashesLamTheme
 import com.mevi.lasheslam.utils.Utilities
 
 @Composable
-fun LogIn(loginViewModel: LoginViewModel) {
+fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hiltViewModel()) {
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }
 
@@ -67,11 +63,11 @@ fun LogIn(loginViewModel: LoginViewModel) {
 
                 loginViewModel.signInWithGoogleCredential(credential) { success, resultMessage ->
                     if (success) {
-                        User.userAdmin =
+                        User.Companion.userAdmin =
                             Utilities.isAdmin(loginViewModel, account.email ?: "Sin dato")
-                        User.userInvited = false
+                        User.Companion.userInvited = false
                         loginViewModel.hideLoading()
-                        GlobalNavigation.navContoller.navigate("home") {
+                        navController.navigate("home") {
                             launchSingleTop = true
                         }
                     } else {
@@ -92,32 +88,32 @@ fun LogIn(loginViewModel: LoginViewModel) {
         smallWaveColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxSize()
                 .padding(horizontal = 32.dp)
                 .navigationBarsPadding(), // deja espacio por la barra de gestos
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Companion.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween // reparte en partes
         ) {
             // --- Parte superior (logo + ola) ---
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = 100.dp)
+                horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                modifier = Modifier.Companion.padding(top = 100.dp)
             ) {
                 AnimatedLogo()
             }
 
             // --- Parte central (texto + botones) ---
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Companion.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     Strings.welcome,
                     fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier.padding(bottom = 24.dp),
-                    fontStyle = FontStyle.Italic
+                    modifier = Modifier.Companion.padding(bottom = 24.dp),
+                    fontStyle = FontStyle.Companion.Italic
                 )
 
                 GenericButton(
@@ -127,7 +123,7 @@ fun LogIn(loginViewModel: LoginViewModel) {
                     textColor = MaterialTheme.colorScheme.onPrimary
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.Companion.height(12.dp))
 
                 GenericOutlinedButton(
                     text = Strings.register,
@@ -137,33 +133,33 @@ fun LogIn(loginViewModel: LoginViewModel) {
 
             // --- Parte inferior (continuar con...) ---
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                modifier = Modifier.Companion.fillMaxWidth()
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    verticalAlignment = Alignment.Companion.CenterVertically,
+                    modifier = Modifier.Companion.fillMaxWidth()
                 ) {
                     HorizontalDivider(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.Companion.weight(1f),
                         thickness = DividerDefaults.Thickness,
-                        color = Color.LightGray
+                        color = Color.Companion.LightGray
                     )
 
                     Text(
                         text = Strings.continueWith,
-                        color = Color.Gray,
+                        color = Color.Companion.Gray,
                         fontSize = 14.sp
                     )
 
                     HorizontalDivider(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.Companion.weight(1f),
                         thickness = DividerDefaults.Thickness,
-                        color = Color.LightGray
+                        color = Color.Companion.LightGray
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.Companion.height(24.dp))
 
                 GenericIconButton(
                     icon = painterResource(id = R.drawable.ic_google_one),
@@ -179,11 +175,11 @@ fun LogIn(loginViewModel: LoginViewModel) {
                             launcher.launch(googleSignInCliente.signInIntent)
                         }
                     },
-                    backgroundColor = Color.White,
-                    iconTint = Color.Unspecified
+                    backgroundColor = Color.Companion.White,
+                    iconTint = Color.Companion.Unspecified
                 )
 
-                Spacer(modifier = Modifier.height(16.dp)) // margen final
+                Spacer(modifier = Modifier.Companion.height(16.dp)) // margen final
             }
         }
     }
@@ -198,10 +194,11 @@ fun LogIn(loginViewModel: LoginViewModel) {
                     loginViewModel.password
                 ) { success, resultMessage ->
                     if (success) {
-                        User.userAdmin = Utilities.isAdmin(loginViewModel, loginViewModel.email)
-                        User.userInvited = false
+                        User.Companion.userAdmin =
+                            Utilities.isAdmin(loginViewModel, loginViewModel.email)
+                        User.Companion.userInvited = false
                         loginViewModel.hideLoading()
-                        GlobalNavigation.navContoller.navigate("home") {
+                        navController.navigate("home") {
                             launchSingleTop = true
                         }
                     } else {
@@ -222,9 +219,9 @@ fun LogIn(loginViewModel: LoginViewModel) {
                 loginViewModel.showLoading()
                 loginViewModel.signUp(name, email, password, phone) { success, resultMessage ->
                     if (success) {
-                        User.userAdmin = Utilities.isAdmin(loginViewModel, email)
+                        User.Companion.userAdmin = Utilities.isAdmin(loginViewModel, email)
                         loginViewModel.hideLoading()
-                        GlobalNavigation.navContoller.navigate("home") {
+                        navController.navigate("home") {
                             launchSingleTop = true
                         }
                     } else {
@@ -238,10 +235,3 @@ fun LogIn(loginViewModel: LoginViewModel) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "Login")
-@Composable
-fun LoginPreview() {
-    LashesLamTheme {
-        //LogIn()
-    }
-}
