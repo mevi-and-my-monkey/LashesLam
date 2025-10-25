@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.ui.auth
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
@@ -62,112 +63,118 @@ fun RegisterBottomSheet(
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.Companion.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 🔹 Título e ícono de cerrar
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
-                verticalAlignment = Alignment.Companion.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Crear cuenta",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Companion.Bold)
+                    text = Strings.createAccount,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }
 
-            Spacer(modifier = Modifier.Companion.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // 🔹 Campos de formulario
             OutlinedTextField(
                 value = fullName,
                 onValueChange = { fullName = it },
-                label = { Text("Nombre completo") },
+                label = { Text(Strings.fullName) },
                 singleLine = true,
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Correo electrónico") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Correo") },
+                label = { Text(Strings.email) },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = Strings.emailHint) },
                 singleLine = true,
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Contraseña") },
+                label = { Text(Strings.password) },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = Strings.password) },
                 trailingIcon = {
                     val icon =
                         if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostrar/Ocultar contraseña")
+                        Icon(imageVector = icon, contentDescription = Strings.showHidePassword)
                     }
                 },
                 singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.Companion.None else PasswordVisualTransformation(),
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirmar contraseña") },
+                label = { Text(Strings.confirmPassword) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Lock,
-                        contentDescription = "Confirmar contraseña"
+                        contentDescription = Strings.confirmPassword
                     )
                 },
                 trailingIcon = {
                     val icon =
                         if (confirmPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostrar/Ocultar contraseña")
+                        Icon(imageVector = icon, contentDescription = Strings.showHidePassword)
                     }
                 },
                 singleLine = true,
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.Companion.None else PasswordVisualTransformation(),
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
-                label = { Text("Teléfono (opcional)") },
+                label = { Text(Strings.phoneNumber) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Call,
+                        contentDescription = Strings.confirmPassword
+                    )
+                },
                 singleLine = true,
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // 🔹 Botones registrar y cancelar
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 GenericButton(
-                    "Registrar",
+                    Strings.registerButton,
                     onClick = {
                         onRegister(
                             fullName,
@@ -178,47 +185,46 @@ fun RegisterBottomSheet(
                     },
                     backgroundColor = MaterialTheme.colorScheme.primary,
                     textColor = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.Companion.weight(1f),
+                    modifier = Modifier.weight(1f),
                 )
 
                 GenericOutlinedButton(
-                    text = "Cancelar",
+                    text = Strings.cancelButton,
                     onClick = { /* Acción Registro */ },
-                    textColor = Color.Companion.Gray,
-                    borderColor = Color.Companion.Gray,
-                    modifier = Modifier.Companion.weight(1f),
+                    textColor = Color.Gray,
+                    borderColor = Color.Gray,
+                    modifier = Modifier.weight(1f),
                 )
 
             }
 
-            Spacer(modifier = Modifier.Companion.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // 🔹 Línea divisoria y pie
             Divider(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .height(1.dp),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "LashesLam by Mevi",
+                text = Strings.appNameByCreator,
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Companion.Medium
+                    fontWeight = FontWeight.Medium
                 )
             )
 
-            Spacer(modifier = Modifier.Companion.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
 @Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_DESK
 )
 fun PreviewSignUp() {
     LashesLamTheme {

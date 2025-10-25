@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">LashesLam</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="email">Correo electrónico</string>
+    <string name="email_hint">Correo</string>
+    <string name="password">Contraseña</string>
+    <string name="show_hide_password">Mostrar/Ocultar contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="phone_number">Teléfono</string>
+    <string name="register_button">Registrar</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="app_name_by_creator">LashesLam by Mevi</string>
+    <string name="access">Acceder</string>
+    <string name="login_with_google">Acceder con Google</string>
 </resources>

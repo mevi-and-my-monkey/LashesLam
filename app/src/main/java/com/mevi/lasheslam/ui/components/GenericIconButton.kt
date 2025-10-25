@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
@@ -57,7 +58,7 @@ fun GenericIconButtonPreview() {
     LashesLamTheme {
         GenericIconButton(
             icon = painterResource(id = R.drawable.ic_google_one),
-            contentDescription = "Acceder con Google",
+            contentDescription = Strings.loginWithGoogle,
             onClick = { /* Acción */ },
             backgroundColor = Color.Companion.White,
             iconTint = Color.Companion.Unspecified // respeta los colores del PNG

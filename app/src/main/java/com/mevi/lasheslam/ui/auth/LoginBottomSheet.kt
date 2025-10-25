@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
@@ -67,7 +68,7 @@ fun LoginBottomSheet(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Iniciar sesión",
+                    text = Strings.login,
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Companion.Bold),
                     color = MaterialTheme.colorScheme.onSecondary
                 )
@@ -79,11 +80,11 @@ fun LoginBottomSheet(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Correo electrónico") },
+                label = { Text(Strings.email) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
-                        contentDescription = "Correo"
+                        contentDescription = Strings.emailHint
                     )
                 },
                 singleLine = true,
@@ -98,18 +99,18 @@ fun LoginBottomSheet(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Contraseña") },
+                label = { Text(Strings.password) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Contraseña"
+                        contentDescription = Strings.password
                     )
                 },
                 trailingIcon = {
                     val icon =
                         if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = "Mostrar/Ocultar contraseña")
+                        Icon(imageVector = icon, contentDescription = Strings.showHidePassword)
                     }
                 },
                 singleLine = true,
@@ -122,7 +123,7 @@ fun LoginBottomSheet(
 
             // 🔹 Botón de acceder
             GenericButton(
-                "Acceder",
+                Strings.access,
                 onClick = { onLogin(email, password) },
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = MaterialTheme.colorScheme.onPrimary,
@@ -144,7 +145,7 @@ fun LoginBottomSheet(
             Spacer(modifier = Modifier.Companion.height(12.dp))
 
             Text(
-                text = "LashesLam by Mevi",
+                text = Strings.appNameByCreator,
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Companion.Medium

@@ -39,7 +39,7 @@ fun GenericOutlinedButton(
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = textColor,
-            containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+            containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.1f)
         ),
 
         ) {
