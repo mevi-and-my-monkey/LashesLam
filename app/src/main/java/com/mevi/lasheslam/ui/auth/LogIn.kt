@@ -200,14 +200,22 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 loginViewModel.showLoading()
                 loginViewModel.login { success, resultMessage ->
                     if (success) {
+                        val isAdmin = SessionManager.isAdmin(email)
+                        SessionManager.setAdmin(isAdmin)
+                        SessionManager.setInvited(false)
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        errorMessage = resultMessage ?: "Error"
+                        errorMessage = if (resultMessage == "The supplied auth credential is incorrect, malformed or has expired."){
+                            "Credenciales incorrectas"
+                        }else{
+                            resultMessage ?: "Error"
+                        }
                         showError = true
                     }
                 }
+                showLoginSheet = false
             },
             loginViewModel
         )
