@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -236,20 +238,21 @@ fun RegisterBottomSheet(
             OutlinedTextField(
                 value = phone,
                 onValueChange = {
-                    phone = it
-                    phoneValidation.value = InputValidator.validatePhone(it)
+                    phone = it.filter(Char::isDigit)
+                    phoneValidation.value = InputValidator.validatePhone(phone)
                 },
                 label = { Text(Strings.phoneNumber) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Call,
-                        contentDescription = Strings.confirmPassword
+                        contentDescription = Strings.phoneNumber
                     )
                 },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                isError = !phoneValidation.value.isValid
+                isError = !phoneValidation.value.isValid,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
             )
             if (!phoneValidation.value.isValid) {
                 Text(

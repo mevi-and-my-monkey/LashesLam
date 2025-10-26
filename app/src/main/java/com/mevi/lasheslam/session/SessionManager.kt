@@ -1,8 +1,8 @@
 package com.mevi.lasheslam.session
 
 import android.util.Log
-import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.mevi.lasheslam.core.Strings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +12,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 
 object SessionManager {
+
+    private const val TAG = "SessionManager"
 
     private val _isUserAdmin = MutableStateFlow(false)
     val isUserAdmin = _isUserAdmin.asStateFlow()
@@ -36,20 +38,23 @@ object SessionManager {
         _whatsApp.value = value
     }
 
+    private fun parseAdminList(jsonString: String): List<String> {
+        return try {
+            val jsonArray = JSONArray(jsonString)
+            List(jsonArray.length()) { i -> jsonArray.getString(i) }
+        } catch (e: Exception) {
+            Log.e(TAG, Strings.logErrorProcessingAdminList, e)
+            emptyList()
+        }
+    }
+
     // Consulta Remote Config y actualiza la lista de admins
     suspend fun refreshAdmins() = withContext(Dispatchers.IO) {
         try {
             val remoteConfig = Firebase.remoteConfig
             remoteConfig.fetchAndActivate().await()
             val jsonString = remoteConfig.getString(Strings.keyRemoteConfigListAdmin)
-            val list = try {
-                val jsonArray = JSONArray(jsonString)
-                List(jsonArray.length()) { i -> jsonArray.getString(i) }
-            } catch (e: Exception) {
-                Log.e("SessionManager", Strings.logErrorProcessingAdminList, e)
-                emptyList()
-            }
-            adminEmailsCache = list
+            adminEmailsCache = parseAdminList(jsonString)
             val whatsApp = remoteConfig.getString(Strings.keyRemoteConfigWhatsappAdmin).ifEmpty { Strings.defaultAdminWhatsapp }
             setWhatsApp(whatsApp)
             Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
