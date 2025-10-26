@@ -38,7 +38,7 @@ fun FloatingBottomNavigation(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 16.dp) // padding interno de la barra
             .shadow(8.dp, RoundedCornerShape(24.dp))
-            .background(Color.White, RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(24.dp))
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
