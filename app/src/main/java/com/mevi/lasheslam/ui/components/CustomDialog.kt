@@ -4,6 +4,7 @@ package com.mevi.lasheslam.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -36,7 +37,7 @@ fun CustomDialog(
     Dialog(onDismissRequest = { onDismiss() }) {
         Column(
             modifier = Modifier
-                .wrapContentSize()
+                .fillMaxWidth(0.9f) // ocupa 90% del ancho de pantalla
                 .background(backgroundColor, RoundedCornerShape(16.dp))
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,20 +54,22 @@ fun CustomDialog(
                 text = title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = Color.Black
             )
 
             Text(
                 text = message,
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.Black,
                 lineHeight = 20.sp,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
             Button(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
             ) {
                 Text(text = buttonText, color = Color.White)
             }

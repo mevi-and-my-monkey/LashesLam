@@ -1,7 +1,6 @@
 package com.mevi.lasheslam.ui.auth
 
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -37,24 +36,27 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.LashesLamApp
 import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.network.UserModel
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.AnimatedLogo
+import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericIconButton
 import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
+import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WavyBackground
-import com.mevi.lasheslam.utils.Utilities
 
 @Composable
 fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hiltViewModel()) {
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    var successMessage by remember { mutableStateOf("") }
     val isLoading = loginViewModel.isLoading
-
     val context = LocalContext.current
 
     val launcher =
@@ -67,22 +69,16 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
 
                 loginViewModel.signInWithGoogle(credential) { success, resultMessage ->
                     if (success) {
-                        LashesLamApp.Companion.userAdmin =
-                            Utilities.isAdmin(loginViewModel, account.email ?: "Sin dato")
-                        LashesLamApp.Companion.userInvited = false
-                        SessionManager.setAdmin(
-                            Utilities.isAdmin(
-                                loginViewModel,
-                                account.email ?: "Sin dato"
-                            )
-                        )
+                        val isAdmin = SessionManager.isAdmin(account.email ?: "Sin dato")
+                        SessionManager.setAdmin(isAdmin)
                         SessionManager.setInvited(false)
                         loginViewModel.hideLoading()
                         navController.navigate("home") {
                             launchSingleTop = true
                         }
                     } else {
-                        Toast.makeText(context, resultMessage ?: "Error", Toast.LENGTH_LONG).show()
+                        errorMessage = resultMessage ?: "Error"
+                        showError = true
                     }
                 }
             } catch (e: Exception) {
@@ -202,14 +198,14 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
             onClose = { showLoginSheet = false },
             onLogin = { email, password ->
                 loginViewModel.showLoading()
-                loginViewModel.login(
-                ) { success, resultMessage ->
+                loginViewModel.login { success, resultMessage ->
                     if (success) {
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        Toast.makeText(context, resultMessage ?: "Error", Toast.LENGTH_LONG).show()
+                        errorMessage = resultMessage ?: "Error"
+                        showError = true
                     }
                 }
             },
@@ -225,26 +221,34 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 val request = UserModel(name, email, password, phone)
                 loginViewModel.register(request) { success, resultMessage ->
                     if (success) {
-                        if (success) {
-                            LashesLamApp.Companion.userAdmin =
-                                Utilities.isAdmin(loginViewModel, email)
-                            SessionManager.setAdmin(Utilities.isAdmin(loginViewModel, email))
-                            SessionManager.setInvited(false)
-                            navController.navigate("home") {
-                                launchSingleTop = true
-                            }
-                        } else {
-                            Toast.makeText(context, resultMessage ?: "Error", Toast.LENGTH_LONG)
-                                .show()
-                        }
+                        val isAdmin = SessionManager.isAdmin(email)
+                        SessionManager.setAdmin(isAdmin)
+                        SessionManager.setInvited(false)
+                        showSuccess = true
+                        successMessage = "Registro exitoso"
                     } else {
-                        loginViewModel.hideLoading()
-                        Toast.makeText(context, "$resultMessage", Toast.LENGTH_LONG).show()
-                        Log.i("ERROR_MESSAGE", "$resultMessage")
+                        errorMessage = resultMessage ?: "Error"
+                        showError = true
                     }
                 }
                 showRegisterSheet = false
             })
+    }
+
+    if (showSuccess) {
+        SuccessDialog(message = successMessage, onDismiss = {
+            navController.navigate("home") {
+                launchSingleTop = true
+            }
+            showSuccess = false
+        })
+    }
+
+    if (showError) {
+        ErrorDialog(message = errorMessage, onDismiss = {
+            errorMessage = ""
+            showError = false
+        })
     }
 }
 

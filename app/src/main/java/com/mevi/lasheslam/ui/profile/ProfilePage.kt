@@ -22,6 +22,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,14 +47,17 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.LashesLamApp
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun ProfilePage(navController: NavController, modifier: Modifier = Modifier) {
-    if (!LashesLamApp.userInvited) {
+    val isAdmin by SessionManager.isUserAdmin.collectAsState()
+    val isInvited by SessionManager.isUserInvited.collectAsState()
+
+    if (!isInvited) {
 
         val context = LocalContext.current
         val userModel = remember { mutableStateOf(UserModel()) }

@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.ui.auth
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
@@ -37,160 +36,106 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.remoteconfig.remoteConfig
-import com.mevi.lasheslam.LashesLamApp
+import com.google.firebase.auth.FirebaseAuth
 import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.session.SessionManager
-import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.delay
-import org.json.JSONArray
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = hiltViewModel()) {
-    val adminEmails = remember { mutableStateOf<List<String>?>(null) }
-    val isLoggedIn = Firebase.auth.currentUser != null
-    val firstpage = if (isLoggedIn) "home" else "login"
-    if (isLoggedIn) {
-        Log.i("FIREBASE_USE", Firebase.auth.currentUser?.email.toString())
-        LashesLamApp.Companion.userAdmin =
-            Utilities.isAdmin(loginViewModel, Firebase.auth.currentUser?.email.toString())
-
-        val email = Firebase.auth.currentUser?.email ?: ""
-        SessionManager.setAdmin(Utilities.isAdmin(loginViewModel, email))
-        SessionManager.setInvited(false)
-
-        LashesLamApp.Companion.userInvited = false
-    }
-    LaunchedEffect(Unit) {
-        val remoteConfig = Firebase.remoteConfig
-        remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val whatsApp = remoteConfig.getString("whatsapp_administrador")
-                val jsonString = remoteConfig.getString("list_admin")
-                LashesLamApp.Companion.whatsApp = whatsApp.ifEmpty { "5514023853" }
-                SessionManager.setWhatsApp(whatsApp.ifEmpty { "5514023853" })
-                val list = try {
-                    val jsonArray = JSONArray(jsonString)
-                    List(jsonArray.length()) { i -> jsonArray.getString(i) }
-                } catch (e: Exception) {
-                    Log.e("RemoteConfig", "Error al procesar JSON de list_admin", e)
-                    emptyList()
-                }
-                loginViewModel.setAdminEmails(list)
-                adminEmails.value = list
-            } else {
-                loginViewModel.setAdminEmails(emptyList())
-                Log.e("RemoteConfig", "Error al obtener valores de Remote Config")
-            }
-        }
-    }
-
-    if (adminEmails.value != null) {
-        Log.i("USERS_EMAIL", adminEmails.value.toString())
-        LaunchedEffect(Unit) {
-            delay(3000)
-            navController.navigate(firstpage) {
-                if (isLoggedIn) {
-                    popUpTo("home") { inclusive = true }
-                } else {
-                    popUpTo("login") { inclusive = true }
-                }
-            }
-        }
-    }
-    Splash(navController)
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun Splash(navController: NavController) {
+    val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
+    val currentEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
     var showFullName by remember { mutableStateOf(false) }
     var visibleText by remember { mutableStateOf("") }
     val fullText = Strings.appName
 
+    // Animaciones
     val offsetX = remember { Animatable(-200f) }
     val offsetY = remember { Animatable(200f) }
 
-    // Degradado animado tipo "brillo rosa"
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val shimmerShift by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            tween(durationMillis = 2500, easing = LinearEasing),
-            RepeatMode.Restart
-        ),
-        label = ""
-    )
-
-    val brush = Brush.Companion.linearGradient(
-        colors = listOf(
-            Color(0xFFFFC1E3), // rosa claro
-            Color(0xFFFF69B4), // rosa intenso
-            Color(0xFFFFC1E3)  // vuelve al claro
-        ),
-        start = Offset(shimmerShift, 0f),
-        end = Offset(shimmerShift + 200f, 200f)
-    )
-
     LaunchedEffect(Unit) {
-        // Animación inicial de las dos "L"
+        // Animación de las letras
         offsetX.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
         offsetY.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
-
         delay(300)
         showFullName = true
-
-        // Animar escritura de cada letra
         fullText.forEachIndexed { index, _ ->
             visibleText = fullText.substring(0, index + 1)
             delay(100)
         }
+        SessionManager.refreshAdmins()
+        // Esperar Remote Config y actualizar admin
+        if (isLoggedIn) {
+            SessionManager.refreshAdmins()
+            val isAdmin = SessionManager.isAdmin(currentEmail)
+            SessionManager.setAdmin(isAdmin)
+            SessionManager.setInvited(false)
+        }
 
-        delay(1200)
-        navController.navigate("login") {
+        // Navegar a la pantalla correcta
+        val firstPage = if (isLoggedIn) "home" else "login"
+        navController.navigate(firstPage) {
             popUpTo("splash") { inclusive = true }
         }
     }
 
+    SplashAnimation(showFullName, visibleText, offsetX, offsetY)
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun SplashAnimation(
+    showFullName: Boolean,
+    visibleText: String,
+    offsetX: Animatable<Float, *>,
+    offsetY: Animatable<Float, *>
+) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val shimmerShift by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(tween(2500, easing = LinearEasing), RepeatMode.Restart)
+    )
+
+    val brush = Brush.linearGradient(
+        colors = listOf(Color(0xFFFFC1E3), Color(0xFFFF69B4), Color(0xFFFFC1E3)),
+        start = Offset(shimmerShift, 0f),
+        end = Offset(shimmerShift + 200f, 200f)
+    )
+
     Box(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF1A1A1A)),
-        //.background(Color(0xFFFFFFFF)),
-        contentAlignment = Alignment.Companion.Center
+        contentAlignment = Alignment.Center
     ) {
         if (!showFullName) {
-            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     "L",
                     fontSize = 60.sp,
-                    fontWeight = FontWeight.Companion.Bold,
+                    fontWeight = FontWeight.Bold,
                     style = TextStyle(brush = brush),
-                    modifier = Modifier.Companion.offset(x = offsetX.value.dp)
+                    modifier = Modifier.offset(x = offsetX.value.dp)
                 )
                 Text(
                     "L",
                     fontSize = 60.sp,
-                    fontWeight = FontWeight.Companion.Bold,
+                    fontWeight = FontWeight.Bold,
                     style = TextStyle(brush = brush),
-                    modifier = Modifier.Companion.offset(x = offsetY.value.dp)
+                    modifier = Modifier.offset(x = offsetY.value.dp)
                 )
             }
         } else {
             AnimatedContent(
                 targetState = visibleText,
-                transitionSpec = { fadeIn(tween(200)) with fadeOut(tween(200)) },
-                label = ""
-            ) { text ->
+                transitionSpec = { fadeIn(tween(200)) with fadeOut(tween(200)) }) { text ->
                 Text(
-                    text = text,
+                    text,
                     fontSize = 48.sp,
-                    fontWeight = FontWeight.Companion.Bold,
-                    style = TextStyle(brush = brush),
+                    fontWeight = FontWeight.Bold,
+                    style = TextStyle(brush = brush)
                 )
             }
         }

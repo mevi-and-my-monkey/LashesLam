@@ -25,10 +25,18 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun register(user: UserModel): Resource<Boolean> {
         return try {
+            val authResult =
+                auth.createUserWithEmailAndPassword(user.email ?: "", user.uid ?: "").await()
+            val firebaseUser =
+                authResult.user ?: return Resource.Error("No se pudo crear el usuario")
+            val userId = firebaseUser.uid
+
+            val userToSave = user.copy(uid = userId)
             firestore.collection("users")
-                .document(user.uid ?: "")
-                .set(user)
+                .document(userId)
+                .set(userToSave)
                 .await()
+
             Resource.Success(true)
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Error al registrar usuario")
@@ -37,7 +45,24 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun signInWithGoogle(credential: AuthCredential): Resource<Boolean> {
         return try {
-            auth.signInWithCredential(credential).await()
+            val authResult = auth.signInWithCredential(credential).await()
+
+            val user = authResult.user
+            val userId = user?.uid ?: return Resource.Error("No se pudo obtener el ID del usuario")
+
+            val userModel = UserModel(
+                name = user.displayName ?: "Sin dato",
+                email = user.email ?: "Sin dato",
+                uid = userId,
+                phone = user.phoneNumber ?: "Sin dato"
+            )
+
+            val userDoc = firestore.collection("users").document(userId)
+            val snapshot = userDoc.get().await()
+
+            if (!snapshot.exists()) {
+                userDoc.set(userModel).await()
+            }
             Resource.Success(true)
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Error con Google Sign-In")

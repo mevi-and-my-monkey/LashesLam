@@ -6,13 +6,27 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
-import com.mevi.lasheslam.ui.auth.LoginViewModel
+import com.google.firebase.remoteconfig.remoteConfig
+import kotlinx.coroutines.tasks.await
+import org.json.JSONArray
 
 object Utilities {
 
-    fun isAdmin(loginViewModel: LoginViewModel, email: String): Boolean {
-        val adminEmails = loginViewModel.adminEmails.value
-        return adminEmails.contains(email)
+    suspend fun isAdmin(email: String): Boolean {
+        return try {
+            val remoteConfig = Firebase.remoteConfig
+            remoteConfig.fetchAndActivate().await()
+            val jsonString = remoteConfig.getString("list_admin")
+            val list = try {
+                val jsonArray = JSONArray(jsonString)
+                List(jsonArray.length()) { i -> jsonArray.getString(i) }
+            } catch (e: Exception) {
+                emptyList()
+            }
+            list.contains(email)
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun getDirectDriveImageUrl(originalUrl: String): String {
@@ -83,10 +97,11 @@ object Utilities {
         }
     }
 
-    fun getDiscountPercentage():Float{
+    fun getDiscountPercentage(): Float {
         return 5.0f
     }
-    fun getTaxPercentage():Float{
+
+    fun getTaxPercentage(): Float {
         return 10.0f
     }
 }

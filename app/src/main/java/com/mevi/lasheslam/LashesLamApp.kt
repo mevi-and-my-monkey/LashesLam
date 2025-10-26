@@ -1,11 +1,7 @@
 package com.mevi.lasheslam
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.remoteConfig
@@ -27,20 +23,17 @@ class LashesLamApp : Application() {
 
     private fun setupRemoteConfig() {
         val remoteConfig = Firebase.remoteConfig
-        remoteConfig.setDefaultsAsync(
-            mapOf("list_admin" to "[]", "administrador" to "")
+        val defaultValues = mapOf(
+            "list_admin" to "[]",
+            "administrador" to ""
         )
-        remoteConfig.setConfigSettingsAsync(
-            remoteConfigSettings { minimumFetchIntervalInSeconds = 0 }
-        )
-        Log.i("RemoteConfig", "Firebase Remote Config inicializado")
-    }
+        remoteConfig.setDefaultsAsync(defaultValues)
+        val configSettings = remoteConfigSettings {
+            minimumFetchIntervalInSeconds = 0
+        }
+        remoteConfig.setConfigSettingsAsync(configSettings)
 
-    companion object {
-        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-        var userInvited: Boolean = false
-        var userAdmin: Boolean = false
-        var whatsApp: String = ""
+        Log.i("RemoteConfig", "Firebase Remote Config inicializado")
     }
 
 }

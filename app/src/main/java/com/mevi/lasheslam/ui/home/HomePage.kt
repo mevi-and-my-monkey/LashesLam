@@ -16,10 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mevi.lasheslam.session.SessionManager
-import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 
@@ -32,8 +30,6 @@ fun HomePage(
     var showError by remember { mutableStateOf(false) }
 
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
-    val isInvited by SessionManager.isUserInvited.collectAsState()
-    val whatsapp by SessionManager.whatsApp.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),

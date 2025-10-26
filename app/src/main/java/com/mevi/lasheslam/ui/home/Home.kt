@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -18,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
@@ -33,10 +31,6 @@ fun HomeScreen(
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val isLoading = loginViewModel.isLoading
-
-    val isAdmin by SessionManager.isUserAdmin.collectAsState()
-    val isInvited by SessionManager.isUserInvited.collectAsState()
-    val whatsapp by SessionManager.whatsApp.collectAsState()
 
     BackHandler {
         if (selectedIndex != 0) {
