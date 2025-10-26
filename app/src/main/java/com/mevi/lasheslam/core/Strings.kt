@@ -21,4 +21,9 @@ object Strings {
     const val appNameByCreator = "LashesLam by Mevi"
     const val access = "Acceder"
     const val loginWithGoogle = "Acceder con Google"
+    const val keyRemoteConfigListAdmin = "list_admin"
+    const val keyRemoteConfigWhatsappAdmin = "whatsapp_administrador"
+    const val defaultAdminWhatsapp = "5514023853"
+    const val logErrorProcessingAdminList = "Error al procesar list_admin"
+    const val logErrorFetchingRemoteConfig = "Error al obtener Remote Config"
 }

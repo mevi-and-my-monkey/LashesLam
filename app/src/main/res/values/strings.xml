@@ -14,4 +14,9 @@
     <string name="app_name_by_creator">LashesLam by Mevi</string>
     <string name="access">Acceder</string>
     <string name="login_with_google">Acceder con Google</string>
+    <string name="key_remote_config_list_admin">list_admin</string>
+    <string name="key_remote_config_whatsapp_admin">whatsapp_administrador</string>
+    <string name="default_admin_whatsapp">5514023853</string>
+    <string name="log_error_processing_admin_list">Error al procesar list_admin</string>
+    <string name="log_error_fetching_remote_config">Error al obtener Remote Config</string>
 </resources>

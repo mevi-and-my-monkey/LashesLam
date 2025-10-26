@@ -2,9 +2,8 @@ package com.mevi.lasheslam.session
 
 import android.util.Log
 import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
+import com.mevi.lasheslam.core.Strings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,20 +41,20 @@ object SessionManager {
         try {
             val remoteConfig = Firebase.remoteConfig
             remoteConfig.fetchAndActivate().await()
-            val jsonString = remoteConfig.getString("list_admin")
+            val jsonString = remoteConfig.getString(Strings.keyRemoteConfigListAdmin)
             val list = try {
                 val jsonArray = JSONArray(jsonString)
                 List(jsonArray.length()) { i -> jsonArray.getString(i) }
             } catch (e: Exception) {
-                Log.e("SessionManager", "Error al procesar list_admin", e)
+                Log.e("SessionManager", Strings.logErrorProcessingAdminList, e)
                 emptyList()
             }
             adminEmailsCache = list
-            val whatsApp = remoteConfig.getString("whatsapp_administrador").ifEmpty { "5514023853" }
+            val whatsApp = remoteConfig.getString(Strings.keyRemoteConfigWhatsappAdmin).ifEmpty { Strings.defaultAdminWhatsapp }
             setWhatsApp(whatsApp)
             Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {
-            Log.e("SessionManager", "Error al obtener Remote Config", e)
+            Log.e("SessionManager", Strings.logErrorFetchingRemoteConfig, e)
             adminEmailsCache = emptyList()
         }
     }
