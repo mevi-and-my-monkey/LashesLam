@@ -13,7 +13,7 @@ import com.google.firebase.remoteconfig.remoteConfigSettings
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class User : Application() {
+class LashesLamApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -27,16 +27,12 @@ class User : Application() {
 
     private fun setupRemoteConfig() {
         val remoteConfig = Firebase.remoteConfig
-        val defaultValues = mapOf(
-            "list_admin" to "[]",
-            "administrador" to ""
+        remoteConfig.setDefaultsAsync(
+            mapOf("list_admin" to "[]", "administrador" to "")
         )
-        remoteConfig.setDefaultsAsync(defaultValues)
-        val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 0
-        }
-        remoteConfig.setConfigSettingsAsync(configSettings)
-
+        remoteConfig.setConfigSettingsAsync(
+            remoteConfigSettings { minimumFetchIntervalInSeconds = 0 }
+        )
         Log.i("RemoteConfig", "Firebase Remote Config inicializado")
     }
 

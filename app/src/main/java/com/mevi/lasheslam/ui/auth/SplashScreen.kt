@@ -40,8 +40,9 @@ import androidx.navigation.NavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.remoteconfig.remoteConfig
-import com.mevi.lasheslam.User
+import com.mevi.lasheslam.LashesLamApp
 import com.mevi.lasheslam.core.Strings
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.delay
 import org.json.JSONArray
@@ -54,9 +55,14 @@ fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = 
     val firstpage = if (isLoggedIn) "home" else "login"
     if (isLoggedIn) {
         Log.i("FIREBASE_USE", Firebase.auth.currentUser?.email.toString())
-        User.Companion.userAdmin =
+        LashesLamApp.Companion.userAdmin =
             Utilities.isAdmin(loginViewModel, Firebase.auth.currentUser?.email.toString())
-        User.Companion.userInvited = false
+
+        val email = Firebase.auth.currentUser?.email ?: ""
+        SessionManager.setAdmin(Utilities.isAdmin(loginViewModel, email))
+        SessionManager.setInvited(false)
+
+        LashesLamApp.Companion.userInvited = false
     }
     LaunchedEffect(Unit) {
         val remoteConfig = Firebase.remoteConfig
@@ -64,7 +70,8 @@ fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = 
             if (task.isSuccessful) {
                 val whatsApp = remoteConfig.getString("whatsapp_administrador")
                 val jsonString = remoteConfig.getString("list_admin")
-                User.Companion.whatsApp = whatsApp.ifEmpty { "5514023853" }
+                LashesLamApp.Companion.whatsApp = whatsApp.ifEmpty { "5514023853" }
+                SessionManager.setWhatsApp(whatsApp.ifEmpty { "5514023853" })
                 val list = try {
                     val jsonArray = JSONArray(jsonString)
                     List(jsonArray.length()) { i -> jsonArray.getString(i) }
@@ -84,7 +91,7 @@ fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = 
     if (adminEmails.value != null) {
         Log.i("USERS_EMAIL", adminEmails.value.toString())
         LaunchedEffect(Unit) {
-            delay(2200)
+            delay(3000)
             navController.navigate(firstpage) {
                 if (isLoggedIn) {
                     popUpTo("home") { inclusive = true }

@@ -45,14 +45,14 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.User
+import com.mevi.lasheslam.LashesLamApp
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.UserModel
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun ProfilePage(navController: NavController, modifier: Modifier = Modifier) {
-    if (!User.userInvited) {
+    if (!LashesLamApp.userInvited) {
 
         val context = LocalContext.current
         val userModel = remember { mutableStateOf(UserModel()) }

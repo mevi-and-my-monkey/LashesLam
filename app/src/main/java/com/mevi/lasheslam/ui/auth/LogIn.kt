@@ -37,8 +37,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.User
+import com.mevi.lasheslam.LashesLamApp
 import com.mevi.lasheslam.core.Strings
+import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericIconButton
@@ -63,19 +65,24 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 val account = task.getResult(ApiException::class.java)
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
 
-                loginViewModel.signInWithGoogleCredential(credential) { success, resultMessage ->
+                loginViewModel.signInWithGoogle(credential) { success, resultMessage ->
                     if (success) {
-                        User.Companion.userAdmin =
+                        LashesLamApp.Companion.userAdmin =
                             Utilities.isAdmin(loginViewModel, account.email ?: "Sin dato")
-                        User.Companion.userInvited = false
+                        LashesLamApp.Companion.userInvited = false
+                        SessionManager.setAdmin(
+                            Utilities.isAdmin(
+                                loginViewModel,
+                                account.email ?: "Sin dato"
+                            )
+                        )
+                        SessionManager.setInvited(false)
                         loginViewModel.hideLoading()
                         navController.navigate("home") {
                             launchSingleTop = true
                         }
                     } else {
-                        loginViewModel.hideLoading()
-                        Toast.makeText(context, "$resultMessage", Toast.LENGTH_LONG).show()
-                        Log.i("ERROR_MESSAGE", "$resultMessage")
+                        Toast.makeText(context, resultMessage ?: "Error", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
@@ -196,21 +203,13 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
             onLogin = { email, password ->
                 loginViewModel.showLoading()
                 loginViewModel.login(
-                    loginViewModel.email,
-                    loginViewModel.password
                 ) { success, resultMessage ->
                     if (success) {
-                        User.Companion.userAdmin =
-                            Utilities.isAdmin(loginViewModel, loginViewModel.email)
-                        User.Companion.userInvited = false
-                        loginViewModel.hideLoading()
                         navController.navigate("home") {
-                            launchSingleTop = true
+                            popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        loginViewModel.hideLoading()
-                        Toast.makeText(context, "$resultMessage", Toast.LENGTH_LONG).show()
-                        Log.i("ERROR_MESSAGE", "$resultMessage")
+                        Toast.makeText(context, resultMessage ?: "Error", Toast.LENGTH_LONG).show()
                     }
                 }
             },
@@ -223,12 +222,20 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
             { showRegisterSheet = false },
             { name, email, password, _, phone ->
                 loginViewModel.showLoading()
-                loginViewModel.signUp(name, email, password, phone) { success, resultMessage ->
+                val request = UserModel(name, email, password, phone)
+                loginViewModel.register(request) { success, resultMessage ->
                     if (success) {
-                        User.Companion.userAdmin = Utilities.isAdmin(loginViewModel, email)
-                        loginViewModel.hideLoading()
-                        navController.navigate("home") {
-                            launchSingleTop = true
+                        if (success) {
+                            LashesLamApp.Companion.userAdmin =
+                                Utilities.isAdmin(loginViewModel, email)
+                            SessionManager.setAdmin(Utilities.isAdmin(loginViewModel, email))
+                            SessionManager.setInvited(false)
+                            navController.navigate("home") {
+                                launchSingleTop = true
+                            }
+                        } else {
+                            Toast.makeText(context, resultMessage ?: "Error", Toast.LENGTH_LONG)
+                                .show()
                         }
                     } else {
                         loginViewModel.hideLoading()

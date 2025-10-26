@@ -12,13 +12,19 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.mevi.lasheslam.core.AuthState
+import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.usecase.LoginUseCase
+import com.mevi.lasheslam.domain.usecase.RegisterUseCase
+import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
-    private val aut = Firebase.auth
-    private val firestore = Firebase.firestore
+class LoginViewModel @Inject constructor(
+    private val loginUseCase: LoginUseCase,
+    private val registerUseCase: RegisterUseCase,
+    private val googleUseCase: SignInWithGoogleUseCase
+) : ViewModel() {
 
 
     var isLoading by mutableStateOf(false)
@@ -51,87 +57,64 @@ class LoginViewModel @Inject constructor() : ViewModel() {
         isLoading = false
     }
 
-    fun login(email: String, password: String, onResult: (Boolean, String?) -> Unit) {
-        aut.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-            if (it.isSuccessful) {
+
+    fun login(onResult: (Boolean, String?) -> Unit) = viewModelScope.launch {
+        isLoading = true
+        when (val result = loginUseCase(email, password)) {
+            is Resource.Success -> {
+                authState = AuthState.Success
+                isLoading = false
                 onResult(true, null)
-            } else {
-                onResult(false, it.exception?.localizedMessage)
             }
+
+            is Resource.Error -> {
+                authState = AuthState.Error(result.message)
+                isLoading = false
+                onResult(false, result.message)
+            }
+
+            else -> Unit
         }
     }
 
-    fun signInWithGoogleCredential(
-        credential: AuthCredential,
-        onResult: (Boolean, String?) -> Unit
-    ) = viewModelScope.launch {
-        try {
-            aut.signInWithCredential(credential).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val userid = task.result?.user?.uid
-                    val userModel = UserModel(
-                        task.result.user?.displayName ?: "Sin dato",
-                        task.result.user?.email ?: "Sin dato",
-                        userid!!,
-                        task.result.user?.phoneNumber ?: "Sin dato"
-                    )
-                    val userDoc = firestore.collection("users").document(userid)
-                    userDoc.get().addOnSuccessListener { snapshot ->
-                        if (!snapshot.exists()) {
-                            userDoc.set(userModel)
-                                .addOnCompleteListener { response ->
-                                    if (response.isSuccessful) {
-                                        onResult(true, null)
-                                    } else {
-                                        onResult(false, "Something went wrong")
-                                    }
-                                }
-                        } else {
-                            onResult(true, null)
-                        }
-                    }
+    fun register(user: UserModel, onResult: (Boolean, String?) -> Unit) = viewModelScope.launch {
+        isLoading = true
+        when (val result = registerUseCase(user)) {
+            is Resource.Success -> {
+                authState = AuthState.Success
+                isLoading = false
+                onResult(true, null)
+            }
+
+            is Resource.Error -> {
+                authState = AuthState.Error(result.message)
+                isLoading = false
+                onResult(false, result.message)
+            }
+
+            else -> Unit
+        }
+    }
+
+    fun signInWithGoogle(credential: AuthCredential, onResult: (Boolean, String?) -> Unit) =
+        viewModelScope.launch {
+            isLoading = true
+            when (val result = googleUseCase(credential)) {
+                is Resource.Success -> {
+                    authState = AuthState.Success
+                    isLoading = false
                     onResult(true, null)
-                } else {
-                    onResult(false, "Fallo la autenticacion con Google")
                 }
-            }.addOnFailureListener {
-                onResult(false, "Fallo la autenticacion con Google")
-            }
-        } catch (e: Exception) {
-            onResult(false, e.localizedMessage)
-        }
-    }
 
-    fun signUp(
-        name: String,
-        email: String,
-        password: String,
-        phone: String,
-        onResult: (Boolean, String?) -> Unit
-    ) {
-        aut.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-            if (it.isSuccessful) {
-                val userid = it.result?.user?.uid
-                val userModel = UserModel(name, email, userid!!, phone)
-                val userDoc = firestore.collection("users").document(userid)
-                userDoc.get().addOnSuccessListener { document ->
-                    if (!document.exists()) {
-                        userDoc.set(userModel).addOnCompleteListener { response ->
-                            if (response.isSuccessful) {
-                                onResult(true, null)
-                            } else {
-                                onResult(false, "Something went wrong")
-                            }
-                        }
-                    } else {
-                        onResult(true, null)
-                    }
+                is Resource.Error -> {
+                    authState = AuthState.Error(result.message)
+                    isLoading = false
+                    onResult(false, result.message)
                 }
-            } else {
-                onResult(false, it.exception?.localizedMessage)
+
+                else -> Unit
             }
         }
-    }
 
     fun onLoginChanged(email: String, password: String) {
         this.email = email
