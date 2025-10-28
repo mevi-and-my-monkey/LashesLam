@@ -103,4 +103,11 @@ dependencies {
     implementation("com.tbuonomo:dotsindicator:5.1.0")
     //lottie
     implementation("com.airbnb.android:lottie-compose:6.1.0")
+
+    // Test dependencies
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }

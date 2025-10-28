@@ -1,16 +1,12 @@
 package com.mevi.lasheslam.ui.auth
 
-import android.util.Patterns
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 import com.mevi.lasheslam.core.AuthState
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
@@ -123,6 +119,6 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun enableLogin(email: String, password: String) =
-        Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length > 6
+        Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$").matches(email) && password.length > 6
 
 }
