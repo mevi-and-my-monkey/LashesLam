@@ -22,11 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
@@ -82,6 +79,6 @@ fun BottomNavItem(
 )
 fun PreviewHome() {
     LashesLamTheme {
-        HomeScreen(navController = NavHostController(LocalContext.current), modifier = Modifier)
+        FloatingBottomNavigation(0,{})
     }
 }

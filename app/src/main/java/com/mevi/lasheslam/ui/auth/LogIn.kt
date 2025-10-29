@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,7 +57,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
-    val isLoading = loginViewModel.isLoading
+    val isLoading : Boolean by loginViewModel.isLoading.observeAsState(initial = false)
     val context = LocalContext.current
 
     val launcher =

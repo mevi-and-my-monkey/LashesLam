@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,7 +31,7 @@ fun HomeScreen(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val isLoading = loginViewModel.isLoading
+    val isLoading : Boolean by loginViewModel.isLoading.observeAsState(initial = false)
 
     BackHandler {
         if (selectedIndex != 0) {
