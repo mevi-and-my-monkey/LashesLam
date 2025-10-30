@@ -57,7 +57,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
-    val isLoading : Boolean by loginViewModel.isLoading.observeAsState(initial = false)
+    val isLoading: Boolean by loginViewModel.isLoading.observeAsState(initial = false)
     val context = LocalContext.current
 
     val launcher =
@@ -208,11 +208,12 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                             popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        errorMessage = if (resultMessage == "The supplied auth credential is incorrect, malformed or has expired."){
-                            "Credenciales incorrectas"
-                        }else{
-                            resultMessage ?: "Error"
-                        }
+                        errorMessage =
+                            if (resultMessage == "The supplied auth credential is incorrect, malformed or has expired.") {
+                                "Credenciales incorrectas"
+                            } else {
+                                resultMessage ?: "Error"
+                            }
                         showError = true
                     }
                 }
@@ -250,14 +251,14 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 launchSingleTop = true
             }
             showSuccess = false
-        })
+        }, onCancel = {})
     }
 
     if (showError) {
         ErrorDialog(message = errorMessage, onDismiss = {
             errorMessage = ""
             showError = false
-        })
+        }, onCancel = {})
     }
 }
 

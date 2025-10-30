@@ -7,12 +7,14 @@ import com.mevi.lasheslam.R
 @Composable
 fun SuccessDialog(
     onDismiss: () -> Unit,
+    onCancel: () -> Unit,
     title: String = "¡Éxito!",
     message: String = "La operación se completó correctamente",
     drawableRes: Int = R.drawable.ic_success
 ) {
     CustomDialog(
         onDismiss = onDismiss,
+        onCancel = onCancel,
         title = title,
         message = message,
         drawableRes = drawableRes,

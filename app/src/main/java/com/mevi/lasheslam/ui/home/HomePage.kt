@@ -48,10 +48,10 @@ fun HomePage(
     }
 
     if (showSuccess) {
-        SuccessDialog(onDismiss = { showSuccess = false })
+        SuccessDialog(onDismiss = { showSuccess = false }, onCancel = {})
     }
 
     if (showError) {
-        ErrorDialog(onDismiss = { showError = false })
+        ErrorDialog(onDismiss = { showError = false }, onCancel = {})
     }
 }

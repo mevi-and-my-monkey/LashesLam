@@ -4,10 +4,10 @@ package com.mevi.lasheslam.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -20,19 +20,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.mevi.lasheslam.core.Strings
 
 @Composable
 fun CustomDialog(
     onDismiss: () -> Unit,
+    onCancel: () -> Unit,
     title: String,
     message: String,
     drawableRes: Int,
     backgroundColor: Color = Color.White,
     buttonColor: Color = MaterialTheme.colorScheme.primary,
-    buttonText: String = "Aceptar"
+    buttonText: String = "Aceptar",
+    buttonTextOnCancel: String? = null
 ) {
     Dialog(onDismissRequest = { onDismiss() }) {
         Column(
@@ -65,13 +69,34 @@ fun CustomDialog(
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
 
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = buttonText, color = Color.White)
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                ) {
+                    Text(
+                        text = buttonText,
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                if (!buttonTextOnCancel.isNullOrEmpty()) {
+                    GenericOutlinedButton(
+                        text = buttonTextOnCancel,
+                        onClick = onCancel,
+                        textColor = Color.Gray,
+                        borderColor = Color.Gray,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
     }

@@ -46,6 +46,7 @@ import com.mevi.lasheslam.R
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.ProfileOptionButton
 import com.mevi.lasheslam.ui.components.SuccessDialog
+import com.mevi.lasheslam.ui.components.WarningDialog
 
 
 @Composable
@@ -62,8 +63,10 @@ fun ProfilePage(
 
     var showSuccess by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
+    var showWarning by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
+    var warningMessae by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         profileViewModel.loadUserData()
@@ -193,7 +196,10 @@ fun ProfilePage(
                 onClick = { /* navegar a órdenes */ }
             )
             Button(
-                onClick = { profileViewModel.signOut(navController) },
+                onClick = {
+                    warningMessae = "¿Estas seguro que quieres cerrar sesion?"
+                    showWarning = true
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF80AB)),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -249,16 +255,26 @@ fun ProfilePage(
         )
     }
     if (showSuccess) {
-        SuccessDialog(onDismiss = {
+        SuccessDialog(message = successMessage, onDismiss = {
             showSuccess = false
             successMessage = ""
-        }, message = successMessage)
+        }, onCancel = {})
     }
 
     if (showError) {
         ErrorDialog(message = errorMessage, onDismiss = {
             showError = false
             errorMessage = ""
+        }, onCancel = {})
+    }
+    if (showWarning) {
+        WarningDialog(message = warningMessae, onDismiss = {
+            showWarning = false
+            profileViewModel.signOut(navController)
+            warningMessae = ""
+        }, onCancel = {
+            showWarning = false
+            warningMessae = ""
         })
     }
 }

@@ -7,12 +7,14 @@ import com.mevi.lasheslam.R
 @Composable
 fun ErrorDialog(
     onDismiss: () -> Unit,
+    onCancel: () -> Unit,
     title: String = "¡Error!",
     message: String = "Ha ocurrido un error inesperado",
     drawableRes: Int = R.drawable.ic_error
 ) {
     CustomDialog(
         onDismiss = onDismiss,
+        onCancel = onCancel,
         title = title,
         message = message,
         drawableRes = drawableRes,
