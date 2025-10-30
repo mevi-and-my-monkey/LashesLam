@@ -6,7 +6,11 @@ object InputValidator {
         val regex = Regex("^[A-Za-z ]+$")
         return when {
             name.isBlank() -> ValidationResult(false, "El nombre no puede estar vacío")
-            !regex.matches(name) -> ValidationResult(false, "El nombre no debe contener caracteres especiales")
+            !regex.matches(name) -> ValidationResult(
+                false,
+                "El nombre no debe contener caracteres especiales"
+            )
+
             else -> ValidationResult(true)
         }
     }
@@ -52,6 +56,46 @@ object InputValidator {
 
             else -> ValidationResult(true)
         }
+    }
+
+    fun validateStreet(value: String): ValidationResult {
+        if (value.isBlank()) return ValidationResult(false, "La calle no puede estar vacía")
+        if (value.length < 3) return ValidationResult(false, "Ingresa un nombre de calle válido")
+        return ValidationResult(true)
+    }
+
+    fun validateExtNumber(value: String): ValidationResult {
+        if (value.isBlank()) return ValidationResult(false, "El número exterior es obligatorio")
+        if (!value.matches(Regex("^[0-9A-Za-z]+$")))
+            return ValidationResult(false, "Solo se permiten letras y números")
+        return ValidationResult(true)
+    }
+
+    fun validateIntNumber(value: String): ValidationResult {
+        // opcional
+        if (value.isNotBlank() && !value.matches(Regex("^[0-9A-Za-z]+$"))) {
+            return ValidationResult(false, "Solo se permiten letras y números")
+        }
+        return ValidationResult(true)
+    }
+
+    fun validateSuburb(value: String): ValidationResult {
+        if (value.isBlank()) return ValidationResult(false, "La colonia no puede estar vacía")
+        if (value.length < 3) return ValidationResult(false, "Ingresa una colonia válida")
+        return ValidationResult(true)
+    }
+
+    fun validateCity(value: String): ValidationResult {
+        if (value.isBlank()) return ValidationResult(false, "La ciudad no puede estar vacía")
+        if (value.length < 3) return ValidationResult(false, "Ingresa un nombre de ciudad válido")
+        return ValidationResult(true)
+    }
+
+    fun validatePostalCode(value: String): ValidationResult {
+        if (value.isBlank()) return ValidationResult(false, "El código postal es obligatorio")
+        if (!value.matches(Regex("^\\d{5}$")))
+            return ValidationResult(false, "Debe tener exactamente 5 números")
+        return ValidationResult(true)
     }
 
 }

@@ -127,17 +127,19 @@ fun ProfilePage(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = user.phone?.takeIf { it.isNotEmpty() } ?: "Sin número registrado",
+                    text = "Telefono: ${user.phone?.takeIf { it.isNotEmpty() } ?: "Sin número registrado"}",
                     fontSize = 14.sp,
-                    color = Color.Black
+                    color = Color.Black,
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = user.address?.takeIf { it.isNotEmpty() } ?: "Sin direccion registrada",
+                    text = "Dirección: ${user.address?.takeIf { it.isNotEmpty() } ?: "Sin direccion registrada"}",
                     fontSize = 14.sp,
                     color = Color.Black,
-                    modifier = Modifier.padding(horizontal = 32.dp)
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -223,7 +225,8 @@ fun ProfilePage(
                         showError = true
                     }
                 }
-            }
+            },
+            currentAddress = user.address
         )
     }
 
