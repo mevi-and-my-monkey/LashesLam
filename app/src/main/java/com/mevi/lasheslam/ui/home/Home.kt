@@ -61,7 +61,7 @@ fun HomeScreen(
                 1 -> Text("Favoritos")
                 2 -> Text("Pedidos")
                 //3 -> Text("Notificaciones")
-                4 -> ProfilePage(navController, modifier.padding(horizontal = 8.dp))
+                4 -> ProfilePage(navController)
             }
 
             GenericLoading(

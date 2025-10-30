@@ -51,10 +51,10 @@ class UserRepositoryImpl @Inject constructor(
             val userId = user?.uid ?: return Resource.Error("No se pudo obtener el ID del usuario")
 
             val userModel = UserModel(
-                name = user.displayName ?: "Sin dato",
-                email = user.email ?: "Sin dato",
+                name = user.displayName ?: "Sin nombre registrado",
+                email = user.email ?: "Sin correo electronico registrado",
                 uid = userId,
-                phone = user.phoneNumber ?: "Sin dato"
+                phone = user.phoneNumber ?: "Sin numero telefonico registrado"
             )
 
             val userDoc = firestore.collection("users").document(userId)

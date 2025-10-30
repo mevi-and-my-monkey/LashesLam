@@ -30,7 +30,7 @@ fun AppNavGraph(
             HomeScreen(navController, modifier)
         }
         composable(Screen.Profile.route) {
-            ProfilePage(navController, modifier)
+            ProfilePage(navController)
         }
     }
 }
