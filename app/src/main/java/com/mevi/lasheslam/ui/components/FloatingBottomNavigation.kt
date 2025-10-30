@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +34,7 @@ fun FloatingBottomNavigation(
 ) {
     Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 16.dp) // padding interno de la barra
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp) // padding interno de la barra
             .shadow(8.dp, RoundedCornerShape(24.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(24.dp))
             .fillMaxWidth(),
@@ -42,7 +43,7 @@ fun FloatingBottomNavigation(
     ) {
         BottomNavItem(Icons.Default.Home, "Inicio", selectedIndex == 0) { onItemSelected(0) }
         BottomNavItem(Icons.Default.Favorite, "Favoritos", selectedIndex == 1) { onItemSelected(1) }
-        BottomNavItem(Icons.Default.ShoppingCart, "Pedidos", selectedIndex == 2) { onItemSelected(2) }
+        BottomNavItem(Icons.Default.ShoppingBag, "Ordenes", selectedIndex == 2) { onItemSelected(2) }
         //BottomNavItem(Icons.Default.Notifications, "Notificaciones", selectedIndex == 3) { onItemSelected(3) }
         BottomNavItem(Icons.Default.Person, "Perfil", selectedIndex == 4) { onItemSelected(4) }
     }

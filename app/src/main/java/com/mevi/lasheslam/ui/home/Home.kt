@@ -59,7 +59,7 @@ fun HomeScreen(
             when (selectedIndex) {
                 0 -> HomePage(navController, modifier.padding(horizontal = 8.dp))
                 1 -> Text("Favoritos")
-                2 -> Text("Pedidos")
+                2 -> Text("Ordenes")
                 //3 -> Text("Notificaciones")
                 4 -> ProfilePage(navController)
             }
