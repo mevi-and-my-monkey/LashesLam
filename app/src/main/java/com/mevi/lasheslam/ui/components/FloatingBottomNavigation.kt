@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -42,9 +43,9 @@ fun FloatingBottomNavigation(
         verticalAlignment = Alignment.CenterVertically
     ) {
         BottomNavItem(Icons.Default.Home, "Inicio", selectedIndex == 0) { onItemSelected(0) }
-        BottomNavItem(Icons.Default.Favorite, "Favoritos", selectedIndex == 1) { onItemSelected(1) }
-        BottomNavItem(Icons.Default.ShoppingBag, "Ordenes", selectedIndex == 2) { onItemSelected(2) }
-        //BottomNavItem(Icons.Default.Notifications, "Notificaciones", selectedIndex == 3) { onItemSelected(3) }
+        BottomNavItem(Icons.Default.List, "Productos", selectedIndex == 1) { onItemSelected(1) }
+        BottomNavItem(Icons.Default.Favorite, "Favoritos", selectedIndex == 2) { onItemSelected(2) }
+        BottomNavItem(Icons.Default.ShoppingBag, "Ordenes", selectedIndex == 3) { onItemSelected(3) }
         BottomNavItem(Icons.Default.Person, "Perfil", selectedIndex == 4) { onItemSelected(4) }
     }
 }

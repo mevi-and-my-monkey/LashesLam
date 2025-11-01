@@ -1,57 +1,58 @@
 package com.mevi.lasheslam.ui.home
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mevi.lasheslam.session.SessionManager
-import com.mevi.lasheslam.ui.components.ErrorDialog
-import com.mevi.lasheslam.ui.components.SuccessDialog
+import com.mevi.lasheslam.ui.home.components.HeaderView
 
 @Composable
 fun HomePage(
     navController: NavController,
-    modifier: Modifier = Modifier
 ) {
-    var showSuccess by remember { mutableStateOf(false) }
-    var showError by remember { mutableStateOf(false) }
-
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        Text("Página de inicio ${if (isAdmin) "administrador" else "usuario"}")
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { showSuccess = true }) {
-            Text("Mostrar éxito")
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeaderView(navController)
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { showError = true }) {
-            Text("Mostrar error")
+
+        if (isAdmin) {
+            FloatingActionButton(
+                onClick = {
+                    // Navegar a la pantalla de agregar producto, por ejemplo
+
+                },
+                containerColor = Color(0xFFFF80AB), // Rosa
+                contentColor = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp), // separa del borde
+                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Agregar",
+                    tint = Color.White
+                )
+            }
         }
-    }
-
-    if (showSuccess) {
-        SuccessDialog(onDismiss = { showSuccess = false }, onCancel = {})
-    }
-
-    if (showError) {
-        ErrorDialog(onDismiss = { showError = false }, onCancel = {})
     }
 }

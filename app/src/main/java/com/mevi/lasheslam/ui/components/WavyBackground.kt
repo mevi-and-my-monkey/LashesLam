@@ -25,10 +25,10 @@ fun WavyBackground(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(if (isSystemInDarkTheme()) Color.Companion.Black else backgroundColor),
-        contentAlignment = Alignment.Companion.TopCenter
+            .background(if (isSystemInDarkTheme()) Color.Black else backgroundColor),
+        contentAlignment = Alignment.TopCenter
     ) {
-        Canvas(modifier = Modifier.Companion.fillMaxSize()) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val canvasWidth = size.width
             val canvasHeight = size.height
 

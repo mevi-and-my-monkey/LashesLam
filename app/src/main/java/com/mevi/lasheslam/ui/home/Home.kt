@@ -21,6 +21,7 @@ import androidx.navigation.NavHostController
 import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
+import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.profile.ProfilePage
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
@@ -31,7 +32,7 @@ fun HomeScreen(
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val isLoading : Boolean by loginViewModel.isLoading.observeAsState(initial = false)
+    val isLoading: Boolean by loginViewModel.isLoading.observeAsState(initial = false)
 
     BackHandler {
         if (selectedIndex != 0) {
@@ -50,17 +51,17 @@ fun HomeScreen(
     ) { paddingValues ->
         // Contenido de la pantalla
         Box(
-            modifier = modifier
-                .padding(paddingValues)
+            modifier = Modifier
                 .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
 
 
             when (selectedIndex) {
-                0 -> HomePage(navController, modifier.padding(horizontal = 8.dp))
-                1 -> Text("Favoritos")
-                2 -> Text("Ordenes")
-                //3 -> Text("Notificaciones")
+                0 -> HomePage(navController)
+                1 -> ProductsView(navController)
+                2 -> Text("Favoritos")
+                3 -> Text("Ordenes")
                 4 -> ProfilePage(navController)
             }
 
