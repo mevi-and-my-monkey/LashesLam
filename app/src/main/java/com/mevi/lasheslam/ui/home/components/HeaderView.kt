@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,8 +20,6 @@ import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,10 +53,7 @@ fun HeaderView(navController: NavController) {
     val firebaseUser = FirebaseAuth.getInstance().currentUser
     val photoUrl = firebaseUser?.photoUrl?.toString()
     val context = LocalContext.current
-    var searchText by rememberSaveable { mutableStateOf("") }
-
     val isUserInvited by SessionManager.isUserInvited.collectAsState()
-    val isUserAdmin by SessionManager.isUserAdmin.collectAsState()
 
     if (!isUserInvited) {
         LaunchedEffect(Unit) {
