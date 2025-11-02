@@ -22,12 +22,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,35 +35,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material3.placeholder
+import com.google.accompanist.placeholder.material3.shimmer
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
-import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.ui.home.HomeViewModel
 
 @Composable
-fun HeaderView(navController: NavController) {
-    var name by rememberSaveable { mutableStateOf("") }
-    val firebaseUser = FirebaseAuth.getInstance().currentUser
-    val photoUrl = firebaseUser?.photoUrl?.toString()
-    val context = LocalContext.current
-    val isUserInvited by SessionManager.isUserInvited.collectAsState()
+fun HeaderView(
+    navController: NavController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val name by remember { derivedStateOf { viewModel.name } }
+    val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
+    val isUserInvited by viewModel.isUserInvited.collectAsState()
+    val isLoading by remember { derivedStateOf { name.isEmpty() } }
 
-    if (!isUserInvited) {
-        LaunchedEffect(Unit) {
-            Firebase.firestore.collection("users")
-                .document(firebaseUser?.uid ?: return@LaunchedEffect)
-                .get().addOnSuccessListener {
-                    name = it.getString("name")?.split(" ")?.firstOrNull() ?: ""
-                }
-        }
-    } else {
-        name = "Invitado"
-    }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -108,7 +99,12 @@ fun HeaderView(navController: NavController) {
                     Text(
                         text = if (!isUserInvited) "Bienvenido de nuevo" else "Bienvenido",
                         color = Color.Black.copy(alpha = 0.9f),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.placeholder(
+                            visible = isLoading,
+                            highlight = PlaceholderHighlight.shimmer(),
+                            color = Color.White.copy(alpha = 0.4f)
+                        )
                     )
                     Text(
                         text = name,
@@ -116,6 +112,11 @@ fun HeaderView(navController: NavController) {
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
+                        ),
+                        modifier = Modifier.placeholder(
+                            visible = isLoading,
+                            highlight = PlaceholderHighlight.shimmer(),
+                            color = Color.White.copy(alpha = 0.4f)
                         )
                     )
                 }
@@ -148,7 +149,10 @@ fun HeaderView(navController: NavController) {
                 },
             contentAlignment = Alignment.CenterStart
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(12.dp)
+            ) {
                 Icon(Icons.Default.Search, contentDescription = null, tint = Color.Black)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(

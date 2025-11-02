@@ -38,7 +38,6 @@ fun HomePage(
             FloatingActionButton(
                 onClick = {
                     // Navegar a la pantalla de agregar producto, por ejemplo
-
                 },
                 containerColor = Color(0xFFFF80AB), // Rosa
                 contentColor = Color.White,

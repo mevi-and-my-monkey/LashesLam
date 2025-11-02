@@ -112,4 +112,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 
     implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
+    implementation("com.google.accompanist:accompanist-placeholder-material3:0.36.0")
 }
