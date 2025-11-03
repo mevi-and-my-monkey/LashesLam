@@ -29,10 +29,12 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val isLoading: Boolean by loginViewModel.isLoading.observeAsState(initial = false)
+    val isLoadingHome: Boolean by homeViewModel.isLoading.observeAsState(initial = false)
 
     BackHandler {
         if (selectedIndex != 0) {
@@ -67,6 +69,10 @@ fun HomeScreen(
 
             GenericLoading(
                 isLoading = isLoading,
+                message = "Procesando, por favor espera..."
+            )
+            GenericLoading(
+                isLoading = isLoadingHome,
                 message = "Procesando, por favor espera..."
             )
         }

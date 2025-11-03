@@ -113,4 +113,7 @@ dependencies {
 
     implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
     implementation("com.google.accompanist:accompanist-placeholder-material3:0.36.0")
+
+    // 👇 Luego tus dependencias individuales
+    implementation("com.google.firebase:firebase-storage-ktx")
 }

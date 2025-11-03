@@ -94,32 +94,32 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
         smallWaveColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 32.dp)
-                .navigationBarsPadding(), // deja espacio por la barra de gestos
-            horizontalAlignment = Alignment.Companion.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween // reparte en partes
+                .navigationBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             // --- Parte superior (logo + ola) ---
             Column(
-                horizontalAlignment = Alignment.Companion.CenterHorizontally,
-                modifier = Modifier.Companion.padding(top = 100.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(top = 100.dp)
             ) {
                 AnimatedLogo()
             }
 
             // --- Parte central (texto + botones) ---
             Column(
-                horizontalAlignment = Alignment.Companion.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     Strings.welcome,
                     fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier.Companion.padding(bottom = 24.dp),
-                    fontStyle = FontStyle.Companion.Italic
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    fontStyle = FontStyle.Italic
                 )
 
                 GenericButton(
@@ -129,7 +129,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                     textColor = MaterialTheme.colorScheme.onPrimary
                 )
 
-                Spacer(modifier = Modifier.Companion.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 GenericOutlinedButton(
                     text = Strings.register,
@@ -139,33 +139,33 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
 
             // --- Parte inferior (continuar con...) ---
             Column(
-                horizontalAlignment = Alignment.Companion.CenterHorizontally,
-                modifier = Modifier.Companion.fillMaxWidth()
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
-                    verticalAlignment = Alignment.Companion.CenterVertically,
-                    modifier = Modifier.Companion.fillMaxWidth()
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     HorizontalDivider(
-                        modifier = Modifier.Companion.weight(1f),
+                        modifier = Modifier.weight(1f),
                         thickness = DividerDefaults.Thickness,
-                        color = Color.Companion.LightGray
+                        color = Color.LightGray
                     )
 
                     Text(
                         text = Strings.continueWith,
-                        color = Color.Companion.Gray,
+                        color = Color.Gray,
                         fontSize = 14.sp
                     )
 
                     HorizontalDivider(
-                        modifier = Modifier.Companion.weight(1f),
+                        modifier = Modifier.weight(1f),
                         thickness = DividerDefaults.Thickness,
-                        color = Color.Companion.LightGray
+                        color = Color.LightGray
                     )
                 }
 
-                Spacer(modifier = Modifier.Companion.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 GenericIconButton(
                     icon = painterResource(id = R.drawable.ic_google_one),
@@ -181,11 +181,11 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                             launcher.launch(googleSignInCliente.signInIntent)
                         }
                     },
-                    backgroundColor = Color.Companion.White,
-                    iconTint = Color.Companion.Unspecified
+                    backgroundColor = Color.White,
+                    iconTint = Color.Unspecified
                 )
 
-                Spacer(modifier = Modifier.Companion.height(16.dp)) // margen final
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
         GenericLoading(
@@ -250,6 +250,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
             navController.navigate("home") {
                 launchSingleTop = true
             }
+            successMessage = ""
             showSuccess = false
         }, onCancel = {})
     }
