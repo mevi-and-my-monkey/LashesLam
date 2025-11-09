@@ -47,7 +47,7 @@ fun HomePage(
         Column(modifier = Modifier.fillMaxSize()) {
             HeaderView(navController)
             Spacer(modifier = Modifier.height(10.dp))
-            BannerView(modifier = Modifier.height(400.dp))
+            BannerView(modifier = Modifier.height(400.dp), navController = navController)
         }
 
         if (isAdmin) {

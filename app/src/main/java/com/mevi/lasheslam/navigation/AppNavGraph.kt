@@ -2,6 +2,9 @@ package com.mevi.lasheslam.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -15,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.auth.LogIn
 import com.mevi.lasheslam.ui.auth.SplashScreen
+import com.mevi.lasheslam.ui.home.components.ServiceDetailView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.profile.ProfilePage
@@ -55,6 +59,28 @@ fun AppNavGraph(
             }
         ) {
             SearchPage(navController)
+        }
+
+        composable(
+            route = Screen.ServiceDetails.route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeOut()
+            }
+        ) { backStackEntry ->
+            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            ServiceDetailView(
+                serviceId = serviceId,
+                onDismiss = { navController.popBackStack() }
+            )
         }
     }
 }

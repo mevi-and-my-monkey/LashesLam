@@ -22,11 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mevi.lasheslam.navigation.Screen
 import com.tbuonomo.viewpagerdotsindicator.compose.DotsIndicator
 import com.tbuonomo.viewpagerdotsindicator.compose.model.DotGraphic
 import com.tbuonomo.viewpagerdotsindicator.compose.type.ShiftIndicatorType
@@ -42,7 +44,9 @@ import kotlinx.coroutines.tasks.await
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BannerView(
-    modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltViewModel()
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     val firestore = Firebase.firestore
     val storage = FirebaseStorage.getInstance()
@@ -53,7 +57,6 @@ fun BannerView(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
-    var selectedService by remember { mutableStateOf<Map<String, Any>?>(null) }
     var showAddView by remember { mutableStateOf(false) }
 
     val pickImageLauncher = rememberLauncherForActivityResult(
@@ -123,7 +126,8 @@ fun BannerView(
                             .get()
                             .addOnSuccessListener { snapshot ->
                                 if (!snapshot.isEmpty) {
-                                    selectedService = snapshot.documents.first().data
+                                    val doc = snapshot.documents.first()
+                                    navController.navigate(Screen.ServiceDetails.createRoute(doc.id))
                                 } else if (isAdmin) {
                                     showAddView = true
                                 }
@@ -230,12 +234,6 @@ fun BannerView(
                 errorMessage = ""
                 showError = false
             }, onCancel = {})
-        }
-
-        if (selectedService != null) {
-            ServiceDetailView(serviceData = selectedService!!) {
-                selectedService = null
-            }
         }
 
         if (showAddView) {

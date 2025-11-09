@@ -24,6 +24,7 @@ datastorePreferences = "1.1.1"
 glideVersion = "4.15.1"
 compilerVersion = "4.15.1"
 firebaseBom = "33.4.0"
+runtime = "1.9.4"
 
 
 [libraries]
@@ -59,6 +60,7 @@ glide-v4151 = { module = "com.github.bumptech.glide:glide", version.ref = "glide
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 
 [plugins]

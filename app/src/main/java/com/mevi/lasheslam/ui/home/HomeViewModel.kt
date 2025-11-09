@@ -11,6 +11,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,6 +32,26 @@ class HomeViewModel @Inject constructor(
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _selectedService = MutableStateFlow<Map<String, Any>?>(null)
+    val selectedService: StateFlow<Map<String, Any>?> = _selectedService
+
+    fun loadServiceById(serviceId: String) {
+        showLoading()
+        FirebaseFirestore.getInstance()
+            .collection("data")
+            .document("curse")
+            .collection("items")
+            .document(serviceId)
+            .addSnapshotListener { snapshot, e ->
+                if (snapshot != null && snapshot.exists()) {
+                    _selectedService.value = snapshot.data
+                } else {
+                    _selectedService.value = null
+                }
+            }
+        hideLoading()
+    }
 
     init {
         loadUserData()
