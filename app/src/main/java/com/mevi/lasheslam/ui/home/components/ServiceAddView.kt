@@ -1,28 +1,40 @@
 package com.mevi.lasheslam.ui.home.components
 
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,44 +44,72 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mevi.lasheslam.ui.components.SuccessDialog
+import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
+import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
+import java.text.NumberFormat
+import java.util.Locale
+import java.util.UUID
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceAddView(
     onDismiss: () -> Unit,
     linkedBannerIndex: Int,
-    firestore: FirebaseFirestore = Firebase.firestore,
+    firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
     storage: FirebaseStorage = FirebaseStorage.getInstance()
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // --- Estados
     var titulo by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
-    var horario by remember { mutableStateOf("") }
+    var horaInicio by remember { mutableStateOf("") }
+    var horaFin by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
-    var costo by remember { mutableStateOf("") }
     var ubicacion by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var costo by remember { mutableStateOf("") }
+
+    val costoFormateado = remember(costo) {
+        costo.toDoubleOrNull()?.let {
+            NumberFormat.getCurrencyInstance(Locale("es", "MX")).format(it)
+        } ?: ""
+    }
+
     var isLoading by remember { mutableStateOf(false) }
     var showSuccess by remember { mutableStateOf(false) }
+    var successMessage by remember { mutableStateOf("") }
+
+    // Picker modales
+    var showTimePickerInicio by remember { mutableStateOf(false) }
+    var showTimePickerFin by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri -> imageUri = uri }
 
+    // --- Scroll adaptado al teclado ---
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Nuevo Servicio", style = MaterialTheme.typography.titleMedium)
+            Text("Nuevo curso", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(16.dp))
 
             // Imagen
@@ -95,61 +135,205 @@ fun ServiceAddView(
             }
 
             Spacer(Modifier.height(16.dp))
-            OutlinedTextField(value = titulo, onValueChange = { titulo = it }, label = { Text("Título") })
-            OutlinedTextField(value = descripcion, onValueChange = { descripcion = it }, label = { Text("Descripción") })
-            OutlinedTextField(value = horario, onValueChange = { horario = it }, label = { Text("Horario") })
-            OutlinedTextField(value = fecha, onValueChange = { fecha = it }, label = { Text("Fecha") })
-            OutlinedTextField(value = costo, onValueChange = { costo = it }, label = { Text("Costo") })
-            OutlinedTextField(value = ubicacion, onValueChange = { ubicacion = it }, label = { Text("Ubicación") })
+
+            // Título (sin mayúscula automática)
+            OutlinedTextField(
+                value = titulo,
+                onValueChange = { titulo = it },
+                label = { Text("Título") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            // Descripción (multilínea con mayúsculas al inicio)
+            OutlinedTextField(
+                value = descripcion,
+                onValueChange = { descripcion = it },
+                label = { Text("Descripción") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 100.dp),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            // Horario (inicio y fin con picker)
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = horaInicio,
+                    onValueChange = { horaInicio = it },
+                    readOnly = true,
+                    label = { Text("Hora inicio") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        IconButton(onClick = { showTimePickerInicio = true }) {
+                            Icon(Icons.Default.AccessTime, contentDescription = null)
+                        }
+                    }
+                )
+                OutlinedTextField(
+                    value = horaFin,
+                    onValueChange = { horaFin = it },
+                    readOnly = true,
+                    label = { Text("Hora fin") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        IconButton(onClick = { showTimePickerFin = true }) {
+                            Icon(Icons.Default.AccessTime, contentDescription = null)
+                        }
+                    }
+                )
+            }
+
+            // Fecha (picker con formato dd/MM/yyyy)
+            OutlinedTextField(
+                value = fecha,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Fecha") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                trailingIcon = {
+                    IconButton(onClick = { showDatePicker = true }) {
+                        Icon(Icons.Default.CalendarMonth, contentDescription = null)
+                    }
+                }
+            )
+
+            // Costo (solo números y formato moneda)
+            OutlinedTextField(
+                value = costo,
+                onValueChange = { newValue ->
+                    // Solo números y punto decimal opcional
+                    if (newValue.matches(Regex("""\d*\.?\d*"""))) {
+                        costo = newValue
+                    }
+                },
+                label = { Text("Costo") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            )
+
+            if (costoFormateado.isNotEmpty()) {
+                Text(
+                    text = "MXM: $costoFormateado",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            // Ubicación (primera letra mayúscula)
+            OutlinedTextField(
+                value = ubicacion,
+                onValueChange = {
+                    ubicacion = it.replaceFirstChar { char ->
+                        if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                    }
+                },
+                label = { Text("Ubicación") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                shape = RoundedCornerShape(12.dp)
+            )
 
             Spacer(Modifier.height(24.dp))
             Button(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 onClick = {
-                    if (imageUri != null) {
-                        isLoading = true
-                        val storageRef = storage.reference.child("services/${System.currentTimeMillis()}.jpg")
-                        storageRef.putFile(imageUri!!)
-                            .continueWithTask { task ->
-                                if (!task.isSuccessful) throw task.exception!!
-                                storageRef.downloadUrl
-                            }
-                            .addOnSuccessListener { uri ->
-                                val serviceData = mapOf(
-                                    "titulo" to titulo,
-                                    "descripcion" to descripcion,
-                                    "horario" to horario,
-                                    "fecha" to fecha,
-                                    "costo" to costo,
-                                    "ubicacion" to ubicacion,
-                                    "imagen" to uri.toString(),
-                                    "banner" to linkedBannerIndex,
-                                )
-                                firestore.collection("data")
-                                    .document("service")
-                                    .collection("items")
-                                    .add(serviceData)
-                                    .addOnSuccessListener {
-                                        isLoading = false
-                                        showSuccess = true
-                                    }
-                            }
-                    }
+                    if (imageUri == null) return@Button
+                    isLoading = true
+
+                    val id = UUID.randomUUID().toString()
+                    val storageRef = storage.reference.child("services/$id.jpg")
+                    storageRef.putFile(imageUri!!)
+                        .continueWithTask { storageRef.downloadUrl }
+                        .addOnSuccessListener { uri ->
+                            val serviceData = mapOf(
+                                "id" to id,
+                                "titulo" to titulo,
+                                "descripcion" to descripcion,
+                                "horaIncio" to horaInicio,
+                                "horaFin" to horaFin,
+                                "fecha" to fecha,
+                                "costo" to costo,
+                                "ubicacion" to ubicacion,
+                                "imagen" to uri.toString(),
+                                "banner" to linkedBannerIndex
+                            )
+
+                            firestore.collection("data").document("curse")
+                                .collection("items").document(id)
+                                .set(serviceData)
+                                .addOnSuccessListener {
+                                    isLoading = false
+                                    showSuccess = true
+                                    successMessage = "El curso se guardó correctamente."
+                                }
+                        }
                 },
-                enabled = !isLoading
+                enabled = !isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
-                Text("Guardar")
+                Text(if (isLoading) "Guardando..." else "Guardar")
             }
 
             if (showSuccess) {
-                AlertDialog(
-                    onDismissRequest = { onDismiss() },
-                    confirmButton = {
-                        TextButton(onClick = onDismiss) { Text("Cerrar") }
+                SuccessDialog(
+                    title = "Curso agregado",
+                    message = successMessage,
+                    onDismiss = {
+                        successMessage = ""
+                        showSuccess = false
+                        onDismiss()
                     },
-                    title = { Text("Servicio agregado") },
-                    text = { Text("El servicio se ha guardado correctamente.") }
+                    onCancel = {}
                 )
             }
         }
+    }
+
+    // --- Pickers de hora ---
+    if (showTimePickerInicio) {
+        TimePickerDialog(
+            onTimeSelected = { horaInicio = it },
+            onDismiss = { showTimePickerInicio = false }
+        )
+    }
+    if (showTimePickerFin) {
+        TimePickerDialog(
+            onTimeSelected = { horaFin = it },
+            onDismiss = { showTimePickerFin = false }
+        )
+    }
+    if (showDatePicker) {
+        DatePickerDialogCustom(
+            onDateSelected = { fecha = it },
+            onDismiss = { showDatePicker = false }
+        )
     }
 }

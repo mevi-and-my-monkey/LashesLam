@@ -1,5 +1,7 @@
 package com.mevi.lasheslam.ui.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +32,7 @@ import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.home.components.BannerView
 import com.mevi.lasheslam.ui.home.components.HeaderView
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomePage(
     navController: NavController

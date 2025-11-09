@@ -1,9 +1,12 @@
 package com.mevi.lasheslam.ui.home.components
 
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -35,6 +38,7 @@ import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.home.HomeViewModel
 import kotlinx.coroutines.tasks.await
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BannerView(
@@ -49,6 +53,8 @@ fun BannerView(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
+    var selectedService by remember { mutableStateOf<Map<String, Any>?>(null) }
+    var showAddView by remember { mutableStateOf(false) }
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -109,7 +115,20 @@ fun BannerView(
                     .fillMaxWidth()
                     .height(160.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable {
+                        firestore.collection("data").document("curse")
+                            .collection("items")
+                            .whereEqualTo("banner", page)
+                            .get()
+                            .addOnSuccessListener { snapshot ->
+                                if (!snapshot.isEmpty) {
+                                    selectedService = snapshot.documents.first().data
+                                } else if (isAdmin) {
+                                    showAddView = true
+                                }
+                            }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 if (bannerList.isNotEmpty()) {
@@ -211,6 +230,18 @@ fun BannerView(
                 errorMessage = ""
                 showError = false
             }, onCancel = {})
+        }
+
+        if (selectedService != null) {
+            ServiceDetailView(serviceData = selectedService!!) {
+                selectedService = null
+            }
+        }
+
+        if (showAddView) {
+            ServiceAddView(
+                linkedBannerIndex = pagerState.currentPage,
+                onDismiss = { showAddView = false })
         }
     }
 }
