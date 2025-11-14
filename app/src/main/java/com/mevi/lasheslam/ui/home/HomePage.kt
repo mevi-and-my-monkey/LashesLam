@@ -113,7 +113,8 @@ fun HomePage(
                         label = "Subir nuevo curso",
                         icon = Icons.Default.PostAdd
                     ) {
-
+                        showOptionsBottomSheet = false
+                        showAddView = true
                     }
                 )
             )
