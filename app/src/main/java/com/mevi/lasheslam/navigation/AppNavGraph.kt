@@ -19,6 +19,7 @@ import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.auth.LogIn
 import com.mevi.lasheslam.ui.auth.SplashScreen
 import com.mevi.lasheslam.ui.home.components.ServiceDetailView
+import com.mevi.lasheslam.ui.home.components.ServiceEditView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.profile.ProfilePage
@@ -78,8 +79,41 @@ fun AppNavGraph(
         ) { backStackEntry ->
             val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
             ServiceDetailView(
+                navController = navController,
                 serviceId = serviceId,
                 onDismiss = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.ServiceEdit.route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeOut()
+            }
+        ) { backStackEntry ->
+            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            ServiceEditView(
+                serviceId = serviceId,
+                onDismiss = { navController.popBackStack() },
+                onfinish = {
+                    navController.popBackStack(
+                        route = Screen.Home.route,
+                        inclusive = false
+                    )
+
+                    navController.navigate(Screen.Home.route) {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }

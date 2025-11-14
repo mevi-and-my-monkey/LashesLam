@@ -43,9 +43,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
@@ -60,6 +62,7 @@ fun ServiceDetailView(
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
     storage: FirebaseStorage = FirebaseStorage.getInstance(),
     onDismiss: () -> Unit,
+    navController: NavHostController,
 ) {
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     var showConfirmDelete by remember { mutableStateOf(false) }
@@ -179,7 +182,9 @@ fun ServiceDetailView(
         ) {
             if (isAdmin) {
                 IconButton(
-                    onClick = { /* editar */ },
+                    onClick = {
+                        navController.navigate(Screen.ServiceEdit.createRoute(serviceId))
+                    },
                     modifier = Modifier
                         .size(44.dp)
                         .shadow(4.dp, CircleShape)
