@@ -16,6 +16,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,11 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.home.components.BannerView
 import com.mevi.lasheslam.ui.home.components.HeaderView
+import com.mevi.lasheslam.ui.home.components.ServiceAddView
+import com.mevi.lasheslam.ui.home.cursos.CursesList
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -39,6 +45,22 @@ fun HomePage(
 ) {
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
+    var showAddView by remember { mutableStateOf(false) }
+
+    val firestore = FirebaseFirestore.getInstance()
+    var services by remember { mutableStateOf<List<ServiceItem>>(emptyList()) }
+    var isLoadingServices by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        firestore.collection("data").document("curse")
+            .collection("items")
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    services = snapshot.documents.mapNotNull { it.toObject(ServiceItem::class.java) }
+                    isLoadingServices = false
+                }
+            }
+    }
 
     Box(
         modifier = Modifier
@@ -47,7 +69,13 @@ fun HomePage(
         Column(modifier = Modifier.fillMaxSize()) {
             HeaderView(navController)
             Spacer(modifier = Modifier.height(10.dp))
-            BannerView(modifier = Modifier.height(400.dp), navController = navController)
+            BannerView(modifier = Modifier.height(220.dp), navController = navController)
+            CursesList(
+                services = services,
+                isLoading = isLoadingServices
+            ) { service ->
+                navController.navigate(Screen.ServiceDetails.createRoute(service.id))
+            }
         }
 
         if (isAdmin) {
@@ -82,13 +110,19 @@ fun HomePage(
 
                     },
                     BottomSheetOption(
-                        label = "Subir nuevo evento",
+                        label = "Subir nuevo curso",
                         icon = Icons.Default.PostAdd
                     ) {
 
                     }
                 )
             )
+        }
+
+        if (showAddView) {
+            ServiceAddView(
+                linkedBannerIndex = 99,
+                onDismiss = { showAddView = false })
         }
     }
 }

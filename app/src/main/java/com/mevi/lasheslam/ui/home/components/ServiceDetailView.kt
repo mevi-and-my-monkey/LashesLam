@@ -85,7 +85,7 @@ fun ServiceDetailView(
     val horaInicio = serviceData?.get("horaIncio") as? String ?: ""
     val horaFin = serviceData?.get("horaFin") as? String ?: ""
     val fecha = serviceData?.get("fecha") as? String ?: ""
-    val costo = (serviceData?.get("costo") as? Number)?.toInt() ?: 0
+    val costo = (serviceData?.get("costo") as? String)?.toInt() ?: 0
     val ubicacion = serviceData?.get("ubicacion") as? String ?: ""
     val imagen = serviceData?.get("imagen") as? String ?: ""
 
