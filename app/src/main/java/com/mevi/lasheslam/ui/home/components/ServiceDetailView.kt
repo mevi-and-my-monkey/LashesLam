@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
@@ -95,6 +98,7 @@ fun ServiceDetailView(
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp)
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,6 +106,8 @@ fun ServiceDetailView(
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
         ) {
+
+            // 🔥 Imagen principal (respeta tu diseño)
             SubcomposeAsyncImage(
                 model = imagen,
                 contentDescription = null,
@@ -121,24 +127,50 @@ fun ServiceDetailView(
 
             Spacer(Modifier.height(20.dp))
 
-            Column(Modifier.padding(horizontal = 12.dp)) {
-                Text(
-                    text = titulo,
-                    style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onSurface)
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(text = descripcion, style = MaterialTheme.typography.bodyMedium)
-                Spacer(Modifier.height(16.dp))
+            // 🔥 TARJETA MODERNA
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                    .padding(20.dp)
+            ) {
 
-                Text("📅 Fecha: $fecha", style = MaterialTheme.typography.bodyMedium)
-                Text("🕒 Horario: $horaInicio - $horaFin", style = MaterialTheme.typography.bodyMedium)
-                Text("📍 Ubicación: $ubicacion", style = MaterialTheme.typography.bodyMedium)
-                Text("💰 Costo: $costo MXN", style = MaterialTheme.typography.bodyMedium)
+                // ⭐ TÍTULO CENTRADO Y MAYÚSCULA
+                Text(
+                    text = titulo.uppercase(),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                // 📝 Descripción moderna
+                Text(
+                    text = descripcion,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+
+                // 🔹 INFO ITEM MODERNO
+                InfoItem(icon = "📅", label = "FECHA: ", value = fecha)
+                InfoItem(icon = "🕒", label = "HORARIO: ", value = "$horaInicio - $horaFin")
+                InfoItem(icon = "💰", label = "COSTO: ", value = "$costo MXN")
+                InfoItem(icon = "📍", label = "UBICACIÓN: ", value = ubicacion)
+
                 Spacer(Modifier.height(80.dp))
             }
         }
 
-        // 🔹 Botones flotantes superiores
+        // 🔹 TUS BOTONES SUPERIORES – SE RESPETAN COMPLETAMENTE
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -147,7 +179,7 @@ fun ServiceDetailView(
         ) {
             if (isAdmin) {
                 IconButton(
-                    onClick = { /* acción editar futura */ },
+                    onClick = { /* editar */ },
                     modifier = Modifier
                         .size(44.dp)
                         .shadow(4.dp, CircleShape)
@@ -239,5 +271,31 @@ fun ServiceDetailView(
             onDismiss = { showError = false },
             onCancel = {}
         )
+    }
+}
+
+@Composable
+private fun InfoItem(icon: String, label: String, value: String) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = icon, fontSize = MaterialTheme.typography.titleMedium.fontSize)
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+            )
+            Spacer(Modifier.height(12.dp))
+
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
