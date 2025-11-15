@@ -69,12 +69,14 @@ fun HomePage(
         Column(modifier = Modifier.fillMaxSize()) {
             HeaderView(navController)
             Spacer(modifier = Modifier.height(10.dp))
-            BannerView(modifier = Modifier.height(220.dp), navController = navController)
-            CursesList(
-                services = services,
-                isLoading = isLoadingServices
-            ) { service ->
-                navController.navigate(Screen.ServiceDetails.createRoute(service.id))
+            BannerView(modifier = Modifier.height(200.dp), navController = navController)
+            Box(modifier = Modifier.weight(1f)) {
+                CursesList(
+                    services = services,
+                    isLoading = isLoadingServices
+                ) { service ->
+                    navController.navigate(Screen.ServiceDetails.createRoute(service.id))
+                }
             }
         }
 
