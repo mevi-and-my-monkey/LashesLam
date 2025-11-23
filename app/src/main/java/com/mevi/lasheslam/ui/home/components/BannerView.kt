@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -91,24 +92,11 @@ fun BannerView(
         bannerList = urls
     }
 
-    Column(modifier = modifier.padding(horizontal = 16.dp)) {
-        /*---------- Encabezado ----------
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Ofertas especiales",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-            )
-            TextButton(onClick = {  }) {
-                Text("Ver todas")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        */
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .wrapContentHeight()
+    ) {
         // ---------- Carrusel ----------
         val pagerState = rememberPagerState(pageCount = { bannerList.size })
 
@@ -165,7 +153,7 @@ fun BannerView(
         }
 
         // ---------- Botón Editar (solo admin) ----------
-        if (isAdmin) {
+        AnimatedVisibility(visible = isAdmin) {
             TextButton(
                 onClick = { showBottomSheet = true },
                 modifier = Modifier.align(Alignment.End)

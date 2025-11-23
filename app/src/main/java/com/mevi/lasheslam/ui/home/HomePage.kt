@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddBusiness
@@ -28,15 +29,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
-import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
-import com.mevi.lasheslam.ui.home.components.BannerView
 import com.mevi.lasheslam.ui.home.components.HeaderView
+import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.components.ServiceAddView
-import com.mevi.lasheslam.ui.home.cursos.CursesList
+import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -46,6 +46,7 @@ fun HomePage(
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
+    var selectedSection by remember { mutableStateOf(Section.CURSOS) }
 
     val firestore = FirebaseFirestore.getInstance()
     var services by remember { mutableStateOf<List<ServiceItem>>(emptyList()) }
@@ -56,7 +57,8 @@ fun HomePage(
             .collection("items")
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
-                    services = snapshot.documents.mapNotNull { it.toObject(ServiceItem::class.java) }
+                    services =
+                        snapshot.documents.mapNotNull { it.toObject(ServiceItem::class.java) }
                     isLoadingServices = false
                 }
             }
@@ -67,15 +69,23 @@ fun HomePage(
             .fillMaxSize()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            HeaderView(navController)
-            Spacer(modifier = Modifier.height(10.dp))
-            BannerView(modifier = Modifier.height(200.dp), navController = navController)
-            Box(modifier = Modifier.weight(1f)) {
-                CursesList(
-                    services = services,
-                    isLoading = isLoadingServices
-                ) { service ->
-                    navController.navigate(Screen.ServiceDetails.createRoute(service.id))
+
+            HeaderView(
+                navController = navController,
+                selectedSection = selectedSection,
+                onSelectSection = { selectedSection = it }
+            )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    if (selectedSection == Section.CURSOS) {
+                        CursosPageContent(
+                            navController = navController,
+                            services = services,
+                            isLoading = isLoadingServices
+                        )
+                    }
                 }
             }
         }

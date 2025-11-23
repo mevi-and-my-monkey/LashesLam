@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,9 +47,17 @@ import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.home.HomeViewModel
 
+enum class Section {
+    CURSOS,
+    PRODUCTOS,
+    SERVICIOS
+}
+
 @Composable
 fun HeaderView(
     navController: NavController,
+    selectedSection: Section,
+    onSelectSection: (Section) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val name by remember { derivedStateOf { viewModel.name } }
@@ -68,11 +77,11 @@ fun HeaderView(
                 shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
             )
             .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 20.dp)
-
     ) {
+
+        // ----------- PERFIL + BOTÓN CARRITO -------------
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -123,7 +132,7 @@ fun HeaderView(
             }
 
             IconButton(
-                onClick = { /* acción carrito */ },
+                onClick = {},
                 modifier = Modifier
                     .size(36.dp)
                     .background(Color.Black.copy(alpha = 0.2f), CircleShape)
@@ -138,6 +147,7 @@ fun HeaderView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // ----------- BUSCADOR ------------------
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,10 +166,80 @@ fun HeaderView(
                 Icon(Icons.Default.Search, contentDescription = null, tint = Color.Black)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Buscar productos...",
+                    "Buscar...",
                     color = Color.Black.copy(alpha = 0.8f)
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // ----------- MENÚ DE SECCIONES --------------------
+        HeaderCategoriesMenu(
+            selected = selectedSection,
+            onSelect = onSelectSection
+        )
+    }
+}
+
+@Composable
+fun HeaderCategoriesMenu(
+    selected: Section,
+    onSelect: (Section) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 6.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        HeaderCategoryItem(
+            title = "Cursos",
+            icon = R.drawable.ic_courses,
+            isSelected = selected == Section.CURSOS,
+            onClick = { onSelect(Section.CURSOS) }
+        )
+
+        HeaderCategoryItem(
+            title = "Productos",
+            icon = R.drawable.ic_products,
+            isSelected = selected == Section.PRODUCTOS,
+            onClick = { onSelect(Section.PRODUCTOS) }
+        )
+
+        HeaderCategoryItem(
+            title = "Servicios",
+            icon = R.drawable.ic_services,
+            isSelected = selected == Section.SERVICIOS,
+            onClick = { onSelect(Section.SERVICIOS) }
+        )
+    }
+}
+
+@Composable
+fun HeaderCategoryItem(
+    title: String,
+    icon: Int,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }
+    ) {
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = title,
+            tint = if (isSelected) Color.White else Color.Black.copy(alpha = 0.6f),
+            modifier = Modifier.size(28.dp)
+        )
+        Text(
+            text = title,
+            color = if (isSelected) Color.White else Color.Black.copy(alpha = 0.6f),
+            fontSize = 13.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        )
     }
 }

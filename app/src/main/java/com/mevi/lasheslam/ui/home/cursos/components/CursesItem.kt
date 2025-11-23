@@ -26,11 +26,12 @@ import com.mevi.lasheslam.network.ServiceItem
 
 @Composable
 fun CursesItem(
+    modifier: Modifier = Modifier,
     service: ServiceItem,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .height(170.dp)
