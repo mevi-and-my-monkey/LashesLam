@@ -42,13 +42,10 @@ fun AppNavGraph(
             LogIn(navController)
         }
         composable(Screen.Home.route) {
-            HomeScreen(navController, modifier)
+            HomeScreen(navController)
         }
         composable(Screen.Profile.route) {
             ProfilePage(navController)
-        }
-        composable(Screen.Products.route) {
-            ProductsView(navController)
         }
         composable(
             Screen.Search.route,
@@ -115,6 +112,9 @@ fun AppNavGraph(
                     }
                 }
             )
+        }
+        composable(Screen.Products.route) {
+            ProductsView(navController)
         }
     }
 }

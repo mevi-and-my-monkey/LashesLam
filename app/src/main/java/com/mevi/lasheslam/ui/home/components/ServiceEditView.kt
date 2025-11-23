@@ -45,7 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
@@ -70,7 +69,6 @@ fun ServiceEditView(
     var isLoading by remember { mutableStateOf(true) }
     var showSuccess by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf("") }
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     var titulo by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
