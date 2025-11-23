@@ -79,6 +79,9 @@ fun HomePage(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
                     if (selectedSection == Section.CURSOS) {
                         CursosPageContent(
                             navController = navController,

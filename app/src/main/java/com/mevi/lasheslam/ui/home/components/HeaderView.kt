@@ -76,7 +76,7 @@ fun HeaderView(
                 ),
                 shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
             )
-            .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 20.dp)
+            .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
     ) {
 
         // ----------- PERFIL + BOTÓN CARRITO -------------
