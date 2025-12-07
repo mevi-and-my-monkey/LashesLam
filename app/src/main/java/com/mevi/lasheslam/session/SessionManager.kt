@@ -21,7 +21,7 @@ object SessionManager {
     private val _isUserInvited = MutableStateFlow(false)
     val isUserInvited = _isUserInvited.asStateFlow()
 
-    private val _whatsApp = MutableStateFlow("")
+    private val _whatsApp = MutableStateFlow("5532004406")
     val whatsApp = _whatsApp.asStateFlow()
 
     private var adminEmailsCache: List<String> = emptyList()

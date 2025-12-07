@@ -42,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -59,6 +61,7 @@ import com.mevi.lasheslam.ui.components.WarningDialog
 import com.mevi.lasheslam.ui.home.HomeViewModel
 import com.mevi.lasheslam.utils.Utilities
 import androidx.core.net.toUri
+import com.mevi.lasheslam.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -81,10 +84,19 @@ fun ServiceDetailView(
     var warningMessage by remember { mutableStateOf("") }
 
     val serviceData by viewModel.selectedService.collectAsState()
+    val userId = SessionManager.currentUserId.collectAsState().value
+    val courseStatus by viewModel.courseStatusCurse.collectAsState()
 
     // 🔹 Cargar datos solo al entrar
     LaunchedEffect(serviceId) {
         viewModel.loadServiceById(serviceId)
+    }
+
+    LaunchedEffect(serviceId) {
+        viewModel.loadServiceById(serviceId)
+        if (userId != null) {
+            viewModel.loadUserCourseStatus(userId, serviceId)
+        }
     }
 
     // 🔸 Mostrar cargando mientras llega el snapshot
@@ -103,13 +115,13 @@ fun ServiceDetailView(
     val costo = (serviceData?.get("costo") as? String)?.toInt() ?: 0
     val ubicacion = serviceData?.get("ubicacion") as? String ?: ""
     val imagen = serviceData?.get("imagen") as? String ?: ""
-    val status = serviceData?.get("solicitar") as? String ?: "solicitar"
+    val status = courseStatus ?: "solicitar"
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp)
+            .padding(top = 16.dp)
     ) {
 
         Column(
@@ -144,10 +156,13 @@ fun ServiceDetailView(
             // 🔥 TARJETA MODERNA
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
-                    .padding(20.dp)
+                    .fillMaxSize()
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 16.dp,
+                        bottom = 120.dp
+                    )
             ) {
 
                 // ⭐ TÍTULO CENTRADO Y MAYÚSCULA
@@ -243,13 +258,13 @@ fun ServiceDetailView(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             // 🔹 Texto superior
             Text(
-                text = "Para más información",
+                text = "Solicitar más información",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -273,9 +288,9 @@ fun ServiceDetailView(
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(
-                        Icons.Default.Info,
+                        painter = painterResource(R.drawable.ic_facebook),
                         contentDescription = "Facebook",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = Color.Unspecified
                     )
                 }
 
@@ -293,16 +308,16 @@ fun ServiceDetailView(
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(
-                        Icons.Default.Info,
+                        painter = painterResource(R.drawable.ic_instagram),
                         contentDescription = "Instagram",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = Color.Unspecified
                     )
                 }
 
                 // WHATSAPP
                 IconButton(
                     onClick = {
-                        val url = "https://wa.me/5210000000000"
+                        val url = "https://wa.me/${SessionManager.whatsApp.value}"
                         navController.context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse(url))
                         )
@@ -313,9 +328,9 @@ fun ServiceDetailView(
                         .background(MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(
-                        Icons.Default.Info,
+                        painter = painterResource(R.drawable.ic_whatsapp),
                         contentDescription = "WhatsApp",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = Color.Unspecified
                     )
                 }
             }

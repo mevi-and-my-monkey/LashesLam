@@ -37,6 +37,9 @@ class HomeViewModel @Inject constructor(
     private val _selectedService = MutableStateFlow<Map<String, Any>?>(null)
     val selectedService: StateFlow<Map<String, Any>?> = _selectedService
 
+    private val _courseStatusCurse = MutableStateFlow<String?>(null)
+    val courseStatusCurse: StateFlow<String?> = _courseStatusCurse
+
     fun loadServiceById(serviceId: String) {
         showLoading()
         FirebaseFirestore.getInstance()
@@ -88,30 +91,24 @@ class HomeViewModel @Inject constructor(
         cursoId: String,
         newStatus: String
     ) {
-        val userDoc = FirebaseFirestore.getInstance()
+        FirebaseFirestore.getInstance()
             .collection("users")
             .document(uid)
-
-        val snapshot = userDoc.get().await()
-
-        val cursos = snapshot.get("cursos") as? MutableList<Map<String, String>> ?: mutableListOf()
-
-        val index = cursos.indexOfFirst { it["cursoId"] == cursoId }
-
-        if (index != -1) {
-            cursos[index] = mapOf(
-                "cursoId" to cursoId,
-                "status" to newStatus
+            .collection("cursos")
+            .document(cursoId)
+            .set(
+                mapOf("status" to newStatus)
             )
-        } else {
-            cursos.add(
-                mapOf(
-                    "cursoId" to cursoId,
-                    "status" to newStatus
-                )
-            )
-        }
+            .await()
+    }
 
-        userDoc.update("cursos", cursos).await()
+    fun loadUserCourseStatus(userId: String, courseId: String) {
+        firestore.collection("users")
+            .document(userId)
+            .collection("cursos")
+            .document(courseId)
+            .addSnapshotListener { snapshot, _ ->
+                _courseStatusCurse.value = snapshot?.getString("status") ?: "solicitar"
+            }
     }
 }
