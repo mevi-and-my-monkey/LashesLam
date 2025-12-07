@@ -23,7 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -345,6 +345,11 @@ fun ServiceDetailView(
                 else -> "Solicitar registro"
             }
 
+            val calendarIcon = when (status) {
+                "aceptado" -> Icons.Outlined.EventAvailable
+                else -> null
+            }
+
             val isEnabled = status != "pendiente"
 
             ElevatedButton(
@@ -379,6 +384,14 @@ fun ServiceDetailView(
                     .padding(horizontal = 20.dp)
                     .height(55.dp)
             ) {
+                if (calendarIcon != null) {
+                    Icon(
+                        imageVector = calendarIcon,
+                        contentDescription = "Agregar al calendario",
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                }
                 Text(buttonText)
             }
         }
