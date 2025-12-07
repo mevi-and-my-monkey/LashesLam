@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -80,5 +81,37 @@ class HomeViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    suspend fun updateUserCourseStatus(
+        uid: String,
+        cursoId: String,
+        newStatus: String
+    ) {
+        val userDoc = FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(uid)
+
+        val snapshot = userDoc.get().await()
+
+        val cursos = snapshot.get("cursos") as? MutableList<Map<String, String>> ?: mutableListOf()
+
+        val index = cursos.indexOfFirst { it["cursoId"] == cursoId }
+
+        if (index != -1) {
+            cursos[index] = mapOf(
+                "cursoId" to cursoId,
+                "status" to newStatus
+            )
+        } else {
+            cursos.add(
+                mapOf(
+                    "cursoId" to cursoId,
+                    "status" to newStatus
+                )
+            )
+        }
+
+        userDoc.update("cursos", cursos).await()
     }
 }

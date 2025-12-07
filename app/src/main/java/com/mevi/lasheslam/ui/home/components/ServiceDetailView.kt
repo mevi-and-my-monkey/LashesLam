@@ -1,5 +1,7 @@
 package com.mevi.lasheslam.ui.home.components
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +23,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +57,11 @@ import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WarningDialog
 import com.mevi.lasheslam.ui.home.HomeViewModel
+import com.mevi.lasheslam.utils.Utilities
+import androidx.core.net.toUri
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +103,7 @@ fun ServiceDetailView(
     val costo = (serviceData?.get("costo") as? String)?.toInt() ?: 0
     val ubicacion = serviceData?.get("ubicacion") as? String ?: ""
     val imagen = serviceData?.get("imagen") as? String ?: ""
+    val status = serviceData?.get("solicitar") as? String ?: "solicitar"
 
     Box(
         modifier = Modifier
@@ -108,6 +118,7 @@ fun ServiceDetailView(
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
+                .padding(bottom = 180.dp)
         ) {
 
             // 🔥 Imagen principal (respeta tu diseño)
@@ -224,6 +235,136 @@ fun ServiceDetailView(
                     .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             ) {
                 Icon(Icons.Default.Close, contentDescription = "Cerrar")
+            }
+        }
+
+        // 🔻 BOTÓN INFERIOR DEPENDIENDO DEL STATUS
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // 🔹 Texto superior
+            Text(
+                text = "Para más información",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            // 🔹 Botones circulares (Facebook, Instagram, WhatsApp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+
+                // FACEBOOK
+                IconButton(
+                    onClick = {
+                        val url = "https://facebook.com/"
+                        navController.context.startActivity(
+                            Intent(Intent.ACTION_VIEW, url.toUri())
+                        )
+                    },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Facebook",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+
+                // INSTAGRAM
+                IconButton(
+                    onClick = {
+                        val url = "https://instagram.com/"
+                        navController.context.startActivity(
+                            Intent(Intent.ACTION_VIEW, url.toUri())
+                        )
+                    },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Instagram",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+
+                // WHATSAPP
+                IconButton(
+                    onClick = {
+                        val url = "https://wa.me/5210000000000"
+                        navController.context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        )
+                    },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "WhatsApp",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(18.dp))
+
+            // 🔥 BOTÓN PRINCIPAL SEGÚN STATUS
+            val buttonText = when (status) {
+                "solicitar" -> "Solicitar registro"
+                "pendiente" -> "Solicitud pendiente"
+                "aceptado" -> "Agregar al calendario"
+                else -> "Solicitar registro"
+            }
+
+            val isEnabled = status != "pendiente"
+
+            ElevatedButton(
+                onClick = {
+                    val uid = SessionManager.currentUserId
+
+                    when (status) {
+                        "solicitar" -> {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                viewModel.updateUserCourseStatus(
+                                    uid.value ?: "",
+                                    serviceId,
+                                    "pendiente"
+                                )
+                            }
+                        }
+
+                        "aceptado" -> {
+                            Utilities.agregarEventoCalendario(
+                                navController = navController,
+                                titulo = titulo,
+                                fecha = fecha,
+                                horaInicio = horaInicio,
+                                horaFin = horaFin
+                            )
+                        }
+                    }
+                },
+                enabled = isEnabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .height(55.dp)
+            ) {
+                Text(buttonText)
             }
         }
     }

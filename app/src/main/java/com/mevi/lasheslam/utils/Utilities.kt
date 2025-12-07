@@ -1,7 +1,10 @@
 package com.mevi.lasheslam.utils
 
 import android.content.Context
+import android.content.Intent
+import android.provider.CalendarContract
 import android.widget.Toast
+import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -9,6 +12,9 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.remoteconfig.remoteConfig
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 object Utilities {
 
@@ -103,5 +109,29 @@ object Utilities {
 
     fun getTaxPercentage(): Float {
         return 10.0f
+    }
+
+    fun agregarEventoCalendario(
+        navController: NavHostController,
+        titulo: String,
+        fecha: String,
+        horaInicio: String,
+        horaFin: String
+    ) {
+        val context = navController.context
+
+        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val inicioMillis = formatter.parse("$fecha $horaInicio")?.time ?: return
+        val finMillis = formatter.parse("$fecha $horaFin")?.time ?: return
+
+        val intent = Intent(Intent.ACTION_INSERT).apply {
+            data = CalendarContract.Events.CONTENT_URI
+            putExtra(CalendarContract.Events.TITLE, titulo)
+            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, inicioMillis)
+            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, finMillis)
+            putExtra(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
+        }
+
+        context.startActivity(intent)
     }
 }

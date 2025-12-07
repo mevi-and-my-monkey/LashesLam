@@ -55,7 +55,8 @@ object SessionManager {
             remoteConfig.fetchAndActivate().await()
             val jsonString = remoteConfig.getString(Strings.keyRemoteConfigListAdmin)
             adminEmailsCache = parseAdminList(jsonString)
-            val whatsApp = remoteConfig.getString(Strings.keyRemoteConfigWhatsappAdmin).ifEmpty { Strings.defaultAdminWhatsapp }
+            val whatsApp = remoteConfig.getString(Strings.keyRemoteConfigWhatsappAdmin)
+                .ifEmpty { Strings.defaultAdminWhatsapp }
             setWhatsApp(whatsApp)
             Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {
@@ -68,5 +69,12 @@ object SessionManager {
     fun isAdmin(email: String): Boolean {
         Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         return adminEmailsCache.contains(email)
+    }
+
+    private val _currentUserId = MutableStateFlow<String?>(null)
+    val currentUserId = _currentUserId.asStateFlow()
+
+    fun setCurrentUserId(uid: String?) {
+        _currentUserId.value = uid
     }
 }
