@@ -81,16 +81,20 @@ class HomeViewModel @Inject constructor(
                     .get()
                     .addOnSuccessListener {
                         name = it.getString("name")?.split(" ")?.firstOrNull() ?: ""
+                        SessionManager.setNameUser(name)
                     }
             }
         }
     }
+
     suspend fun createCourseRequest(
         userId: String,
         courseId: String,
         courseName: String,
         date: String,
-        schedule: String
+        schedule: String,
+        nameUser: String,
+        emailUser: String
     ) {
         try {
             val requestRef = firestore.collection("course_requests").document()
@@ -99,6 +103,8 @@ class HomeViewModel @Inject constructor(
             val requestData = mapOf(
                 "requestId" to requestId,
                 "userId" to userId,
+                "nameUser" to nameUser,
+                "emailUser" to emailUser,
                 "courseId" to courseId,
                 "courseName" to courseName,
                 "status" to "pendiente",

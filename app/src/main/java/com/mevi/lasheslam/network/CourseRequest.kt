@@ -6,5 +6,9 @@ data class CourseRequest(
     val courseId: String = "",
     val courseName: String = "",
     val status: String = "pendiente",
+    val date: String = "",
+    val schedule: String = "",
+    val nameUser: String = "",
+    val emailUser: String = "",
     val timestamp: Long = System.currentTimeMillis()
 )

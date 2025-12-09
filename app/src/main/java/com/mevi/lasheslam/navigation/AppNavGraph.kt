@@ -130,7 +130,7 @@ fun AppNavGraph(
                 ) + fadeOut()
             }
         ) {
-            AdminRequestsScreen()
+            AdminRequestsScreen(navController)
         }
 
         composable(Screen.Products.route) {

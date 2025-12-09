@@ -21,8 +21,17 @@ object SessionManager {
     private val _isUserInvited = MutableStateFlow(false)
     val isUserInvited = _isUserInvited.asStateFlow()
 
-    private val _whatsApp = MutableStateFlow("5532004406")
+    private val _whatsApp = MutableStateFlow("")
     val whatsApp = _whatsApp.asStateFlow()
+
+    private val _currentUserId = MutableStateFlow<String?>(null)
+    val currentUserId = _currentUserId.asStateFlow()
+
+    private val _nameUser = MutableStateFlow<String?>(null)
+    val nameUser = _nameUser.asStateFlow()
+
+    private val _emailUser = MutableStateFlow<String?>(null)
+    val emailUser = _emailUser.asStateFlow()
 
     private var adminEmailsCache: List<String> = emptyList()
 
@@ -36,6 +45,18 @@ object SessionManager {
 
     fun setWhatsApp(value: String) {
         _whatsApp.value = value
+    }
+
+    fun setCurrentUserId(uid: String?) {
+        _currentUserId.value = uid
+    }
+
+    fun setNameUser(nameUser: String?) {
+        _nameUser.value = nameUser
+    }
+
+    fun setEmailUser(email: String?) {
+        _emailUser.value = email
     }
 
     private fun parseAdminList(jsonString: String): List<String> {
@@ -69,12 +90,5 @@ object SessionManager {
     fun isAdmin(email: String): Boolean {
         Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         return adminEmailsCache.contains(email)
-    }
-
-    private val _currentUserId = MutableStateFlow<String?>(null)
-    val currentUserId = _currentUserId.asStateFlow()
-
-    fun setCurrentUserId(uid: String?) {
-        _currentUserId.value = uid
     }
 }

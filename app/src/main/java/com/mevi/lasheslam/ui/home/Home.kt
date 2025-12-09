@@ -39,7 +39,9 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val email = FirebaseAuth.getInstance().currentUser?.email
         SessionManager.setCurrentUserId(uid)
+        SessionManager.setEmailUser(email)
     }
 
     BackHandler {

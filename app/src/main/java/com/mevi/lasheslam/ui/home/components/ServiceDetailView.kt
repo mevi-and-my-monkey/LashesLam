@@ -77,6 +77,8 @@ fun ServiceDetailView(
     navController: NavHostController,
 ) {
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
+    val nameUser by SessionManager.nameUser.collectAsState()
+    val emailUser by SessionManager.emailUser.collectAsState()
     var showConfirmDelete by remember { mutableStateOf(false) }
     var showSuccess by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
@@ -364,7 +366,9 @@ fun ServiceDetailView(
                                     serviceId,
                                     titulo.uppercase(),
                                     fecha,
-                                    "$horaInicio - $horaFin"
+                                    "$horaInicio - $horaFin",
+                                    nameUser ?: "",
+                                    emailUser ?: ""
                                 )
                             }
                         }

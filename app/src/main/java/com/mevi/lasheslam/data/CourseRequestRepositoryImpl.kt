@@ -11,7 +11,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ) : CourseRequestRepository {
 
-    private val requestsRef = firestore.collection("courseRequests")
+    private val requestsRef = firestore.collection("course_requests")
 
     override suspend fun sendRequest(request: CourseRequest): Resource<Boolean> {
         return try {
