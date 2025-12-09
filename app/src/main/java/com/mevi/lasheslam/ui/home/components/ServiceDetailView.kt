@@ -359,10 +359,12 @@ fun ServiceDetailView(
                     when (status) {
                         "solicitar" -> {
                             CoroutineScope(Dispatchers.IO).launch {
-                                viewModel.updateUserCourseStatus(
+                                viewModel.createCourseRequest(
                                     uid.value ?: "",
                                     serviceId,
-                                    "pendiente"
+                                    titulo.uppercase(),
+                                    fecha,
+                                    "$horaInicio - $horaFin"
                                 )
                             }
                         }

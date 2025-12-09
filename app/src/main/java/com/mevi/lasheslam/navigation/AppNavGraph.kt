@@ -23,6 +23,7 @@ import com.mevi.lasheslam.ui.home.components.ServiceEditView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.profile.ProfilePage
+import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -113,6 +114,25 @@ fun AppNavGraph(
                 }
             )
         }
+
+        composable(
+            route = Screen.Request.route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeOut()
+            }
+        ) {
+            AdminRequestsScreen()
+        }
+
         composable(Screen.Products.route) {
             ProductsView(navController)
         }

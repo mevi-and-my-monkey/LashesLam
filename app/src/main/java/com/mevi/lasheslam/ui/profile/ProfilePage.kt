@@ -43,6 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.ProfileOptionButton
 import com.mevi.lasheslam.ui.components.SuccessDialog
@@ -54,6 +56,7 @@ fun ProfilePage(
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val user = profileViewModel.userModel
+    val isAdmin by SessionManager.isUserAdmin.collectAsState()
     val isDarkMode by profileViewModel.isDarkMode.collectAsState(initial = false)
     val photoUser = profileViewModel.photoUser
 
@@ -192,7 +195,13 @@ fun ProfilePage(
             ProfileOptionButton(
                 icon = R.drawable.ic_orders,
                 text = "Órdenes",
-                onClick = { /* navegar a órdenes */ }
+                onClick = {
+                    if (isAdmin){
+                        navController.navigate(Screen.Request.route)
+                    }else{
+
+                    }
+                }
             )
             Button(
                 onClick = {

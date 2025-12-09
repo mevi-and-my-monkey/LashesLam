@@ -13,4 +13,6 @@ sealed class Screen(val route: String) {
     object ServiceEdit : Screen("service_edit/{serviceId}") {
         fun createRoute(serviceId: String) = "service_edit/$serviceId"
     }
+    object Request : Screen("request")
+
 }

@@ -85,21 +85,45 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-    suspend fun updateUserCourseStatus(
-        uid: String,
-        cursoId: String,
-        newStatus: String
+    suspend fun createCourseRequest(
+        userId: String,
+        courseId: String,
+        courseName: String,
+        date: String,
+        schedule: String
     ) {
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(uid)
-            .collection("cursos")
-            .document(cursoId)
-            .set(
-                mapOf("status" to newStatus)
+        try {
+            val requestRef = firestore.collection("course_requests").document()
+            val requestId = requestRef.id
+
+            val requestData = mapOf(
+                "requestId" to requestId,
+                "userId" to userId,
+                "courseId" to courseId,
+                "courseName" to courseName,
+                "status" to "pendiente",
+                "date" to date,
+                "schedule" to schedule,
+                "timestamp" to System.currentTimeMillis()
             )
-            .await()
+
+            println("DEBUG: Intentando crear solicitud $requestId")
+
+            requestRef.set(requestData).await()
+
+            println("DEBUG: Solicitud creada en course_requests")
+
+            firestore.collection("users")
+                .document(userId)
+                .collection("cursos")
+                .document(courseId)
+                .set(mapOf("status" to "pendiente"))
+                .await()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("ERROR creando solicitud: ${e.message}")
+        }
     }
 
     fun loadUserCourseStatus(userId: String, courseId: String) {
