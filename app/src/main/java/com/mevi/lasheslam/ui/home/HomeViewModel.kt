@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +23,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-) : ViewModel() {
+    private val getRequestsUseCase: GetRequestsUseCase,
+    ) : ViewModel() {
 
     var name by mutableStateOf("")
         private set
@@ -39,6 +42,12 @@ class HomeViewModel @Inject constructor(
 
     private val _courseStatusCurse = MutableStateFlow<String?>(null)
     val courseStatusCurse: StateFlow<String?> = _courseStatusCurse
+
+    var adminPendingCount by mutableStateOf(0)
+        private set
+
+    var userAcceptedCount by mutableStateOf(0)
+        private set
 
     fun loadServiceById(serviceId: String) {
         showLoading()
@@ -140,5 +149,31 @@ class HomeViewModel @Inject constructor(
             .addSnapshotListener { snapshot, _ ->
                 _courseStatusCurse.value = snapshot?.getString("status") ?: "solicitar"
             }
+    }
+
+    fun loadAdminPendingRequests() = viewModelScope.launch {
+        adminPendingCount = when (val result = getRequestsUseCase("pendiente")) {
+            is Resource.Success -> result.data.size
+            is Resource.Error -> 0
+            else -> 0
+        }
+    }
+
+    fun loadUserAcceptedCourses(userId: String) {
+        firestore.collection("users")
+            .document(userId)
+            .collection("cursos")
+            .whereEqualTo("status", "aceptado")
+            .addSnapshotListener { snapshot, _ ->
+                userAcceptedCount = snapshot?.size() ?: 0
+            }
+    }
+
+    fun initUserStatus(isAdmin: Boolean, userId: String) {
+        if (isAdmin) {
+            loadAdminPendingRequests()
+        } else {
+            loadUserAcceptedCourses(userId)
+        }
     }
 }

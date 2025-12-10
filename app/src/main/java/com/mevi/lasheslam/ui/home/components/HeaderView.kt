@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -45,6 +47,8 @@ import com.google.accompanist.placeholder.material3.placeholder
 import com.google.accompanist.placeholder.material3.shimmer
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.ui.components.NotificationBadge
 import com.mevi.lasheslam.ui.home.HomeViewModel
 
 enum class Section {
@@ -64,6 +68,13 @@ fun HeaderView(
     val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
     val isUserInvited by viewModel.isUserInvited.collectAsState()
     val isLoading by remember { derivedStateOf { name.isEmpty() } }
+    val isAdmin by SessionManager.isUserAdmin.collectAsState()
+
+    val userId = SessionManager.currentUserId
+
+    LaunchedEffect(isAdmin) {
+        viewModel.initUserStatus(isAdmin, userId.value ?: "")
+    }
 
     val context = LocalContext.current
 
@@ -130,17 +141,37 @@ fun HeaderView(
                     )
                 }
             }
-
-            IconButton(
-                onClick = {},
+            Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .background(Color.Black.copy(alpha = 0.2f), CircleShape)
+                    .wrapContentSize()
             ) {
-                Icon(
-                    imageVector = Icons.Default.ShoppingBag,
-                    contentDescription = "Carrito de compras",
-                    tint = Color.White
+
+                IconButton(
+                    onClick = {
+                        if (isAdmin) {
+                            navController.navigate(Screen.Request.route)
+                        } else {
+                            //navController.navigate(Screen.UserCourses.route)
+                        }
+                    },
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color.Black.copy(alpha = 0.2f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingBag,
+                        contentDescription = "Solicitudes",
+                        tint = Color.White
+                    )
+                }
+
+                val badgeCount =
+                    if (isAdmin) viewModel.adminPendingCount
+                    else viewModel.userAcceptedCount
+
+                NotificationBadge(
+                    count = badgeCount,
+                    color = if (isAdmin) Color.Red else Color(0xFF2196F3)
                 )
             }
         }
