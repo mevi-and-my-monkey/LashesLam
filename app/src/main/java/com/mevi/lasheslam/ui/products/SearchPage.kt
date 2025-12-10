@@ -8,21 +8,26 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -69,37 +74,54 @@ fun SearchPage(
                     )
                     .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 20.dp)
             ) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { viewModel.onSearchChanged(it) },
-                    placeholder = {
-                        Text("Buscar productos...", color = Color.Black.copy(alpha = 0.8f))
-                    },
-                    leadingIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier.size(48.dp)
+                    ) {
                         Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Buscar",
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Regresar",
                             tint = Color.Black
                         )
-                    },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.2f)),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.White,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.7f),
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        cursorColor = Color.Black,
-                        focusedLeadingIconColor = Color.Black,
-                        unfocusedLeadingIconColor = Color.Black.copy(alpha = 0.8f),
-                        focusedPlaceholderColor = Color.Black.copy(alpha = 0.8f),
-                        unfocusedPlaceholderColor = Color.Black.copy(alpha = 0.8f)
+                    }
+
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { viewModel.onSearchChanged(it) },
+                        placeholder = {
+                            Text("Buscar productos...", color = Color.Black.copy(alpha = 0.8f))
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Buscar",
+                                tint = Color.Black
+                            )
+                        },
+                        singleLine = true,
+                        modifier = Modifier
+                            .weight(1f)
+                            .focusRequester(focusRequester)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color.White.copy(alpha = 0.2f)),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.7f),
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedLeadingIconColor = Color.Black,
+                            unfocusedLeadingIconColor = Color.Black.copy(alpha = 0.8f),
+                            focusedPlaceholderColor = Color.Black.copy(alpha = 0.8f),
+                            unfocusedPlaceholderColor = Color.Black.copy(alpha = 0.8f)
+                        )
                     )
-                )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 HeaderCategoriesMenu(

@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
@@ -36,6 +38,7 @@ fun HomeScreen(
     var selectedIndex by remember { mutableIntStateOf(0) }
     val isLoading: Boolean by loginViewModel.isLoading.observeAsState(initial = false)
     val isLoadingHome: Boolean by homeViewModel.isLoading.observeAsState(initial = false)
+    val isAdmin by SessionManager.isUserAdmin.collectAsState()
 
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -69,9 +72,16 @@ fun HomeScreen(
 
             when (selectedIndex) {
                 0 -> HomePage(navController)
-                1 -> ProductsView(navController)
+                1 -> navController.navigate(Screen.Search.route)
                 2 -> Text("Favoritos")
-                3 -> Text("Ordenes")
+                3 -> {
+                    if (isAdmin) {
+                        navController.navigate(Screen.Request.route)
+                    } else {
+                        //navController.navigate(Screen.UserCourses.route)
+                    }
+                }
+
                 4 -> ProfilePage(navController)
             }
 
