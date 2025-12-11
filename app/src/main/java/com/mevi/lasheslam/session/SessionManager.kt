@@ -4,12 +4,14 @@ import android.util.Log
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.mevi.lasheslam.core.Strings
+import com.mevi.lasheslam.network.LocationItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONObject
 
 object SessionManager {
 
@@ -34,6 +36,9 @@ object SessionManager {
     val emailUser = _emailUser.asStateFlow()
 
     private var adminEmailsCache: List<String> = emptyList()
+
+    private val _locations = MutableStateFlow<List<LocationItem>>(emptyList())
+    val locations = _locations.asStateFlow()
 
     fun setAdmin(value: Boolean) {
         _isUserAdmin.value = value
@@ -69,17 +74,18 @@ object SessionManager {
         }
     }
 
-    // Consulta Remote Config y actualiza la lista de admins
     suspend fun refreshAdmins() = withContext(Dispatchers.IO) {
         try {
             val remoteConfig = Firebase.remoteConfig
             remoteConfig.fetchAndActivate().await()
             val jsonString = remoteConfig.getString(Strings.keyRemoteConfigListAdmin)
             adminEmailsCache = parseAdminList(jsonString)
+            val locationsJson = remoteConfig.getString(Strings.keyRemoteConfigLocations)
+            _locations.value = parseLocationList(locationsJson)
             val whatsApp = remoteConfig.getString(Strings.keyRemoteConfigWhatsappAdmin)
                 .ifEmpty { Strings.defaultAdminWhatsapp }
             setWhatsApp(whatsApp)
-            Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
+            //Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {
             Log.e("SessionManager", Strings.logErrorFetchingRemoteConfig, e)
             adminEmailsCache = emptyList()
@@ -88,7 +94,26 @@ object SessionManager {
 
     // Verifica si un email es admin
     fun isAdmin(email: String): Boolean {
-        Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
+        //Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         return adminEmailsCache.contains(email)
+    }
+
+    private fun parseLocationList(json: String): List<LocationItem> {
+        return try {
+            val root = JSONObject(json)
+            val array = root.getJSONArray("locations")
+
+            (0 until array.length()).map { i ->
+                val obj = array.getJSONObject(i)
+                LocationItem(
+                    name = obj.getString("name"),
+                    lat = obj.getDouble("lat"),
+                    lng = obj.getDouble("lng")
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 }

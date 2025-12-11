@@ -27,7 +27,10 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +54,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
 import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
@@ -75,10 +81,17 @@ fun ServiceEditView(
     var horaInicio by remember { mutableStateOf("") }
     var horaFin by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
-    var ubicacion by remember { mutableStateOf("") }
+    val locations by SessionManager.locations.collectAsState()
+
+    var ubicacionNombre by remember { mutableStateOf("") }
+    var lat by remember { mutableStateOf(0.0) }
+    var lng by remember { mutableStateOf(0.0) }
     var costo by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var oldImageUrl by remember { mutableStateOf<String?>(null) }
+
+    var selectedLocation by remember { mutableStateOf<LocationItem?>(null) }
+    var expandedLocation by remember { mutableStateOf(false) }
 
     var showTimePickerInicio by remember { mutableStateOf(false) }
     var showTimePickerFin by remember { mutableStateOf(false) }
@@ -95,9 +108,13 @@ fun ServiceEditView(
             horaInicio = data["horaIncio"] as? String ?: ""
             horaFin = data["horaFin"] as? String ?: ""
             fecha = data["fecha"] as? String ?: ""
-            ubicacion = data["ubicacion"] as? String ?: ""
             costo = data["costo"] as? String ?: ""
             oldImageUrl = data["imagen"] as? String
+            ubicacionNombre = data["ubicacionNombre"] as? String ?: ""
+            lat = data["lat"] as? Double ?: 0.0
+            lng = data["lng"] as? Double ?: 0.0
+            selectedLocation = locations.find { it.name == ubicacionNombre }
+                ?: locations.firstOrNull()
         }
         isLoading = false
     }
@@ -231,17 +248,38 @@ fun ServiceEditView(
                     shape = RoundedCornerShape(12.dp)
                 )
 
-                OutlinedTextField(
-                    value = ubicacion,
-                    onValueChange = {
-                        ubicacion = it.replaceFirstChar { char ->
-                            if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                ExposedDropdownMenuBox(
+                    expanded = expandedLocation,
+                    onExpandedChange = { expandedLocation = !expandedLocation }
+                ) {
+                    OutlinedTextField(
+                        value = selectedLocation?.name ?: "Seleccionar ubicación",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Ubicación") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedLocation)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expandedLocation,
+                        onDismissRequest = { expandedLocation = false }
+                    ) {
+                        locations.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(item.name) },
+                                onClick = {
+                                    selectedLocation = item
+                                    expandedLocation = false
+                                }
+                            )
                         }
-                    },
-                    label = { Text("Ubicación") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
+                    }
+                }
 
                 Spacer(Modifier.height(24.dp))
 
@@ -263,7 +301,7 @@ fun ServiceEditView(
                                         horaInicio,
                                         horaFin,
                                         fecha,
-                                        ubicacion,
+                                        selectedLocation,
                                         costo
                                     )
                                     successMessage = "Cambios guardados correctamente"
@@ -279,7 +317,7 @@ fun ServiceEditView(
                                 horaInicio,
                                 horaFin,
                                 fecha,
-                                ubicacion,
+                                selectedLocation,
                                 costo
                             )
                             successMessage = "Cambios guardados correctamente"
@@ -325,7 +363,7 @@ private fun saveToFirestore(
     horaInicio: String,
     horaFin: String,
     fecha: String,
-    ubicacion: String,
+    location: LocationItem?,   // 👈 AQUÍ
     costo: String
 ) {
     val map = mutableMapOf<String, Any>(
@@ -334,7 +372,9 @@ private fun saveToFirestore(
         "horaIncio" to horaInicio,
         "horaFin" to horaFin,
         "fecha" to fecha,
-        "ubicacion" to ubicacion,
+        "ubicacionNombre" to (location?.name ?: ""),
+        "lat" to (location?.lat ?: 0.0),
+        "lng" to (location?.lng ?: 0.0),
         "costo" to costo
     )
 

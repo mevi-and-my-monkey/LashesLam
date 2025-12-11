@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -28,7 +27,10 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +38,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,6 +54,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
 import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
@@ -68,7 +72,6 @@ fun ServiceAddView(
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
     storage: FirebaseStorage = FirebaseStorage.getInstance()
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     // --- Estados
     var titulo by remember { mutableStateOf("") }
@@ -76,9 +79,11 @@ fun ServiceAddView(
     var horaInicio by remember { mutableStateOf("") }
     var horaFin by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
-    var ubicacion by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var costo by remember { mutableStateOf("") }
+    val locations by SessionManager.locations.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedLocation by remember { mutableStateOf<LocationItem?>(null) }
 
     val costoFormateado = remember(costo) {
         costo.toDoubleOrNull()?.let {
@@ -239,23 +244,38 @@ fun ServiceAddView(
             }
 
             // Ubicación (primera letra mayúscula)
-            OutlinedTextField(
-                value = ubicacion,
-                onValueChange = {
-                    ubicacion = it.replaceFirstChar { char ->
-                        if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = selectedLocation?.name ?: "Seleccionar ubicación",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Ubicación") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    locations.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(item.name) },
+                            onClick = {
+                                selectedLocation = item
+                                expanded = false
+                            }
+                        )
                     }
-                },
-                label = { Text("Ubicación") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                shape = RoundedCornerShape(12.dp)
-            )
+                }
+            }
 
             Spacer(Modifier.height(24.dp))
             Button(
@@ -278,7 +298,9 @@ fun ServiceAddView(
                                 "horaFin" to horaFin,
                                 "fecha" to fecha,
                                 "costo" to costo,
-                                "ubicacion" to ubicacion,
+                                "ubicacionNombre" to selectedLocation?.name,
+                                "lat" to selectedLocation?.lat,
+                                "lng" to selectedLocation?.lng,
                                 "imagen" to uri.toString(),
                                 "banner" to linkedBannerIndex
                             )

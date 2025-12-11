@@ -34,7 +34,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.mevi.lasheslam.core.Strings
@@ -43,7 +42,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = hiltViewModel()) {
+fun SplashScreen(navController: NavController) {
     val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
     val currentEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
     var showFullName by remember { mutableStateOf(false) }
@@ -61,7 +60,7 @@ fun SplashScreen(navController: NavController, loginViewModel: LoginViewModel = 
         delay(300)
         showFullName = true
         fullText.forEachIndexed { index, _ ->
-            visibleText = fullText.substring(0, index + 1)
+            visibleText = fullText.take(index + 1)
             delay(100)
         }
         SessionManager.refreshAdmins()

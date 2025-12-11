@@ -2,6 +2,7 @@ package com.mevi.lasheslam.utils
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.CalendarContract
 import android.widget.Toast
 import androidx.navigation.NavHostController
@@ -15,6 +16,7 @@ import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+import androidx.core.net.toUri
 
 object Utilities {
 
@@ -132,6 +134,13 @@ object Utilities {
             putExtra(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
         }
 
+        context.startActivity(intent)
+    }
+
+    fun openGoogleMaps(context: Context, lat: Double, lng: Double) {
+        val uri = "geo:$lat,$lng?q=$lat,$lng".toUri()
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        intent.setPackage("com.google.android.apps.maps")
         context.startActivity(intent)
     }
 }

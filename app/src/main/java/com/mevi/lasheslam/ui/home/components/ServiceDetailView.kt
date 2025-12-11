@@ -23,7 +23,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -84,6 +89,8 @@ fun ServiceDetailView(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var warningMessage by remember { mutableStateOf("") }
+    var isFavorite by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val serviceData by viewModel.selectedService.collectAsState()
     val userId = SessionManager.currentUserId.collectAsState().value
@@ -115,7 +122,9 @@ fun ServiceDetailView(
     val horaFin = serviceData?.get("horaFin") as? String ?: ""
     val fecha = serviceData?.get("fecha") as? String ?: ""
     val costo = (serviceData?.get("costo") as? String)?.toInt() ?: 0
-    val ubicacion = serviceData?.get("ubicacion") as? String ?: ""
+    val lat = serviceData?.get("lat") as? Double ?: 0.0
+    val lng = serviceData?.get("lng") as? Double ?: 0.0
+    val ubicacionNombre = serviceData?.get("ubicacionNombre") as? String ?: ""
     val imagen = serviceData?.get("imagen") as? String ?: ""
     val status = courseStatus ?: "solicitar"
 
@@ -195,7 +204,14 @@ fun ServiceDetailView(
                 InfoItem(icon = "📅", label = "FECHA: ", value = fecha)
                 InfoItem(icon = "🕒", label = "HORARIO: ", value = "$horaInicio - $horaFin")
                 InfoItem(icon = "💰", label = "COSTO: ", value = "$costo MXN")
-                InfoItem(icon = "📍", label = "UBICACIÓN: ", value = ubicacion)
+                Button(
+                    onClick = {
+                        Utilities.openGoogleMaps(context, lat, lng)
+                    }
+                ) {
+                    Icon(Icons.Default.Map, contentDescription = "Abrir en Maps")
+                    Text("Ver ubicación")
+                }
 
                 Spacer(Modifier.height(80.dp))
             }
@@ -242,6 +258,20 @@ fun ServiceDetailView(
                         tint = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
+            }
+
+            IconButton(
+                onClick = { isFavorite = !isFavorite },
+                modifier = Modifier
+                    .size(44.dp)
+                    .shadow(4.dp, CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    contentDescription = "Favorito",
+                    tint = if (isFavorite) Color.Yellow else MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
 
             IconButton(
@@ -341,10 +371,10 @@ fun ServiceDetailView(
 
             // 🔥 BOTÓN PRINCIPAL SEGÚN STATUS
             val buttonText = when (status) {
-                "solicitar" -> "Solicitar registro"
+                "solicitar" -> "Registrar"
                 "pendiente" -> "Solicitud pendiente"
                 "aceptado" -> "Agregar al calendario"
-                else -> "Solicitar registro"
+                else -> "Registrar"
             }
 
             val calendarIcon = when (status) {
