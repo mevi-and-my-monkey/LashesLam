@@ -3,6 +3,8 @@ package com.mevi.lasheslam.ui.profile.request
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.core.results.Resource
@@ -24,26 +26,43 @@ class AdminRequestsViewModel @Inject constructor(
     var requests by mutableStateOf<List<CourseRequest>>(emptyList())
         private set
 
-    var loading by mutableStateOf(false)
-        private set
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+
+    fun showLoading() {
+        _isLoading.value = true
+    }
+
+    fun hideLoading() {
+        _isLoading.value = false
+    }
 
     fun loadRequests(status: String) = viewModelScope.launch {
-        loading = true
+        showLoading()
         when (val result = getRequestsUseCase(status)) {
             is Resource.Success -> requests = result.data
-            is Resource.Error -> { /* handle error */ }
+            is Resource.Error -> { /* handle error */
+            }
+
             else -> {}
         }
-        loading = false
+        hideLoading()
     }
 
     fun approve(id: String, onDone: () -> Unit) = viewModelScope.launch {
+        showLoading()
         approveRequestUseCase(id)
+        loadRequests("pendiente")
+        hideLoading()
         onDone()
     }
 
     fun reject(id: String, onDone: () -> Unit) = viewModelScope.launch {
+        showLoading()
         rejectRequestUseCase(id)
+        loadRequests("pendiente")
+        hideLoading()
         onDone()
     }
 }

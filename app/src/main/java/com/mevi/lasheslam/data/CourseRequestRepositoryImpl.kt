@@ -45,7 +45,36 @@ class CourseRequestRepositoryImpl @Inject constructor(
     }
 
     override suspend fun rejectRequest(requestId: String): Resource<Boolean> {
-        return updateStatus(requestId, "pendiente")
+        return try {
+            val requestSnap = firestore.collection("course_requests")
+                .document(requestId)
+                .get()
+                .await()
+
+            if (!requestSnap.exists()) {
+                return Resource.Error("La solicitud no existe")
+            }
+
+            val userId = requestSnap.getString("userId") ?: return Resource.Error("userId no encontrado")
+            val courseId = requestSnap.getString("courseId") ?: return Resource.Error("courseId no encontrado")
+
+            firestore.collection("course_requests")
+                .document(requestId)
+                .delete()
+                .await()
+
+            firestore.collection("users")
+                .document(userId)
+                .collection("cursos")
+                .document(courseId)
+                .update("status", "solicitar")
+                .await()
+
+            Resource.Success(true)
+
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Error al rechazar solicitud")
+        }
     }
 
     private suspend fun updateStatus(requestId: String, newStatus: String): Resource<Boolean> {
