@@ -41,7 +41,53 @@ class CourseRequestRepositoryImpl @Inject constructor(
     }
 
     override suspend fun approveRequest(requestId: String): Resource<Boolean> {
-        return updateStatus(requestId, "aceptado")
+        return try {
+
+            // 1. Obtener data del request original
+            val snapshot = firestore.collection("course_requests")
+                .document(requestId)
+                .get()
+                .await()
+
+            if (!snapshot.exists()) {
+                return Resource.Error("La solicitud no existe")
+            }
+
+            val data = snapshot.data ?: return Resource.Error("La solicitud está vacía")
+
+            val userId = data["userId"] as? String
+                ?: return Resource.Error("userId no encontrado")
+            val courseId = data["courseId"] as? String
+                ?: return Resource.Error("courseId no encontrado")
+
+            // 2. Actualizar estado del request
+            firestore.collection("course_requests")
+                .document(requestId)
+                .update("status", "aceptado")
+                .await()
+
+            // 3. Actualizar estado del curso dentro del usuario
+            firestore.collection("users")
+                .document(userId)
+                .collection("cursos")
+                .document(courseId)
+                .update("status", "aceptado")
+                .await()
+
+            // 4. Crear documento en alumnos inscritos
+            val inscritosRef = firestore.collection("alumnos_inscritos")
+                .document(courseId)          // curso
+                .collection("inscritos")     // colección interna
+                .document(requestId)         // mismo ID del request
+
+            // Puedes quitar o cambiar campos si quieres
+            inscritosRef.set(data).await()
+
+            Resource.Success(true)
+
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Error al aprobar solicitud")
+        }
     }
 
     override suspend fun rejectRequest(requestId: String): Resource<Boolean> {
@@ -74,18 +120,6 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Error al rechazar solicitud")
-        }
-    }
-
-    private suspend fun updateStatus(requestId: String, newStatus: String): Resource<Boolean> {
-        return try {
-            requestsRef.document(requestId)
-                .update("status", newStatus)
-                .await()
-
-            Resource.Success(true)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al actualizar estado")
         }
     }
 }

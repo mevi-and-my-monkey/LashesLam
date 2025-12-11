@@ -53,16 +53,14 @@ class AdminRequestsViewModel @Inject constructor(
     fun approve(id: String, onDone: () -> Unit) = viewModelScope.launch {
         showLoading()
         approveRequestUseCase(id)
-        loadRequests("pendiente")
-        hideLoading()
         onDone()
+        hideLoading()
     }
 
     fun reject(id: String, onDone: () -> Unit) = viewModelScope.launch {
         showLoading()
         rejectRequestUseCase(id)
-        loadRequests("pendiente")
-        hideLoading()
         onDone()
+        hideLoading()
     }
 }
