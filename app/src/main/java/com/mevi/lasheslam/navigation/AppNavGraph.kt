@@ -24,6 +24,8 @@ import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.profile.ProfilePage
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
+import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
+import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -135,6 +137,48 @@ fun AppNavGraph(
 
         composable(Screen.Products.route) {
             ProductsView(navController)
+        }
+
+        composable(
+            route = Screen.Courses.route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(450)
+                ) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(450)
+                ) + fadeOut()
+            }
+        ) {
+            EnrolledCoursesScreen(navController)
+        }
+
+        composable(
+            route = Screen.CourseInscritos.route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(450)
+                ) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(450)
+                ) + fadeOut()
+            }
+        ) { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
+            val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
+
+            EnrolledStudentsScreen(
+                courseId = courseId,
+                courseName = courseName
+            )
         }
     }
 }

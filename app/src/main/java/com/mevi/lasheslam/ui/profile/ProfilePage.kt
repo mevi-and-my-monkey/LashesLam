@@ -203,6 +203,15 @@ fun ProfilePage(
                     }
                 }
             )
+            if (isAdmin){
+                ProfileOptionButton(
+                    icon = R.drawable.ic_inscripciones,
+                    text = "Inscripciones",
+                    onClick = {
+                        navController.navigate(Screen.Courses.route)
+                    }
+                )
+            }
             Button(
                 onClick = {
                     warningMessae = "¿Estas seguro que quieres cerrar sesion?"

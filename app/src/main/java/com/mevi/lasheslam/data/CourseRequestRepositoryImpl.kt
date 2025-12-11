@@ -74,14 +74,18 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 .update("status", "aceptado")
                 .await()
 
-            // 4. Crear documento en alumnos inscritos
-            val inscritosRef = firestore.collection("alumnos_inscritos")
-                .document(courseId)          // curso
-                .collection("inscritos")     // colección interna
-                .document(requestId)         // mismo ID del request
+            // 4. Crear documento padre para el curso (IMPORTANTE)
+            val cursoRef = firestore.collection("alumnos_inscritos")
+                .document(courseId)
 
-            // Puedes quitar o cambiar campos si quieres
-            inscritosRef.set(data).await()
+            cursoRef.set(mapOf("courseId" to courseId)).await()
+
+            // 5. Crear alumno inscrito
+            cursoRef
+                .collection("inscritos")
+                .document(requestId)
+                .set(data)
+                .await()
 
             Resource.Success(true)
 
