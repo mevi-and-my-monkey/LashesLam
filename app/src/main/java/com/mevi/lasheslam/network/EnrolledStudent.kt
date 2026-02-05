@@ -10,5 +10,6 @@ data class EnrolledStudent(
     val status: String = "",
     val date: String = "",
     val schedule: String = "",
+    val userPhoto: String = "",
     val timestamp: Long = 0L
 )

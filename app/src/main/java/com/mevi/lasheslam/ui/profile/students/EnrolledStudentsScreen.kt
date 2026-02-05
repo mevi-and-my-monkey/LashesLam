@@ -46,6 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.network.EnrolledStudent
 import com.mevi.lasheslam.ui.components.GenericLoading
 
@@ -160,12 +163,27 @@ fun StudentCard(student: EnrolledStudent) {
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "User",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
+                if (!student.userPhoto.isEmpty()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(student.userPhoto)
+                            .crossfade(true)
+                            .error(R.drawable.ic_guest)
+                            .placeholder(R.drawable.ic_guest)
+                            .build(),
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "User",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))

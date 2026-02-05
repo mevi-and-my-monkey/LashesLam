@@ -79,7 +79,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 .get()
                 .await()
 
-            val userPhoto = userSnapshot.getString("photoUrl") // o "profileImage"
+            val userPhoto = userSnapshot.getString("userPhoto")
 
             // 4. Crear documento padre para el curso (IMPORTANTE)
             val cursoRef = firestore.collection("alumnos_inscritos")
