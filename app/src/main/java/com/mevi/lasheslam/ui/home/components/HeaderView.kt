@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.ui.home.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -260,11 +261,12 @@ fun HeaderCategoryItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable { onClick() }
     ) {
-        Icon(
+        Image(
             painter = painterResource(id = icon),
             contentDescription = title,
-            tint = if (isSelected) Color.White else Color.Black.copy(alpha = 0.6f),
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
         )
         Text(
             text = title,

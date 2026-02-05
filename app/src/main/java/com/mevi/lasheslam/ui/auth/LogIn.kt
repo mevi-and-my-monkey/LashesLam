@@ -43,7 +43,6 @@ import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.GenericButton
-import com.mevi.lasheslam.ui.components.GenericIconButton
 import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
 import com.mevi.lasheslam.ui.components.SuccessDialog

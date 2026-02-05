@@ -25,7 +25,6 @@ import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
-import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.profile.ProfilePage
 
 @RequiresApi(Build.VERSION_CODES.O)
