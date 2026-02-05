@@ -2,10 +2,14 @@ package com.mevi.lasheslam.ui.home.components
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,14 +24,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.outlined.EventAvailable
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +42,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,9 +58,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.SubcomposeAsyncImage
@@ -122,10 +133,19 @@ fun ServiceDetailView(
     val horaFin = serviceData?.get("horaFin") as? String ?: ""
     val fecha = serviceData?.get("fecha") as? String ?: ""
     val costo = (serviceData?.get("costo") as? String)?.toInt() ?: 0
+    val apartar = (serviceData?.get("apartar") as? String)?.toInt() ?: 0
     val lat = serviceData?.get("lat") as? Double ?: 0.0
     val lng = serviceData?.get("lng") as? Double ?: 0.0
     val ubicacionNombre = serviceData?.get("ubicacionNombre") as? String ?: ""
     val imagen = serviceData?.get("imagen") as? String ?: ""
+    val instructoraDesc = serviceData?.get("instructoraDesc") as? String ?: ""
+    val instructora = serviceData?.get("instructora") as? String ?: ""
+    val instructoraImage = serviceData?.get("instructoraImage") as? String ?: ""
+    val diaUno = serviceData?.get("diaUno") as? String ?: ""
+    val diaDos = serviceData?.get("diaDos") as? String ?: ""
+    val diaTres = serviceData?.get("diaTres") as? String ?: ""
+    val diaCuatro = serviceData?.get("diaCuatro") as? String ?: ""
+    val diaCinco = serviceData?.get("diaCinco") as? String ?: ""
     val status = courseStatus ?: "solicitar"
 
     Box(
@@ -176,44 +196,119 @@ fun ServiceDetailView(
                     )
             ) {
 
-                // ⭐ TÍTULO CENTRADO Y MAYÚSCULA
-                Text(
-                    text = titulo.uppercase(),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                ServiceContent(
+                    titulo = titulo,
+                    descripcion = descripcion,
+                    costoTotal = costo.toDouble(),
+                    costoApartado = apartar.toDouble()
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
 
-                // 📝 Descripción moderna
-                Text(
-                    text = descripcion,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                ServiceInfoRow(
+                    fecha = fecha,
+                    horario = "$horaInicio - $horaFin",
+                    onLocationClick = {
+                        Utilities.openGoogleMaps(context, lat, lng)
+                    }
                 )
+
+                Spacer(Modifier.height(16.dp))
+
+                ExpandableSection(title = "Lo que aprenderás (Temario)") {
+                    if (diaUno.isNotEmpty()) Text("• Día 1: $diaUno")
+                    Spacer(Modifier.height(4.dp))
+                    if (diaDos.isNotEmpty()) Text("• Día 2: $diaDos")
+                    Spacer(Modifier.height(4.dp))
+                    if (diaTres.isNotEmpty()) Text("• Día 3: $diaTres")
+                    Spacer(Modifier.height(4.dp))
+                    if (diaCuatro.isNotEmpty()) Text("• Día 4: $diaCuatro")
+                    Spacer(Modifier.height(4.dp))
+                    if (diaCinco.isNotEmpty()) Text("• Día 5: $diaCinco")
+                }
+
+                InstructorCard(instructora, instructoraDesc, instructoraImage)
 
                 Spacer(Modifier.height(24.dp))
 
 
-                // 🔹 INFO ITEM MODERNO
-                InfoItem(icon = "📅", label = "FECHA: ", value = fecha)
-                InfoItem(icon = "🕒", label = "HORARIO: ", value = "$horaInicio - $horaFin")
-                InfoItem(icon = "💰", label = "COSTO: ", value = "$costo MXN")
-                Button(
-                    onClick = {
-                        Utilities.openGoogleMaps(context, lat, lng)
-                    }
-                ) {
-                    Icon(Icons.Default.Map, contentDescription = "Abrir en Maps")
-                    Text("Ver ubicación")
-                }
+                // 🔹 Texto superior
+                Text(
+                    text = "Solicitar más información",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Spacer(Modifier.height(12.dp))
 
-                Spacer(Modifier.height(80.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        // FACEBOOK
+                        IconButton(
+                            onClick = {
+                                val url = "https://facebook.com/"
+                                navController.context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, url.toUri())
+                                )
+                            },
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_facebook),
+                                contentDescription = "Facebook",
+                                tint = Color.Unspecified
+                            )
+                        }
+
+                        // INSTAGRAM
+                        IconButton(
+                            onClick = {
+                                val url = "https://instagram.com/"
+                                navController.context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, url.toUri())
+                                )
+                            },
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_instagram),
+                                contentDescription = "Instagram",
+                                tint = Color.Unspecified
+                            )
+                        }
+
+                        // WHATSAPP
+                        IconButton(
+                            onClick = {
+                                val url = "https://wa.me/${SessionManager.whatsApp.value}"
+                                navController.context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                )
+                            },
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_whatsapp),
+                                contentDescription = "WhatsApp",
+                                tint = Color.Unspecified
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -293,82 +388,6 @@ fun ServiceDetailView(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // 🔹 Texto superior
-            Text(
-                text = "Solicitar más información",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            // 🔹 Botones circulares (Facebook, Instagram, WhatsApp)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-
-                // FACEBOOK
-                IconButton(
-                    onClick = {
-                        val url = "https://facebook.com/"
-                        navController.context.startActivity(
-                            Intent(Intent.ACTION_VIEW, url.toUri())
-                        )
-                    },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_facebook),
-                        contentDescription = "Facebook",
-                        tint = Color.Unspecified
-                    )
-                }
-
-                // INSTAGRAM
-                IconButton(
-                    onClick = {
-                        val url = "https://instagram.com/"
-                        navController.context.startActivity(
-                            Intent(Intent.ACTION_VIEW, url.toUri())
-                        )
-                    },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_instagram),
-                        contentDescription = "Instagram",
-                        tint = Color.Unspecified
-                    )
-                }
-
-                // WHATSAPP
-                IconButton(
-                    onClick = {
-                        val url = "https://wa.me/${SessionManager.whatsApp.value}"
-                        navController.context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        )
-                    },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_whatsapp),
-                        contentDescription = "WhatsApp",
-                        tint = Color.Unspecified
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(18.dp))
-
             // 🔥 BOTÓN PRINCIPAL SEGÚN STATUS
             val buttonText = when (status) {
                 "solicitar" -> "Registrar"
@@ -485,27 +504,151 @@ fun ServiceDetailView(
 }
 
 @Composable
-private fun InfoItem(icon: String, label: String, value: String) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
+fun ServiceContent(
+    titulo: String,
+    descripcion: String,
+    costoTotal: Double,
+    costoApartado: Double
+) {
+    Column {
+        Text(
+            text = titulo.uppercase(),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        Text(
+            buildAnnotatedString {
+                append("Costo Total: ")
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("$${costoTotal} MXN")
+                }
+                if (costoApartado != 0.0){
+                    append(" / Aparta con: ")
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append("$${costoApartado} MXN")
+                    }
+                }
+            },
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            text = descripcion,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Composable
+fun ServiceInfoRow(
+    fecha: String,
+    horario: String,
+    onLocationClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        InfoIcon(icon = Icons.Default.CalendarToday, text = fecha)
+        InfoIcon(icon = Icons.Default.Schedule, text = horario)
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = icon, fontSize = MaterialTheme.typography.titleMedium.fontSize)
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-            )
-            Spacer(Modifier.height(12.dp))
-
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        TextButton(onClick = onLocationClick) {
+            Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFD9869A))
+            Spacer(Modifier.width(4.dp))
+            Text("Ver ubicación", color = Color(0xFFD9869A), fontWeight = FontWeight.Bold)
         }
     }
 }
+
+@Composable
+private fun InfoIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White)
+            .border(1.dp, Color(0xFFF0F0F0), RoundedCornerShape(12.dp))
+            .animateContentSize()
+            .clickable { expanded = !expanded }
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = if (expanded) "Colapsar" else "Expandir"
+            )
+        }
+        if (expanded) {
+            Column(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun InstructorCard(name: String, description: String = "", image: String) {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+        Text(
+            "Instructor(a)",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SubcomposeAsyncImage(
+                model = image,
+                contentDescription = name,
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+                loading = { CircularProgressIndicator() }
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = 18.sp
+                )
+            }
+        }
+    }
+}
+
+
+
