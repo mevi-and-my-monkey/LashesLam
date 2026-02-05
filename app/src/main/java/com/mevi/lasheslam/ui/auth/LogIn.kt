@@ -134,6 +134,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 GenericOutlinedButton(
                     text = Strings.register,
                     onClick = { showRegisterSheet = true },
+                    textColor = MaterialTheme.colorScheme.outline
                 )
             }
 
@@ -167,9 +168,8 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                GenericIconButton(
-                    icon = painterResource(id = R.drawable.ic_google_one),
-                    contentDescription = "Acceder con Google",
+                GenericOutlinedButton(
+                    text = "Acceder con Google",
                     onClick = {
                         val opciones =
                             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -181,8 +181,9 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                             launcher.launch(googleSignInCliente.signInIntent)
                         }
                     },
-                    backgroundColor = Color.White,
-                    iconTint = Color.Unspecified
+                    textColor = Color.Gray,
+                    borderColor = Color.Gray,
+                    icon = painterResource(id = R.drawable.ic_google_one)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
