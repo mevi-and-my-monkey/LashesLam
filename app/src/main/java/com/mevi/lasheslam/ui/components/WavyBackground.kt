@@ -5,10 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,12 +16,11 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun WavyBackground(
-    modifier: Modifier = Modifier.Companion,
-    backgroundColor: Color = MaterialTheme.colorScheme.background,
-    bigWaveColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    smallWaveColor: Color = MaterialTheme.colorScheme.surface,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val backgroundColor = Color(0xFFFFFBFB)
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -32,6 +31,17 @@ fun WavyBackground(
             val canvasWidth = size.width
             val canvasHeight = size.height
 
+            val bigWaveGradient = Brush.verticalGradient(
+                colors = listOf(Color(0xFFFEF0F2), Color(0xFFFADADD)),
+                startY = 0f,
+                endY = canvasHeight * 0.43f
+            )
+            val smallWaveGradient = Brush.verticalGradient(
+                colors = listOf(Color(0xFFFADADD), Color(0xFFE8A0B2)),
+                startY = 0f,
+                endY = canvasHeight * 0.45f
+            )
+
             // Ola grande (fondo)
             val bigWave = Path().apply {
                 moveTo(0f, canvasHeight * 0.28f)
@@ -41,8 +51,8 @@ fun WavyBackground(
                     x2 = canvasWidth,
                     y2 = canvasHeight * 0.28f
                 )
-                lineTo(canvasWidth, canvasHeight)
-                lineTo(0f, canvasHeight)
+                lineTo(canvasWidth, 0f)
+                lineTo(0f, 0f)
                 close()
             }
 
@@ -55,14 +65,14 @@ fun WavyBackground(
                     x2 = canvasWidth,
                     y2 = canvasHeight * 0.3f
                 )
-                lineTo(canvasWidth, canvasHeight)
-                lineTo(0f, canvasHeight)
+                lineTo(canvasWidth, 0f)
+                lineTo(0f, 0f)
                 close()
             }
 
             // Dibuja ambas olas
-            drawPath(path = bigWave, color = bigWaveColor) // tono más claro
-            drawPath(path = smallWave, color = smallWaveColor)
+            drawPath(path = bigWave, brush = bigWaveGradient)
+            drawPath(path = smallWave, brush = smallWaveGradient)
         }
         content()
     }

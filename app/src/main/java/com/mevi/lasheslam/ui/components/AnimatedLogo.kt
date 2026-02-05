@@ -36,9 +36,9 @@ fun AnimatedLogo() {
         enter = fadeIn(animationSpec = tween(durationMillis = 1200))
     ) {
         Image(
-            painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_lashes_dark else R.drawable.logo_lashes),
+            painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_lashes_dark else R.drawable.logo_lashes_),
             contentDescription = Strings.logoContentDescription,
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .size(120.dp)
         )
     }

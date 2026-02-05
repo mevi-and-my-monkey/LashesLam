@@ -89,9 +89,6 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
         }
 
     WavyBackground(
-        backgroundColor = MaterialTheme.colorScheme.background,
-        bigWaveColor = MaterialTheme.colorScheme.surfaceVariant,
-        smallWaveColor = MaterialTheme.colorScheme.surface
     ) {
         Column(
             modifier = Modifier
