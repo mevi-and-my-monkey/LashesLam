@@ -54,7 +54,9 @@ class UserRepositoryImpl @Inject constructor(
                 name = user.displayName ?: "Sin nombre registrado",
                 email = user.email ?: "Sin correo electronico registrado",
                 uid = userId,
-                phone = user.phoneNumber ?: "Sin numero telefonico registrado"
+                phone = user.phoneNumber ?: "Sin numero telefonico registrado",
+                address = "Sin direccion registrada",
+                userPhoto = user.photoUrl?.toString() ?: ""
             )
 
             val userDoc = firestore.collection("users").document(userId)

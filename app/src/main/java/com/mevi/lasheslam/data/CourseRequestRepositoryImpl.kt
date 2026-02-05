@@ -74,17 +74,30 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 .update("status", "aceptado")
                 .await()
 
+            val userSnapshot = firestore.collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            val userPhoto = userSnapshot.getString("photoUrl") // o "profileImage"
+
             // 4. Crear documento padre para el curso (IMPORTANTE)
             val cursoRef = firestore.collection("alumnos_inscritos")
                 .document(courseId)
 
             cursoRef.set(mapOf("courseId" to courseId)).await()
 
+            val alumnoData = data.toMutableMap()
+
+            if (!userPhoto.isNullOrEmpty()) {
+                alumnoData["userPhoto"] = userPhoto
+            }
+
             // 5. Crear alumno inscrito
             cursoRef
                 .collection("inscritos")
                 .document(requestId)
-                .set(data)
+                .set(alumnoData)
                 .await()
 
             Resource.Success(true)

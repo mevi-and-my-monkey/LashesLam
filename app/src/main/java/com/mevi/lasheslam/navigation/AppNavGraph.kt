@@ -176,6 +176,7 @@ fun AppNavGraph(
             val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
 
             EnrolledStudentsScreen(
+                navController = navController,
                 courseId = courseId,
                 courseName = courseName
             )
