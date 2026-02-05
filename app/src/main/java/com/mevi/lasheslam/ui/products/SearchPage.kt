@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.home.components.HeaderCategoriesMenu
 import com.mevi.lasheslam.ui.home.cursos.CursesList
+import com.mevi.lasheslam.ui.home.cursos.CursesListSearch
 import com.mevi.lasheslam.ui.products.search.SearchViewModel
 import kotlinx.coroutines.delay
 
@@ -136,7 +137,7 @@ fun SearchPage(
             focusRequester.requestFocus()
         }
 
-        CursesList(
+        CursesListSearch(
             services = filteredItems,
             isLoading = isLoading
         ) { item ->
