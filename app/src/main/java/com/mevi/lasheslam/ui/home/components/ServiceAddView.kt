@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -47,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -80,13 +83,29 @@ fun ServiceAddView(
     var horaFin by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageUriInstr by remember { mutableStateOf<Uri?>(null) }
     var costo by remember { mutableStateOf("") }
+    var apartado by remember { mutableStateOf("") }
+    var nombreInstructora by remember { mutableStateOf("") }
+    var descrInstructora by remember { mutableStateOf("") }
+    var temarioDiaUno by remember { mutableStateOf("") }
+    var temarioDiaDos by remember { mutableStateOf("") }
+    var temarioDiaTres by remember { mutableStateOf("") }
+    var temarioDiaCuatro by remember { mutableStateOf("") }
+    var temarioDiaCinco by remember { mutableStateOf("") }
+
     val locations by SessionManager.locations.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<LocationItem?>(null) }
 
     val costoFormateado = remember(costo) {
         costo.toDoubleOrNull()?.let {
+            NumberFormat.getCurrencyInstance(Locale("es", "MX")).format(it)
+        } ?: ""
+    }
+
+    val apartadpFormateado = remember(apartado) {
+        apartado.toDoubleOrNull()?.let {
             NumberFormat.getCurrencyInstance(Locale("es", "MX")).format(it)
         } ?: ""
     }
@@ -103,6 +122,10 @@ fun ServiceAddView(
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri -> imageUri = uri }
+
+    val pickImageLauncherInstr = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> imageUriInstr = uri }
 
     // --- Scroll adaptado al teclado ---
     ModalBottomSheet(onDismissRequest = onDismiss) {
@@ -128,7 +151,36 @@ fun ServiceAddView(
                 contentAlignment = Alignment.Center
             ) {
                 if (imageUri == null) {
-                    Text("Seleccionar imagen", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Outlined.CameraAlt,
+                            contentDescription = "Cámara",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(32.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Añadir imagen de portada",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = "(JPG, PNG, Rec: 1200x600px)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+
                 } else {
                     SubcomposeAsyncImage(
                         model = imageUri,
@@ -154,6 +206,7 @@ fun ServiceAddView(
                 ),
                 shape = RoundedCornerShape(12.dp)
             )
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Descripción (multilínea con mayúsculas al inicio)
             OutlinedTextField(
@@ -170,6 +223,7 @@ fun ServiceAddView(
                 ),
                 shape = RoundedCornerShape(12.dp)
             )
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Horario (inicio y fin con picker)
             Row(
@@ -203,6 +257,7 @@ fun ServiceAddView(
                     }
                 )
             }
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Fecha (picker con formato dd/MM/yyyy)
             OutlinedTextField(
@@ -218,6 +273,7 @@ fun ServiceAddView(
                     }
                 }
             )
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Costo (solo números y formato moneda)
             OutlinedTextField(
@@ -242,6 +298,114 @@ fun ServiceAddView(
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Apartar (solo números y formato moneda)
+            OutlinedTextField(
+                value = apartado,
+                onValueChange = { newValue ->
+                    // Solo números y punto decimal opcional
+                    if (newValue.matches(Regex("""\d*\.?\d*"""))) {
+                        apartado = newValue
+                    }
+                },
+                label = { Text("Apartar con") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            )
+
+            if (apartadpFormateado.isNotEmpty()) {
+                Text(
+                    text = "MXM: $apartadpFormateado",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Nombre de la instrcutrora (sin mayúscula automática)
+            OutlinedTextField(
+                value = nombreInstructora,
+                onValueChange = { nombreInstructora = it },
+                label = { Text("Nombre de la instructora") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Nombre de la instrcutrora (sin mayúscula automática)
+            OutlinedTextField(
+                value = descrInstructora,
+                onValueChange = { descrInstructora = it },
+                label = { Text("Descripcion de la instructora") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Imagen instructora
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable { pickImageLauncherInstr.launch("image/*") },
+                contentAlignment = Alignment.Center
+            ) {
+                if (imageUriInstr == null) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Outlined.CameraAlt,
+                            contentDescription = "Cámara",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(32.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Añadir imagen de portada",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "(JPG, PNG, Rec: 1200x600px)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+
+                } else {
+                    SubcomposeAsyncImage(
+                        model = imageUriInstr,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Ubicación (primera letra mayúscula)
             ExposedDropdownMenuBox(
@@ -277,41 +441,125 @@ fun ServiceAddView(
                 }
             }
 
+            OutlinedTextField(
+                value = temarioDiaUno,
+                onValueChange = { temarioDiaUno = it },
+                label = { Text("Temario, dia 1") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                value = temarioDiaDos,
+                onValueChange = { temarioDiaDos = it },
+                label = { Text("Temario, dia 2") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                value = temarioDiaTres,
+                onValueChange = { temarioDiaTres = it },
+                label = { Text("Temario, dia 3") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                value = temarioDiaCuatro,
+                onValueChange = { temarioDiaCuatro = it },
+                label = { Text("Temario, dia 4") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            OutlinedTextField(
+                value = temarioDiaCinco,
+                onValueChange = { temarioDiaCinco = it },
+                label = { Text("Temario, dia 5") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
             Spacer(Modifier.height(24.dp))
             Button(
                 modifier = Modifier
                     .fillMaxWidth(),
                 onClick = {
-                    if (imageUri == null) return@Button
+                    if (imageUri == null || imageUriInstr == null) return@Button
                     isLoading = true
 
                     val id = UUID.randomUUID().toString()
-                    val storageRef = storage.reference.child("services/$id.jpg")
-                    storageRef.putFile(imageUri!!)
-                        .continueWithTask { storageRef.downloadUrl }
-                        .addOnSuccessListener { uri ->
-                            val serviceData = mapOf(
-                                "id" to id,
-                                "titulo" to titulo,
-                                "descripcion" to descripcion,
-                                "horaIncio" to horaInicio,
-                                "horaFin" to horaFin,
-                                "fecha" to fecha,
-                                "costo" to costo,
-                                "ubicacionNombre" to selectedLocation?.name,
-                                "lat" to selectedLocation?.lat,
-                                "lng" to selectedLocation?.lng,
-                                "imagen" to uri.toString(),
-                                "banner" to linkedBannerIndex
-                            )
+                    val courseImageRef = storage.reference.child("services/$id/course.jpg")
+                    val instructorImageRef = storage.reference.child("services/$id/instructor.jpg")
 
-                            firestore.collection("data").document("curse")
-                                .collection("items").document(id)
-                                .set(serviceData)
-                                .addOnSuccessListener {
-                                    isLoading = false
-                                    showSuccess = true
-                                    successMessage = "El curso se guardó correctamente."
+                    courseImageRef.putFile(imageUri!!)
+                        .continueWithTask { courseImageRef.downloadUrl }
+                        .addOnSuccessListener { courseImageUrl ->
+
+                            instructorImageRef.putFile(imageUriInstr!!)
+                                .continueWithTask { instructorImageRef.downloadUrl }
+                                .addOnSuccessListener { instructorImageUrl ->
+
+                                    val serviceData = mapOf(
+                                        "id" to id,
+                                        "titulo" to titulo,
+                                        "descripcion" to descripcion,
+                                        "horaIncio" to horaInicio,
+                                        "horaFin" to horaFin,
+                                        "fecha" to fecha,
+                                        "costo" to costo,
+                                        "apartar" to apartado,
+                                        "ubicacionNombre" to selectedLocation?.name,
+                                        "lat" to selectedLocation?.lat,
+                                        "lng" to selectedLocation?.lng,
+                                        "instructora" to nombreInstructora,
+                                        "instructoraDesc" to descrInstructora,
+                                        "diaUno" to temarioDiaUno,
+                                        "diaDos" to temarioDiaDos,
+                                        "diaTres" to temarioDiaTres,
+                                        "diaCuatro" to temarioDiaCuatro,
+                                        "diaCinco" to temarioDiaCinco,
+                                        "imagen" to courseImageUrl.toString(),
+                                        "instructoraImage" to instructorImageUrl.toString(),
+                                        "banner" to linkedBannerIndex
+                                    )
+
+                                    firestore.collection("data")
+                                        .document("curse")
+                                        .collection("items")
+                                        .document(id)
+                                        .set(serviceData)
+                                        .addOnSuccessListener {
+                                            isLoading = false
+                                            showSuccess = true
+                                            successMessage = "El curso se guardó correctamente."
+                                        }
                                 }
                         }
                 },

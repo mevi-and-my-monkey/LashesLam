@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -49,6 +51,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
@@ -60,7 +65,6 @@ import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
 import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
 import kotlinx.coroutines.tasks.await
-import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,8 +91,20 @@ fun ServiceEditView(
     var lat by remember { mutableStateOf(0.0) }
     var lng by remember { mutableStateOf(0.0) }
     var costo by remember { mutableStateOf("") }
+    var apartado by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageUriInstr by remember { mutableStateOf<Uri?>(null) }
     var oldImageUrl by remember { mutableStateOf<String?>(null) }
+    var oldImageUrlInst by remember { mutableStateOf<String?>(null) }
+
+    var nameInstruc by remember { mutableStateOf("") }
+    var descInstruc by remember { mutableStateOf("") }
+
+    var diaUno by remember { mutableStateOf("") }
+    var diaDos by remember { mutableStateOf("") }
+    var diaTres by remember { mutableStateOf("") }
+    var diaCuatro by remember { mutableStateOf("") }
+    var diaCinco by remember { mutableStateOf("") }
 
     var selectedLocation by remember { mutableStateOf<LocationItem?>(null) }
     var expandedLocation by remember { mutableStateOf(false) }
@@ -109,6 +125,15 @@ fun ServiceEditView(
             horaFin = data["horaFin"] as? String ?: ""
             fecha = data["fecha"] as? String ?: ""
             costo = data["costo"] as? String ?: ""
+            apartado = data["apartar"] as? String ?: ""
+            nameInstruc = data["instructora"] as? String ?: ""
+            descInstruc = data["instructoraDesc"] as? String ?: ""
+            diaUno = data["diaUno"] as? String ?: ""
+            diaDos = data["diaDos"] as? String ?: ""
+            diaTres = data["diaTres"] as? String ?: ""
+            diaCuatro = data["diaCuatro"] as? String ?: ""
+            diaCinco = data["diaCinco"] as? String ?: ""
+            oldImageUrlInst = data["instructoraImage"] as? String
             oldImageUrl = data["imagen"] as? String
             ubicacionNombre = data["ubicacionNombre"] as? String ?: ""
             lat = data["lat"] as? Double ?: 0.0
@@ -122,6 +147,10 @@ fun ServiceEditView(
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri -> imageUri = uri }
+
+    val pickImageLauncherInst = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri -> imageUriInstr = uri }
 
     Scaffold(
         topBar = {
@@ -172,7 +201,31 @@ fun ServiceEditView(
                             contentScale = ContentScale.Crop
                         )
 
-                        else -> Text("Seleccionar imagen")
+                        else -> {
+                            Icon(
+                                imageVector = Icons.Outlined.CameraAlt,
+                                contentDescription = "Cámara",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "Añadir imagen de portada",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "(JPG, PNG, Rec: 1200x600px)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
                     }
                 }
 
@@ -186,6 +239,7 @@ fun ServiceEditView(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = descripcion,
@@ -196,6 +250,7 @@ fun ServiceEditView(
                         .heightIn(min = 100.dp),
                     shape = RoundedCornerShape(12.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
@@ -224,6 +279,7 @@ fun ServiceEditView(
                         }
                     )
                 }
+                Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = fecha,
@@ -237,16 +293,126 @@ fun ServiceEditView(
                         }
                     }
                 )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = costo,
-                    onValueChange = { if (it.matches(Regex("""\\d*\\.?\\d*"""))) costo = it },
+                    onValueChange = { newValue ->
+                        // Solo números y punto decimal opcional
+                        if (newValue.matches(Regex("""\d*\.?\d*"""))) {
+                            costo = newValue
+                        }
+                    },
                     label = { Text("Costo") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     shape = RoundedCornerShape(12.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Apartar (solo números y formato moneda)
+                OutlinedTextField(
+                    value = apartado,
+                    onValueChange = { newValue ->
+                        // Solo números y punto decimal opcional
+                        if (newValue.matches(Regex("""\d*\.?\d*"""))) {
+                            apartado = newValue
+                        }
+                    },
+                    label = { Text("Apartar con") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Nombre de la instrcutrora (sin mayúscula automática)
+                OutlinedTextField(
+                    value = nameInstruc,
+                    onValueChange = { nameInstruc = it },
+                    label = { Text("Nombre de la instructora") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Nombre de la instrcutrora (sin mayúscula automática)
+                OutlinedTextField(
+                    value = descInstruc,
+                    onValueChange = { descInstruc = it },
+                    label = { Text("Descripcion de la instructora") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Imagen instructora
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable { pickImageLauncherInst.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    when {
+                        imageUriInstr != null -> SubcomposeAsyncImage(
+                            model = imageUriInstr,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        oldImageUrlInst != null -> SubcomposeAsyncImage(
+                            model = oldImageUrlInst,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+
+                        else -> {
+                            Icon(
+                                imageVector = Icons.Outlined.CameraAlt,
+                                contentDescription = "Cámara",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "Añadir imagen de portada",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "(JPG, PNG, Rec: 1200x600px)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
 
                 ExposedDropdownMenuBox(
                     expanded = expandedLocation,
@@ -281,47 +447,149 @@ fun ServiceEditView(
                     }
                 }
 
+                OutlinedTextField(
+                    value = diaUno,
+                    onValueChange = { diaUno = it },
+                    label = { Text("Temario, dia 1") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = diaDos,
+                    onValueChange = { diaDos = it },
+                    label = { Text("Temario, dia 2") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = diaTres,
+                    onValueChange = { diaTres = it },
+                    label = { Text("Temario, dia 3") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = diaCuatro,
+                    onValueChange = { diaCuatro = it },
+                    label = { Text("Temario, dia 4") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = diaCinco,
+                    onValueChange = { diaCinco = it },
+                    label = { Text("Temario, dia 5") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
                 Spacer(Modifier.height(24.dp))
 
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         isLoading = true
-                        if (imageUri != null) {
-                            val ref = storage.reference.child("services/$serviceId.jpg")
-                            ref.putFile(imageUri!!)
-                                .continueWithTask { ref.downloadUrl }
-                                .addOnSuccessListener { uri ->
-                                    saveToFirestore(
-                                        serviceId,
-                                        uri.toString(),
-                                        firestore,
-                                        titulo,
-                                        descripcion,
-                                        horaInicio,
-                                        horaFin,
-                                        fecha,
-                                        selectedLocation,
-                                        costo
-                                    )
-                                    successMessage = "Cambios guardados correctamente"
-                                    showSuccess = true
-                                }
-                        } else {
+
+                        // Función final para guardar en Firestore
+                        fun save(courseImage: String?, instructorImage: String?) {
                             saveToFirestore(
-                                serviceId,
-                                oldImageUrl,
-                                firestore,
-                                titulo,
-                                descripcion,
-                                horaInicio,
-                                horaFin,
-                                fecha,
-                                selectedLocation,
-                                costo
+                                id = serviceId,
+                                imageUrl = courseImage,
+                                instructorImageUrl = instructorImage,
+                                firestore = firestore,
+                                titulo = titulo,
+                                descripcion = descripcion,
+                                horaInicio = horaInicio,
+                                horaFin = horaFin,
+                                fecha = fecha,
+                                location = selectedLocation,
+                                costo = costo,
+                                apartar = apartado,
+                                instructora = nameInstruc,
+                                instructoraDesc = descInstruc,
+                                diaUno = diaUno,
+                                diaDos = diaDos,
+                                diaTres = diaTres,
+                                diaCuatro = diaCuatro,
+                                diaCinco = diaCinco
                             )
+
                             successMessage = "Cambios guardados correctamente"
                             showSuccess = true
+                            isLoading = false
+                        }
+
+                        // --- CASOS ---
+                        when {
+                            imageUri != null && imageUriInstr != null -> {
+                                val courseRef =
+                                    storage.reference.child("services/$serviceId/course.jpg")
+                                val instrRef =
+                                    storage.reference.child("services/$serviceId/instructor.jpg")
+
+                                courseRef.putFile(imageUri!!)
+                                    .continueWithTask { courseRef.downloadUrl }
+                                    .addOnSuccessListener { courseUrl ->
+                                        instrRef.putFile(imageUriInstr!!)
+                                            .continueWithTask { instrRef.downloadUrl }
+                                            .addOnSuccessListener { instrUrl ->
+                                                save(courseUrl.toString(), instrUrl.toString())
+                                            }
+                                    }
+                            }
+
+                            imageUri != null -> {
+                                val courseRef =
+                                    storage.reference.child("services/$serviceId/course.jpg")
+                                courseRef.putFile(imageUri!!)
+                                    .continueWithTask { courseRef.downloadUrl }
+                                    .addOnSuccessListener { courseUrl ->
+                                        save(courseUrl.toString(), oldImageUrlInst)
+                                    }
+                            }
+
+                            imageUriInstr != null -> {
+                                val instrRef =
+                                    storage.reference.child("services/$serviceId/instructor.jpg")
+                                instrRef.putFile(imageUriInstr!!)
+                                    .continueWithTask { instrRef.downloadUrl }
+                                    .addOnSuccessListener { instrUrl ->
+                                        save(oldImageUrl, instrUrl.toString())
+                                    }
+                            }
+
+                            else -> {
+                                save(oldImageUrl, oldImageUrlInst)
+                            }
                         }
                     }
                 ) {
@@ -357,14 +625,23 @@ fun ServiceEditView(
 private fun saveToFirestore(
     id: String,
     imageUrl: String?,
+    instructorImageUrl: String?,
     firestore: FirebaseFirestore,
     titulo: String,
     descripcion: String,
     horaInicio: String,
     horaFin: String,
     fecha: String,
-    location: LocationItem?,   // 👈 AQUÍ
-    costo: String
+    location: LocationItem?,
+    costo: String,
+    apartar: String,
+    instructora: String,
+    instructoraDesc: String,
+    diaUno: String,
+    diaDos: String,
+    diaTres: String,
+    diaCuatro: String,
+    diaCinco: String
 ) {
     val map = mutableMapOf<String, Any>(
         "titulo" to titulo,
@@ -375,12 +652,23 @@ private fun saveToFirestore(
         "ubicacionNombre" to (location?.name ?: ""),
         "lat" to (location?.lat ?: 0.0),
         "lng" to (location?.lng ?: 0.0),
-        "costo" to costo
+        "costo" to costo,
+        "apartar" to apartar,
+        "instructora" to instructora,
+        "instructoraDesc" to instructoraDesc,
+        "diaUno" to diaUno,
+        "diaDos" to diaDos,
+        "diaTres" to diaTres,
+        "diaCuatro" to diaCuatro,
+        "diaCinco" to diaCinco
     )
 
-    if (imageUrl != null) map["imagen"] = imageUrl
+    imageUrl?.let { map["imagen"] = it }
+    instructorImageUrl?.let { map["instructoraImage"] = it }
 
-    firestore.collection("data").document("curse")
-        .collection("items").document(id)
+    firestore.collection("data")
+        .document("curse")
+        .collection("items")
+        .document(id)
         .update(map)
 }
