@@ -3,9 +3,11 @@ package com.mevi.lasheslam.core.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.data.CourseRequestRepositoryImpl
+import com.mevi.lasheslam.data.CoursesRepositoryImpl
 import com.mevi.lasheslam.data.FavoritesRepositoryImpl
 import com.mevi.lasheslam.data.UserRepositoryImpl
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
+import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import com.mevi.lasheslam.domain.repository.UserRepository
 import dagger.Module
@@ -32,4 +34,9 @@ object RepositoryModule {
     fun provideFavoritesRepository(
         firestore: FirebaseFirestore
     ): FavoritesRepository = FavoritesRepositoryImpl(firestore)
+
+    @Provides
+    fun provideCoursesRepository(
+        firestore: FirebaseFirestore
+    ): CoursesRepository = CoursesRepositoryImpl(firestore)
 }

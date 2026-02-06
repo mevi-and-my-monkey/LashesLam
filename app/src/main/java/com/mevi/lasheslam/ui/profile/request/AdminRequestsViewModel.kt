@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.ui.profile.request
 
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,11 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.ApproveRequestUseCase
+import com.mevi.lasheslam.domain.usecase.GetFavoriteCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.RejectRequestUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
 import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.network.ServiceItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +28,7 @@ class AdminRequestsViewModel @Inject constructor(
     private val rejectRequestUseCase: RejectRequestUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val getFavoriteCoursesUseCase: GetFavoriteCoursesUseCase,
     private val auth: FirebaseAuth,
 ) : ViewModel() {
 
@@ -39,6 +41,8 @@ class AdminRequestsViewModel @Inject constructor(
     var favoriteIds by mutableStateOf<List<String>>(emptyList())
         private set
 
+    var favoriteCourses by mutableStateOf<List<ServiceItem>>(emptyList())
+        private set
 
     fun showLoading() {
         _isLoading.value = true
@@ -74,23 +78,31 @@ class AdminRequestsViewModel @Inject constructor(
         hideLoading()
     }
 
-    fun loadFavorites() {
+    fun loadFavoriteCourses() {
         val user = auth.currentUser ?: return
 
         viewModelScope.launch {
             showLoading()
-            when (val result = getFavoritesUseCase(user.uid)) {
-                is Resource.Success -> {
-                    favoriteIds = result.data
-                }
-                is Resource.Error -> {
-                    // opcional: manejar error
-                }
 
+            when (val favResult = getFavoritesUseCase(user.uid)) {
+                is Resource.Success -> {
+                    val ids = favResult.data
+
+                    if (ids.isEmpty()) {
+                        favoriteCourses = emptyList()
+                    } else {
+                        when (val courseResult = getFavoriteCoursesUseCase(ids)) {
+                            is Resource.Success -> {
+                                favoriteCourses = courseResult.data
+                            }
+                            else -> {}
+                        }
+                    }
+                }
                 else -> {}
             }
+
             hideLoading()
         }
     }
-
 }
