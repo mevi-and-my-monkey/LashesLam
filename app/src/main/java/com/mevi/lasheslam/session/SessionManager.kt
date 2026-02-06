@@ -26,6 +26,12 @@ object SessionManager {
     private val _whatsApp = MutableStateFlow("")
     val whatsApp = _whatsApp.asStateFlow()
 
+    private val _instagram = MutableStateFlow("")
+    val instagram = _instagram.asStateFlow()
+
+    private val _facebook = MutableStateFlow("")
+    val facebook = _facebook.asStateFlow()
+
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId = _currentUserId.asStateFlow()
 
@@ -50,6 +56,14 @@ object SessionManager {
 
     fun setWhatsApp(value: String) {
         _whatsApp.value = value
+    }
+
+    fun setInstagram(value: String) {
+        _instagram.value = value
+    }
+
+    fun setFacebook(value: String) {
+        _facebook.value = value
     }
 
     fun setCurrentUserId(uid: String?) {
@@ -84,7 +98,13 @@ object SessionManager {
             _locations.value = parseLocationList(locationsJson)
             val whatsApp = remoteConfig.getString(Strings.keyRemoteConfigWhatsappAdmin)
                 .ifEmpty { Strings.defaultAdminWhatsapp }
+            val facebook = remoteConfig.getString(Strings.keyRemoteConfigFacebookAdmin)
+                .ifEmpty { Strings.defaultAdminFacebook }
+            val instagram = remoteConfig.getString(Strings.keyRemoteConfigInstagramAdmin)
+                .ifEmpty { Strings.defaultAdminIntagram}
             setWhatsApp(whatsApp)
+            setInstagram(instagram)
+            setFacebook(facebook)
             //Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {
             Log.e("SessionManager", Strings.logErrorFetchingRemoteConfig, e)

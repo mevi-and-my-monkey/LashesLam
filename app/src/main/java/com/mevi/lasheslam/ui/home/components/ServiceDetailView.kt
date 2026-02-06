@@ -251,7 +251,7 @@ fun ServiceDetailView(
                         // FACEBOOK
                         IconButton(
                             onClick = {
-                                val url = "https://facebook.com/"
+                                val url = SessionManager.facebook.value
                                 navController.context.startActivity(
                                     Intent(Intent.ACTION_VIEW, url.toUri())
                                 )
@@ -271,7 +271,7 @@ fun ServiceDetailView(
                         // INSTAGRAM
                         IconButton(
                             onClick = {
-                                val url = "https://instagram.com/"
+                                val url = SessionManager.instagram.value
                                 navController.context.startActivity(
                                     Intent(Intent.ACTION_VIEW, url.toUri())
                                 )

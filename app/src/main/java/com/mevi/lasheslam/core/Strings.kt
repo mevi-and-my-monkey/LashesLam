@@ -23,8 +23,12 @@ object Strings {
     const val loginWithGoogle = "Acceder con Google"
     const val keyRemoteConfigListAdmin = "list_admin"
     const val keyRemoteConfigWhatsappAdmin = "whatsapp_administrador"
+    const val keyRemoteConfigInstagramAdmin = "instagram"
+    const val keyRemoteConfigFacebookAdmin = "facebook"
     const val keyRemoteConfigLocations = "sucursales"
     const val defaultAdminWhatsapp = "5514023853"
+    const val defaultAdminIntagram = "https://instagram.com/"
+    const val defaultAdminFacebook = "https://facebook.com/"
     const val logErrorProcessingAdminList = "Error al procesar list_admin"
     const val logErrorFetchingRemoteConfig = "Error al obtener Remote Config"
 }
