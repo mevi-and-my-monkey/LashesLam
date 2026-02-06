@@ -143,4 +143,6 @@ object Utilities {
         intent.setPackage("com.google.android.apps.maps")
         context.startActivity(intent)
     }
+
+
 }

@@ -89,6 +89,10 @@ dependencies {
     // Glide (cambiado a kapt)
     implementation(libs.glide.v4151)
     kapt(libs.compiler.v4151)
+    //Work manager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
 
     implementation(platform(libs.firebase.bom))
 

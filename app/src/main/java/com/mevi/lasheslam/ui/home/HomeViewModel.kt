@@ -1,5 +1,8 @@
 package com.mevi.lasheslam.ui.home
 
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,18 +11,33 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
 import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.utils.NotificationWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import androidx.work.workDataOf
+import androidx.work.OneTimeWorkRequestBuilder
+import com.google.firebase.firestore.DocumentChange
+import com.mevi.lasheslam.utils.showNotification
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +47,8 @@ class HomeViewModel @Inject constructor(
     private val getRequestsUseCase: GetRequestsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
-    ) : ViewModel() {
+    @ApplicationContext private val appContext: Context
+) : ViewModel() {
 
     var name by mutableStateOf("")
         private set
@@ -167,16 +186,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun loadUserAcceptedCourses(userId: String) {
         firestore.collection("users")
             .document(userId)
             .collection("cursos")
             .whereEqualTo("status", "aceptado")
             .addSnapshotListener { snapshot, _ ->
-                userAcceptedCount = snapshot?.size() ?: 0
+                if (snapshot == null) return@addSnapshotListener
+
+                snapshot.documentChanges.forEach { change ->
+                    if (change.type == DocumentChange.Type.ADDED) {
+                        val doc = change.document
+                        if (doc.getString("notification") == "notCreated") {
+                            createCourseNotifications(doc)
+                        }
+                    }
+                }
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun initUserStatus(isAdmin: Boolean, userId: String) {
         if (isAdmin) {
             loadAdminPendingRequests()
@@ -199,6 +229,7 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     _isFavorite.value = !current
                 }
+
                 else -> {}
             }
         }
@@ -211,8 +242,112 @@ class HomeViewModel @Inject constructor(
                 is Resource.Success -> {
                     _isFavorite.value = result.data.contains(serviceId)
                 }
+
                 else -> {}
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createCourseNotifications(courseDoc: DocumentSnapshot) {
+        if (SessionManager.isUserAdmin.value) return
+        val notificationsState =
+            courseDoc.getString("notification") ?: "notCreated"
+
+        if (notificationsState == "created") return
+
+        val courseId = courseDoc.id
+        val courseName = courseDoc.getString("courseName") ?: return
+        val date = courseDoc.getString("date") ?: return
+        val schedule = courseDoc.getString("schedule") ?: return
+
+        val startDateTime = parseCourseDateTime(date, schedule)
+
+        scheduleNotifications(courseId, courseName, startDateTime)
+
+        showNotification(
+            context = appContext,
+            title = "Recordatorios creados",
+            message = "Te avisaremos cuando el curso \"$courseName\" esté por comenzar"
+        )
+
+        courseDoc.reference.update("notification", "created")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun parseCourseDateTime(
+        date: String,
+        schedule: String
+    ): LocalDateTime {
+
+        val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        val localDate = LocalDate.parse(date, dateFormatter)
+
+        val startTime = schedule.split("-")[0].trim()
+        val localTime = LocalTime.parse(startTime, timeFormatter)
+
+        return LocalDateTime.of(localDate, localTime)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun scheduleNotifications(
+        courseId: String,
+        courseName: String,
+        startDateTime: LocalDateTime
+    ) {
+        val notifications = listOf(
+            startDateTime.minusHours(2),
+            startDateTime.minusDays(1).withHour(13),
+            startDateTime.minusDays(2).withHour(14),
+            startDateTime
+        )
+
+        notifications.forEachIndexed { index, time ->
+            val delay = Duration.between(LocalDateTime.now(), time).toMillis()
+
+            if (delay > 0) {
+                scheduleWork(
+                    delay,
+                    "$courseId-$index",
+                    courseName,
+                    time,
+                    index
+                )
+            }
+        }
+    }
+
+    private fun scheduleWork(
+        delay: Long,
+        uniqueId: String,
+        courseName: String,
+        time: LocalDateTime,
+        index: Int
+    ) {
+        val message = when (index) {
+            0 -> "Tu curso $courseName inicia en 2 horas"
+            1 -> "Tu curso $courseName es mañana"
+            2 -> "Tu curso $courseName es en 2 días"
+            else -> "Tu curso $courseName inicia ahora"
+        }
+
+        val data = workDataOf(
+            "title" to "Curso próximo",
+            "message" to message
+        )
+        val work = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInputData(data)
+            .build()
+
+        WorkManager.getInstance(appContext)
+            .enqueueUniqueWork(
+                uniqueId,
+                ExistingWorkPolicy.REPLACE,
+                work
+            )
+    }
+
 }

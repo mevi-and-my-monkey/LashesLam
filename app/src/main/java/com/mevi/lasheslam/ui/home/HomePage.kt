@@ -33,6 +33,7 @@ import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
+import com.mevi.lasheslam.ui.components.RequestNotificationPermission
 import com.mevi.lasheslam.ui.home.components.HeaderView
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.components.ServiceAddView
@@ -43,6 +44,7 @@ import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
 fun HomePage(
     navController: NavController
 ) {
+    RequestNotificationPermission()
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }

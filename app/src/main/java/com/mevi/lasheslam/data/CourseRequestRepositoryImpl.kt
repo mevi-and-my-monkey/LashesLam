@@ -42,12 +42,11 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
     override suspend fun approveRequest(requestId: String): Resource<Boolean> {
         return try {
-
             // 1. Obtener data del request original
-            val snapshot = firestore.collection("course_requests")
+            val requestRef = firestore.collection("course_requests")
                 .document(requestId)
-                .get()
-                .await()
+
+            val snapshot = requestRef.get().await()
 
             if (!snapshot.exists()) {
                 return Resource.Error("La solicitud no existe")
@@ -60,14 +59,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
             val courseId = data["courseId"] as? String
                 ?: return Resource.Error("courseId no encontrado")
 
-            // 2. Actualizar estado del request
-            firestore.collection("course_requests")
-                .document(requestId)
-                .update("status", "aceptado")
-                .await()
-
-            // 3. Actualizar estado del curso dentro del usuario
-
+            // 2. Crear curso dentro del usuario
             val cursoData = mapOf(
                 "courseId" to courseId,
                 "courseName" to (data["courseName"] as? String ?: ""),
@@ -75,6 +67,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 "schedule" to (data["schedule"] as? String ?: ""),
                 "status" to "aceptado",
                 "requestId" to requestId,
+                "notification" to "notCreated",
                 "timestamp" to (data["timestamp"] ?: System.currentTimeMillis())
             )
 
@@ -85,6 +78,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 .set(cursoData)
                 .await()
 
+            // 3. Obtener foto del usuario
             val userSnapshot = firestore.collection("users")
                 .document(userId)
                 .get()
@@ -92,24 +86,26 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
             val userPhoto = userSnapshot.getString("userPhoto")
 
-            // 4. Crear documento padre para el curso (IMPORTANTE)
+            // 4. Crear documento padre del curso
             val cursoRef = firestore.collection("alumnos_inscritos")
                 .document(courseId)
 
             cursoRef.set(mapOf("courseId" to courseId)).await()
 
+            // 5. Crear alumno inscrito
             val alumnoData = data.toMutableMap()
-
             if (!userPhoto.isNullOrEmpty()) {
                 alumnoData["userPhoto"] = userPhoto
             }
 
-            // 5. Crear alumno inscrito
             cursoRef
                 .collection("inscritos")
                 .document(requestId)
                 .set(alumnoData)
                 .await()
+
+            // 6. ELIMINAR REQUEST (FINAL)
+            requestRef.delete().await()
 
             Resource.Success(true)
 
