@@ -67,11 +67,22 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 .await()
 
             // 3. Actualizar estado del curso dentro del usuario
+
+            val cursoData = mapOf(
+                "courseId" to courseId,
+                "courseName" to (data["courseName"] as? String ?: ""),
+                "date" to (data["date"] as? String ?: ""),
+                "schedule" to (data["schedule"] as? String ?: ""),
+                "status" to "aceptado",
+                "requestId" to requestId,
+                "timestamp" to (data["timestamp"] ?: System.currentTimeMillis())
+            )
+
             firestore.collection("users")
                 .document(userId)
                 .collection("cursos")
                 .document(courseId)
-                .update("status", "aceptado")
+                .set(cursoData)
                 .await()
 
             val userSnapshot = firestore.collection("users")
