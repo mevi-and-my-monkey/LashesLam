@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
@@ -370,9 +372,9 @@ fun ServiceDetailView(
                     .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
             ) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = "Favorito",
-                    tint = if (isFavorite) Color.Yellow else MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 

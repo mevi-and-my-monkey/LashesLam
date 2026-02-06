@@ -37,7 +37,7 @@ fun FavoriteScreen(
             )
 
             when (selectedSection) {
-                Section.CURSOS -> FavoriteCoursesScreen()
+                Section.CURSOS -> FavoriteCoursesScreen(navController = navController)
                 Section.PRODUCTOS -> {}
                 Section.SERVICIOS -> {}
             }
