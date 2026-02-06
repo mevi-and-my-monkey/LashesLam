@@ -23,6 +23,7 @@ import com.mevi.lasheslam.ui.home.components.ServiceEditView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.profile.ProfilePage
+import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
@@ -180,6 +181,24 @@ fun AppNavGraph(
                 courseId = courseId,
                 courseName = courseName
             )
+        }
+
+        composable(
+            route = Screen.Favorite.route,
+            enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeIn()
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeOut()
+            }
+        ) {
+            FavoriteScreen(navController)
         }
     }
 }

@@ -14,6 +14,7 @@ sealed class Screen(val route: String) {
         fun createRoute(serviceId: String) = "service_edit/$serviceId"
     }
     object Request : Screen("request")
+    object Favorite : Screen("favorite")
     object Courses : Screen("courses")
 
     object CourseInscritos : Screen("course_inscritos/{courseId}/{courseName}") {

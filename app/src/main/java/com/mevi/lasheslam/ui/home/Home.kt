@@ -72,7 +72,7 @@ fun HomeScreen(
             when (selectedIndex) {
                 0 -> HomePage(navController)
                 1 -> navController.navigate(Screen.Search.route)
-                2 -> Text("Favoritos")
+                2 -> navController.navigate(Screen.Favorite.route)
                 3 -> {
                     if (isAdmin) {
                         navController.navigate(Screen.Request.route)

@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.ui.home
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
+import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
 import com.mevi.lasheslam.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +27,8 @@ class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val getRequestsUseCase: GetRequestsUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
     ) : ViewModel() {
 
     var name by mutableStateOf("")
@@ -48,6 +53,9 @@ class HomeViewModel @Inject constructor(
 
     var userAcceptedCount by mutableStateOf(0)
         private set
+
+    private val _isFavorite = mutableStateOf(false)
+    val isFavorite: State<Boolean> get() = _isFavorite
 
     fun loadServiceById(serviceId: String) {
         showLoading()
@@ -174,6 +182,37 @@ class HomeViewModel @Inject constructor(
             loadAdminPendingRequests()
         } else {
             loadUserAcceptedCourses(userId)
+        }
+    }
+
+    fun toggleFavorite(userId: String, serviceId: String) {
+        viewModelScope.launch {
+            val current = _isFavorite.value
+
+            when (
+                toggleFavoriteUseCase(
+                    userId = userId,
+                    courseId = serviceId,
+                    isFavorite = current
+                )
+            ) {
+                is Resource.Success -> {
+                    _isFavorite.value = !current
+                }
+                else -> {}
+            }
+        }
+    }
+
+
+    fun checkIfFavorite(userId: String, serviceId: String) {
+        viewModelScope.launch {
+            when (val result = getFavoritesUseCase(userId)) {
+                is Resource.Success -> {
+                    _isFavorite.value = result.data.contains(serviceId)
+                }
+                else -> {}
+            }
         }
     }
 }

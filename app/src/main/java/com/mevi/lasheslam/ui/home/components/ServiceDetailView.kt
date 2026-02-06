@@ -100,7 +100,7 @@ fun ServiceDetailView(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var warningMessage by remember { mutableStateOf("") }
-    var isFavorite by remember { mutableStateOf(false) }
+    val isFavorite by viewModel.isFavorite
     val context = LocalContext.current
 
     val serviceData by viewModel.selectedService.collectAsState()
@@ -116,6 +116,11 @@ fun ServiceDetailView(
         viewModel.loadServiceById(serviceId)
         if (userId != null) {
             viewModel.loadUserCourseStatus(userId, serviceId)
+        }
+    }
+    LaunchedEffect(serviceId, userId) {
+        if (userId != null) {
+            viewModel.checkIfFavorite(userId, serviceId)
         }
     }
 
@@ -356,7 +361,9 @@ fun ServiceDetailView(
             }
 
             IconButton(
-                onClick = { isFavorite = !isFavorite },
+                onClick = {
+                    userId?.let { viewModel.toggleFavorite(it, serviceId) }
+                },
                 modifier = Modifier
                     .size(44.dp)
                     .shadow(4.dp, CircleShape)
@@ -525,7 +532,7 @@ fun ServiceContent(
                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                     append("$${costoTotal} MXN")
                 }
-                if (costoApartado != 0.0){
+                if (costoApartado != 0.0) {
                     append(" / Aparta con: ")
                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("$${costoApartado} MXN")
