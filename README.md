@@ -82,7 +82,7 @@ Este proyecto busca:
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/tuusuario/LashesLam.git
+   git clone https://github.com/mevi-and-my-monkey/LashesLam.git
 
 ---
 
