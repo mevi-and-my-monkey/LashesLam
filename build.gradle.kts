@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.google.gms.google.services) apply false
     id("com.google.dagger.hilt.android") version "2.55" apply false
     alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.google.firebase.crashlytics) apply false
 }

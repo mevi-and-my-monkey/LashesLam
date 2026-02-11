@@ -190,20 +190,22 @@ fun ProfilePage(
             ProfileOptionButton(
                 icon = R.drawable.ic_favorite,
                 text = "Favoritos",
-                onClick = { /* navegar a favoritos */ }
+                onClick = {
+                    navController.navigate(Screen.Favorite.route)
+                }
             )
             ProfileOptionButton(
                 icon = R.drawable.ic_orders,
                 text = "Órdenes",
                 onClick = {
-                    if (isAdmin){
+                    if (isAdmin) {
                         navController.navigate(Screen.Request.route)
-                    }else{
+                    } else {
 
                     }
                 }
             )
-            if (isAdmin){
+            if (isAdmin) {
                 ProfileOptionButton(
                     icon = R.drawable.ic_inscripciones,
                     text = "Inscripciones",

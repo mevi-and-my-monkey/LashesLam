@@ -1,8 +1,8 @@
 package com.mevi.lasheslam.session
 
 import android.util.Log
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.network.LocationItem
 import kotlinx.coroutines.Dispatchers

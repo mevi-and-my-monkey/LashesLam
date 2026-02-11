@@ -7,6 +7,7 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.jetbrainsKotlinSerialization)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -63,6 +64,7 @@ dependencies {
     implementation(libs.firebase.database.ktx)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.runtime)
+    implementation(libs.firebase.crashlytics)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
