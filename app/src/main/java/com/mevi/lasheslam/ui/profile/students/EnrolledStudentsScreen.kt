@@ -222,16 +222,30 @@ fun StudentCard(student: EnrolledStudent) {
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
-
-                            val email = student.emailUser.trim()
-
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "message/rfc822"
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-                                putExtra(Intent.EXTRA_SUBJECT, "Información del curso")
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf(student.emailUser))
+                                putExtra(
+                                    Intent.EXTRA_SUBJECT,
+                                    "Recordatorio de tu curso: ${student.courseName}"
+                                )
                                 putExtra(
                                     Intent.EXTRA_TEXT,
-                                    "Hola, me gustaría más información sobre el curso."
+                                    """
+                                        Hola ${student.nameUser},
+                                        
+                                        Te recordamos que estás inscrito(a) en el siguiente curso:
+                                        
+                                        Curso: ${student.courseName}
+                                        Fecha: ${student.date}
+                                        Horario: ${student.schedule}
+                                        Estado: ${student.status}
+                                        
+                                        Si tienes alguna duda, puedes responder a este correo.
+                                        
+                                        Saludos,
+                                        Equipo del curso
+                                        """.trimIndent()
                                 )
                             }
 

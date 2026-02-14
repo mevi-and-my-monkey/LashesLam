@@ -34,8 +34,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -83,6 +81,8 @@ import com.mevi.lasheslam.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -298,7 +298,20 @@ fun ServiceDetailView(
                         // WHATSAPP
                         IconButton(
                             onClick = {
-                                val url = "https://wa.me/${SessionManager.whatsApp.value}"
+                                val message = """
+                                    Hola, me gustaría recibir más información sobre el curso ${titulo}.
+                                    Horario: $horaInicio - ${horaFin}.
+                                    Fecha: ${fecha}.
+                                    ¡Gracias!
+                                    """.trimIndent()
+
+                                val encodedMessage = URLEncoder.encode(
+                                    message,
+                                    StandardCharsets.UTF_8.toString()
+                                )
+
+                                val url = "https://wa.me/${SessionManager.whatsApp.value}?text=$encodedMessage"
+
                                 navController.context.startActivity(
                                     Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                 )
