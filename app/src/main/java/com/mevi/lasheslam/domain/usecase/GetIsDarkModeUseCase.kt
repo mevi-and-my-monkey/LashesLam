@@ -1,11 +1,11 @@
 package com.mevi.lasheslam.domain.usecase
 
-import com.mevi.lasheslam.data.DataStoreRepository
+import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetIsDarkModeUseCase @Inject constructor(
-    private val repo: DataStoreRepository
+class GetDarkModeUseCase @Inject constructor(
+    private val repo: UserPreferencesRepository
 ) {
     operator fun invoke(): Flow<Boolean> = repo.darkMode
 }

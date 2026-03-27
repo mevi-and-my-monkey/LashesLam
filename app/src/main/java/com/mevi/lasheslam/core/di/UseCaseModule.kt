@@ -2,7 +2,7 @@ package com.mevi.lasheslam.core.di
 
 import com.mevi.lasheslam.data.DataStoreRepository
 import com.mevi.lasheslam.domain.repository.UserRepository
-import com.mevi.lasheslam.domain.usecase.GetIsDarkModeUseCase
+import com.mevi.lasheslam.domain.usecase.GetDarkModeUseCase
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveIsDarkModeUseCase
@@ -32,5 +32,5 @@ object UseCaseModule {
     fun provideSaveIsDarkModeUseCase(repo: DataStoreRepository) = SaveIsDarkModeUseCase(repo)
 
     @Provides
-    fun provideGetIsDarkModeUseCase(repo: DataStoreRepository) = GetIsDarkModeUseCase(repo)
+    fun provideGetIsDarkModeUseCase(repo: DataStoreRepository) = GetDarkModeUseCase(repo)
 }

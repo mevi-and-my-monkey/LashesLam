@@ -22,32 +22,11 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    @Composable
-    private fun AppContent() {
-        val loginViewModel: LoginViewModel = hiltViewModel()
-        val isDarkMode by loginViewModel.isDarkMode.collectAsState()
-
-        LashesLamTheme(darkTheme = isDarkMode) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                Scaffold { innerPadding ->
-                    AppNavGraph(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppContent()
+            AppRoot()
         }
     }
 }

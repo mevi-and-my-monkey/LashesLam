@@ -18,8 +18,8 @@ android {
         applicationId = "com.mevi.lasheslam"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.3"
+        versionCode = 4
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -102,26 +102,29 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     // Firebase
     implementation("com.google.android.gms:play-services-auth:21.2.0")
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-config")
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.config)
+    implementation(libs.google.firebase.analytics)
 
     //coil
     implementation ("io.coil-kt:coil-compose:2.2.0")
-    implementation("com.tbuonomo:dotsindicator:5.1.0")
+    implementation(libs.dotsindicator)
     //lottie
     implementation("com.airbnb.android:lottie-compose:6.1.0")
 
     // Test dependencies
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation(libs.androidx.core.testing)
     testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 
-    implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
-    implementation("com.google.accompanist:accompanist-placeholder-material3:0.36.0")
+    implementation(libs.accompanist.navigation.animation)
+    implementation(libs.accompanist.placeholder.material3)
 
     // 👇 Luego tus dependencias individuales
-    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation(libs.firebase.storage.ktx)
+
+    //
+    implementation(libs.app.update.ktx)
 }

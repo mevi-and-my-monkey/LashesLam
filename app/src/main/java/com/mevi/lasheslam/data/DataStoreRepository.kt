@@ -5,15 +5,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DataStoreRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>
-) {
+class DataStoreRepository @Inject constructor(private val dataStore: DataStore<Preferences>) :
+    UserPreferencesRepository {
 
     companion object {
         val KEY_USER_EMAIL = stringPreferencesKey("user_email")
@@ -34,7 +34,7 @@ class DataStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun setDarkMode(enabled: Boolean) {
+    override suspend fun setDarkMode(enabled: Boolean) {
         dataStore.edit { prefs ->
             prefs[KEY_DARK_MODE] = enabled
         }
@@ -49,7 +49,7 @@ class DataStoreRepository @Inject constructor(
         prefs[KEY_IS_LOGGED_IN] ?: false
     }
 
-    val darkMode: Flow<Boolean> = dataStore.data.map { prefs ->
+    override val darkMode: Flow<Boolean> = dataStore.data.map { prefs ->
         prefs[KEY_DARK_MODE] ?: false
     }
 

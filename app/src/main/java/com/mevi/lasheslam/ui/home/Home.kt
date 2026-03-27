@@ -31,6 +31,7 @@ import com.mevi.lasheslam.ui.profile.ProfilePage
 @Composable
 fun HomeScreen(
     navController: NavHostController,
+    modifier: Modifier,
     loginViewModel: LoginViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -54,6 +55,7 @@ fun HomeScreen(
         }
     }
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             FloatingBottomNavigation(
                 selectedIndex = selectedIndex,

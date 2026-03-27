@@ -11,15 +11,11 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.mevi.lasheslam.core.AuthState
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.domain.usecase.GetIsDarkModeUseCase
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveIsDarkModeUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -28,12 +24,7 @@ class LoginViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val googleUseCase: SignInWithGoogleUseCase,
     private val saveIsDarkModeUseCase: SaveIsDarkModeUseCase,
-    private val getUserSessionUseCase: GetIsDarkModeUseCase
 ) : ViewModel() {
-
-
-    val isDarkMode: StateFlow<Boolean> = getUserSessionUseCase()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
