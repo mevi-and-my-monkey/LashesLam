@@ -11,12 +11,14 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +31,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mevi.lasheslam.ui.splashscreen.components.getVersion
+import com.mevi.lasheslam.ui.splashscreen.components.getVersionCode
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -77,7 +81,7 @@ fun SplashAnimation(
         } else {
             AnimatedContent(
                 targetState = visibleText,
-                transitionSpec = { fadeIn(tween(200)) with fadeOut(tween(200)) }) { text ->
+                transitionSpec = { fadeIn(tween(200)).togetherWith(fadeOut(tween(200))) }) { text ->
                 Text(
                     text,
                     fontSize = 48.sp,
@@ -86,5 +90,17 @@ fun SplashAnimation(
                 )
             }
         }
+
+        Column(modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = 20.dp)) {
+            Text(
+                text = "Version : ${getVersion()}:(${getVersionCode()})",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFFFC1E3)
+            )
+        }
+
     }
 }
