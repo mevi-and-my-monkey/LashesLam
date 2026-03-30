@@ -40,7 +40,8 @@ fun SplashAnimation(
     showFullName: Boolean,
     visibleText: String,
     offsetX: Animatable<Float, *>,
-    offsetY: Animatable<Float, *>
+    offsetY: Animatable<Float, *>,
+    modifier: Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val shimmerShift by infiniteTransition.animateFloat(
@@ -56,7 +57,7 @@ fun SplashAnimation(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFF1A1A1A)),
         contentAlignment = Alignment.Center

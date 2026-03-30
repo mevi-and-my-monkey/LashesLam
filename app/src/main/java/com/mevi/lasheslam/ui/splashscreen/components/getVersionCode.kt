@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun getVersionCode(): Long{
+fun getVersionCode(): Long {
     val context = LocalContext.current
     try {
         val packegeInfo = context.packageManager.getPackageInfo(context.packageName, 0)
@@ -15,7 +15,7 @@ fun getVersionCode(): Long{
         } else {
             packegeInfo.versionCode.toLong()
         }
-    }catch (e : PackageManager.NameNotFoundException){
+    } catch (e: PackageManager.NameNotFoundException) {
         return 0
     }
 }

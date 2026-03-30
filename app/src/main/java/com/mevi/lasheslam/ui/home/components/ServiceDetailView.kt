@@ -93,6 +93,7 @@ fun ServiceDetailView(
     storage: FirebaseStorage = FirebaseStorage.getInstance(),
     onDismiss: () -> Unit,
     navController: NavHostController,
+    modifier: Modifier
 ) {
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     val nameUser by SessionManager.nameUser.collectAsState()
@@ -156,7 +157,7 @@ fun ServiceDetailView(
     val status = courseStatus ?: "solicitar"
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
             .padding(top = 16.dp)

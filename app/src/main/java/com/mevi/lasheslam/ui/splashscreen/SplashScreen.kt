@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -27,6 +28,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(
     navController: NavController,
+    modifier: Modifier,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
     var showFullName by remember { mutableStateOf(false) }
@@ -97,5 +99,5 @@ fun SplashScreen(
             null -> {}
         }
     }
-    SplashAnimation(showFullName, visibleText, offsetX, offsetY)
+    SplashAnimation(showFullName, visibleText, offsetX, offsetY, modifier)
 }

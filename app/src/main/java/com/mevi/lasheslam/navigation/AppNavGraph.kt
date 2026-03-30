@@ -40,7 +40,7 @@ fun AppNavGraph(
         startDestination = Screen.Splash.route
     ) {
         composable(Screen.Splash.route) {
-            SplashScreen(navController)
+            SplashScreen(navController, modifier)
         }
         composable(Screen.Login.route) {
             LogIn(navController)
@@ -82,7 +82,8 @@ fun AppNavGraph(
             ServiceDetailView(
                 navController = navController,
                 serviceId = serviceId,
-                onDismiss = { navController.popBackStack() }
+                onDismiss = { navController.popBackStack() },
+                modifier = modifier
             )
         }
 

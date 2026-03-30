@@ -42,7 +42,8 @@ fun CursesItem(
             .height(180.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        onClick = onClick
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
