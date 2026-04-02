@@ -26,7 +26,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,12 +37,15 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
 import com.mevi.lasheslam.ui.home.components.HeaderCategoriesMenu
-import com.mevi.lasheslam.ui.home.cursos.CursesList
+import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.cursos.CursesListSearch
 import com.mevi.lasheslam.ui.products.search.SearchViewModel
 import kotlinx.coroutines.delay
@@ -56,6 +62,7 @@ fun SearchPage(
     val selectedSection = viewModel.selectedSection
     val filteredItems = viewModel.filteredItems
     val isLoading = viewModel.isLoading
+    var showDialogComingSoon by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -137,13 +144,39 @@ fun SearchPage(
             focusRequester.requestFocus()
         }
 
-        CursesListSearch(
-            services = filteredItems,
-            isLoading = isLoading
-        ) { item ->
-            navController.navigate(
-                Screen.ServiceDetails.createRoute(item.id)
-            )
+        when (selectedSection) {
+            Section.CURSOS -> {
+                CursesListSearch(
+                    services = filteredItems,
+                    isLoading = isLoading
+                ) { item ->
+                    navController.navigate(
+                        Screen.ServiceDetails.createRoute(item.id)
+                    )
+                }
+            }
+
+            Section.PRODUCTOS -> {
+                showDialogComingSoon = true
+            }
+
+            Section.SERVICIOS -> {
+                showDialogComingSoon = true
+            }
         }
+
+    }
+
+    if (showDialogComingSoon) {
+        DialogComingSon(
+            onDismiss = {
+                showDialogComingSoon = false
+                viewModel.onSectionChanged(Section.CURSOS)
+            },
+            drawableRes = R.drawable.ic_star,
+            title = stringResource(R.string.title_coming_soon),
+            content = stringResource(R.string.content_coming_soon),
+            textButton = stringResource(R.string.button_understand)
+        )
     }
 }

@@ -47,7 +47,7 @@ fun GenericButton(
                 imageVector = icon,
                 contentDescription = null,
                 tint = textColor,
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .size(20.dp)
                     .padding(end = 8.dp)
             )
@@ -56,10 +56,10 @@ fun GenericButton(
             text = text,
             color = textColor,
             maxLines = 1,
-            overflow = TextOverflow.Companion.Ellipsis,
-            fontSize = 16.sp,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 14.sp,
             style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.Companion.SemiBold
+                fontWeight = FontWeight.SemiBold
             )
         )
     }

@@ -10,9 +10,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.ui.components.GenericLoading
+import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
 import com.mevi.lasheslam.ui.profile.HeaderViewRequest
 import com.mevi.lasheslam.ui.profile.Section
 import com.mevi.lasheslam.ui.profile.request.AdmRequestCursesScreen
@@ -25,6 +28,7 @@ fun FavoriteScreen(
 ) {
     var selectedSection by remember { mutableStateOf(Section.CURSOS) }
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
+    var showDialogComingSoon by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -38,8 +42,12 @@ fun FavoriteScreen(
 
             when (selectedSection) {
                 Section.CURSOS -> FavoriteCoursesScreen(navController = navController)
-                Section.PRODUCTOS -> {}
-                Section.SERVICIOS -> {}
+                Section.PRODUCTOS -> {
+                    showDialogComingSoon = true
+                }
+                Section.SERVICIOS -> {
+                    showDialogComingSoon = true
+                }
             }
         }
 
@@ -47,6 +55,19 @@ fun FavoriteScreen(
             isLoading = isLoading,
             message = "Procesando, por favor espera...",
             modifier = Modifier.fillMaxSize()
+        )
+    }
+
+    if (showDialogComingSoon) {
+        DialogComingSon(
+            onDismiss = {
+                showDialogComingSoon = false
+                selectedSection = Section.CURSOS
+            },
+            drawableRes = R.drawable.ic_star,
+            title = stringResource(R.string.title_coming_soon),
+            content = stringResource(R.string.content_coming_soon),
+            textButton = stringResource(R.string.button_understand)
         )
     }
 }

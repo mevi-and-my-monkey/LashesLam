@@ -19,4 +19,7 @@
     <string name="default_admin_whatsapp">5514023853</string>
     <string name="log_error_processing_admin_list">Error al procesar list_admin</string>
     <string name="log_error_fetching_remote_config">Error al obtener Remote Config</string>
+    <string name="content_coming_soon">Estamos trabajando en esta sección para darte la mejor experiencia. Estará lista muy pronto.</string>
+    <string name="title_coming_soon">¡Próximamente!</string>
+    <string name="button_understand">Entendido</string>
 </resources>

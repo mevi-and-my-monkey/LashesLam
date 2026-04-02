@@ -26,14 +26,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.components.RequestNotificationPermission
+import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
 import com.mevi.lasheslam.ui.home.components.HeaderView
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.components.ServiceAddView
@@ -53,6 +56,8 @@ fun HomePage(
     val firestore = FirebaseFirestore.getInstance()
     var services by remember { mutableStateOf<List<ServiceItem>>(emptyList()) }
     var isLoadingServices by remember { mutableStateOf(true) }
+
+    var showDialogComingSoon by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         firestore.collection("data").document("curse")
@@ -84,12 +89,26 @@ fun HomePage(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 item {
-                    if (selectedSection == Section.CURSOS) {
-                        CursosPageContent(
-                            navController = navController,
-                            services = services,
-                            isLoading = isLoadingServices
-                        )
+                    when (selectedSection) {
+                        Section.CURSOS -> {
+                            CursosPageContent(
+                                navController = navController,
+                                services = services,
+                                isLoading = isLoadingServices
+                            )
+                        }
+
+                        Section.PRODUCTOS -> {
+                            showDialogComingSoon = true
+                        }
+
+                        Section.SERVICIOS -> {
+                            showDialogComingSoon = true
+                        }
+
+                        else -> {
+                            showDialogComingSoon = true
+                        }
                     }
                 }
             }
@@ -142,5 +161,18 @@ fun HomePage(
                 linkedBannerIndex = 99,
                 onDismiss = { showAddView = false })
         }
+    }
+
+    if (showDialogComingSoon) {
+        DialogComingSon(
+            onDismiss = {
+                showDialogComingSoon = false
+                selectedSection = Section.CURSOS
+            },
+            drawableRes = R.drawable.ic_star,
+            title = stringResource(R.string.title_coming_soon),
+            content = stringResource(R.string.content_coming_soon),
+            textButton = stringResource(R.string.button_understand)
+        )
     }
 }
