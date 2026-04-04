@@ -37,10 +37,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsViewModel
 
 @Composable
-fun FavoriteCoursesScreen(viewModel: AdminRequestsViewModel = hiltViewModel(), navController: NavController) {
+fun FavoriteCoursesScreen(
+    viewModel: AdminRequestsViewModel = hiltViewModel(),
+    navController: NavController
+) {
     val courses = viewModel.favoriteCourses
 
     LaunchedEffect(Unit) {
@@ -56,17 +60,15 @@ fun FavoriteCoursesScreen(viewModel: AdminRequestsViewModel = hiltViewModel(), n
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-            Text(
-                text = "Cursos Favoritos",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(courses) { course ->
-                    FavoriteCourseCard(course = course) {
-                        navController.navigate(Screen.ServiceDetails.createRoute(course.id))
+            Spacer(modifier = Modifier.height(12.dp))
+            if (courses.isEmpty()) {
+                EmptyViewScreen()
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(courses) { course ->
+                        FavoriteCourseCard(course = course) {
+                            navController.navigate(Screen.ServiceDetails.createRoute(course.id))
+                        }
                     }
                 }
             }
@@ -150,7 +152,11 @@ fun FavoriteCourseCard(course: ServiceItem, onClick: () -> Unit) {
                 }
             }
             Spacer(Modifier.width(16.dp))
-            Button(onClick = onClick, shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) {
+            Button(
+                onClick = onClick,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
                 Text(text = "Ver detalles")
             }
         }

@@ -25,6 +25,7 @@ import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.auth.LoginViewModel
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
+import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.profile.ProfilePage
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -79,6 +80,7 @@ fun HomeScreen(
                     if (isAdmin) {
                         navController.navigate(Screen.Request.route)
                     } else {
+                        EmptyViewScreen()
                         //navController.navigate(Screen.UserCourses.route)
                     }
                 }
