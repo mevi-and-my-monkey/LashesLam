@@ -96,6 +96,6 @@ fun SplashScreen(
         }
     }
 
-    SplashAnimation(showFullName, visibleText, offsetX, offsetY, modifier)
+    SplashAnimation(showFullName, visibleText, offsetX.value, offsetY.value, modifier)
 
 }

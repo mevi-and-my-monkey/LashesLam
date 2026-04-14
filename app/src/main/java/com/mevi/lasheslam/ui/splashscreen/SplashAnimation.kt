@@ -2,7 +2,6 @@ package com.mevi.lasheslam.ui.splashscreen
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -22,11 +21,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,10 +40,15 @@ import com.mevi.lasheslam.ui.splashscreen.components.getVersionCode
 fun SplashAnimation(
     showFullName: Boolean,
     visibleText: String,
-    offsetX: Animatable<Float, *>,
-    offsetY: Animatable<Float, *>,
+    offsetX: Float,
+    offsetY: Float,
     modifier: Modifier
 ) {
+    val context = LocalContext.current
+
+    val versionName = remember { getVersion(context) }
+    val versionCode = remember { getVersionCode(context) }
+
     val infiniteTransition = rememberInfiniteTransition()
     val shimmerShift by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -50,16 +56,18 @@ fun SplashAnimation(
         animationSpec = infiniteRepeatable(tween(2500, easing = LinearEasing), RepeatMode.Restart)
     )
 
-    val brush = Brush.linearGradient(
-        colors = listOf(Color(0xFFFFC1E3), Color(0xFFFF69B4), Color(0xFFFFC1E3)),
-        start = Offset(shimmerShift, 0f),
-        end = Offset(shimmerShift + 200f, 200f)
-    )
+    val brush = remember(shimmerShift) {
+        Brush.linearGradient(
+            colors = listOf(SplashColors.Pink, Color(0xFFFF69B4), SplashColors.Pink),
+            start = Offset(shimmerShift, 0f),
+            end = Offset(shimmerShift + 200f, 200f)
+        )
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF1A1A1A)),
+            .background(SplashColors.Background),
         contentAlignment = Alignment.Center
     ) {
         if (!showFullName) {
@@ -69,14 +77,14 @@ fun SplashAnimation(
                     fontSize = 60.sp,
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(brush = brush),
-                    modifier = Modifier.offset(x = offsetX.value.dp)
+                    modifier = Modifier.offset(x = offsetX.dp)
                 )
                 Text(
                     "L",
                     fontSize = 60.sp,
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(brush = brush),
-                    modifier = Modifier.offset(x = offsetY.value.dp)
+                    modifier = Modifier.offset(x = offsetY.dp)
                 )
             }
         } else {
@@ -92,14 +100,16 @@ fun SplashAnimation(
             }
         }
 
-        Column(modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .padding(bottom = 20.dp)) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp)
+        ) {
             Text(
-                text = "Version : ${getVersion()}:(${getVersionCode()})",
+                text = "Version: $versionName ($versionCode)",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFFFC1E3)
+                color = SplashColors.Pink
             )
         }
 
