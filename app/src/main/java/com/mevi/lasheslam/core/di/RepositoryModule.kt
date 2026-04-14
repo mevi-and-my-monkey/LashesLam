@@ -1,42 +1,60 @@
 package com.mevi.lasheslam.core.di
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.data.CourseRequestRepositoryImpl
 import com.mevi.lasheslam.data.CoursesRepositoryImpl
+import com.mevi.lasheslam.data.DataStoreRepository
 import com.mevi.lasheslam.data.FavoritesRepositoryImpl
+import com.mevi.lasheslam.data.PlayCoreUpdateRepository
+import com.mevi.lasheslam.data.SessionRepositoryImpl
 import com.mevi.lasheslam.data.UserRepositoryImpl
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
+import com.mevi.lasheslam.domain.repository.SessionRepository
+import com.mevi.lasheslam.domain.repository.UpdateRepository
+import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
 import com.mevi.lasheslam.domain.repository.UserRepository
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoryModule {
+abstract class RepositoryModule {
 
-    @Provides
-    fun provideUserRepository(
-        auth: FirebaseAuth,
-        firestore: FirebaseFirestore
-    ): UserRepository = UserRepositoryImpl(auth, firestore)
+    @Binds
+    abstract fun bindUserPreferencesRepository(
+        impl: DataStoreRepository
+    ): UserPreferencesRepository
 
-    @Provides
-    fun provideCourseRequestRepository(
-        firestore: FirebaseFirestore
-    ): CourseRequestRepository = CourseRequestRepositoryImpl(firestore)
+    @Binds
+    abstract fun bindUserRepository(
+        impl: UserRepositoryImpl
+    ): UserRepository
 
-    @Provides
-    fun provideFavoritesRepository(
-        firestore: FirebaseFirestore
-    ): FavoritesRepository = FavoritesRepositoryImpl(firestore)
+    @Binds
+    abstract fun bindCourseRequestRepository(
+        impl: CourseRequestRepositoryImpl
+    ): CourseRequestRepository
 
-    @Provides
-    fun provideCoursesRepository(
-        firestore: FirebaseFirestore
-    ): CoursesRepository = CoursesRepositoryImpl(firestore)
+    @Binds
+    abstract fun bindCoursesRepository(
+        impl: CoursesRepositoryImpl
+    ): CoursesRepository
+
+    @Binds
+    abstract fun bindFavoritesRepository(
+        impl: FavoritesRepositoryImpl
+    ): FavoritesRepository
+
+    @Binds
+    abstract fun bindUpdateRepository(
+        impl: PlayCoreUpdateRepository
+    ): UpdateRepository
+
+    @Binds
+    abstract fun bindSessionRepository(
+        impl: SessionRepositoryImpl
+    ): SessionRepository
 }

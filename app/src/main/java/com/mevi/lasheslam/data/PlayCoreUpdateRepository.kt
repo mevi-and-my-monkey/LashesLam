@@ -37,5 +37,4 @@ class PlayCoreUpdateRepository @Inject constructor(
             UpdateResult.NotRequired
         }
     }
-    fun getManager(): AppUpdateManager = manager
 }

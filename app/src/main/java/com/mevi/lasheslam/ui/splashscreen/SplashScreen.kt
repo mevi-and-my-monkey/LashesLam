@@ -17,11 +17,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
-import com.google.firebase.auth.FirebaseAuth
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.core.results.UpdateResult
 import com.mevi.lasheslam.navigation.Screen
-import com.mevi.lasheslam.session.SessionManager
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -40,64 +37,65 @@ fun SplashScreen(
     val offsetY = remember { Animatable(200f) }
 
     val context = LocalContext.current
-    val activity = context as Activity
+    val activity = context as? Activity ?: return
 
-    val updateState = viewModel.updateState
+    var uiState by remember { mutableStateOf<SplashUiState>(SplashUiState.Animating) }
+    val state = viewModel.state
 
     val appUpdateManager = remember {
         AppUpdateManagerFactory.create(context)
     }
 
     LaunchedEffect(Unit) {
-        viewModel.checkUpdate()
+        offsetX.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
+        offsetY.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
+
+        delay(300)
+        showFullName = true
+
+        fullText.forEachIndexed { index, _ ->
+            visibleText = fullText.take(index + 1)
+            delay(200)
+        }
+
+        uiState = SplashUiState.Finished
     }
 
-    LaunchedEffect(updateState) {
-        when (updateState) {
+    LaunchedEffect(Unit) {
+        viewModel.init()
+    }
 
-            is UpdateResult.Required -> {
-                val info = updateState.appUpdateInfo
+    LaunchedEffect(state, uiState) {
+        if (uiState != SplashUiState.Finished) return@LaunchedEffect
 
+        when (state) {
+
+            is SplashState.ForceUpdate -> {
                 appUpdateManager.startUpdateFlowForResult(
-                    info,
+                    state.info,
                     AppUpdateType.IMMEDIATE,
                     activity,
                     1001
                 )
             }
 
-            UpdateResult.NotRequired -> {
-
-                val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
-                val currentEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
-
-                // Animación de las letras
-                offsetX.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
-                offsetY.animateTo(0f, tween(800, easing = LinearOutSlowInEasing))
-                delay(300)
-                showFullName = true
-                fullText.forEachIndexed { index, _ ->
-                    visibleText = fullText.take(index + 1)
-                    delay(100)
-                }
-
-                SessionManager.refreshAdmins()
-
-                if (isLoggedIn) {
-                    val isAdmin = SessionManager.isAdmin(currentEmail)
-                    SessionManager.setAdmin(isAdmin)
-                    SessionManager.setInvited(false)
-                }
-
-                val firstPage = if (isLoggedIn) Screen.Home.route else Screen.Login.route
-
-                navController.navigate(firstPage) {
+            SplashState.GoToHome -> {
+                navController.navigate(Screen.Home.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             }
 
-            null -> {}
+            SplashState.GoToLogin -> {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+
+            }
+
+            else -> {}
         }
     }
+
     SplashAnimation(showFullName, visibleText, offsetX, offsetY, modifier)
+
 }
