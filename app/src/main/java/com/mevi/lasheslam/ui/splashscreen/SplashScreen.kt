@@ -74,8 +74,14 @@ fun SplashScreen(
         if (uiState != SplashUiState.Finished) return@LaunchedEffect
 
         when (val effect = pendingEffect) {
-            SplashEffect.NavigateHome -> onNavigateToHome()
-            SplashEffect.NavigateLogin -> onNavigateToLogin()
+            SplashEffect.NavigateHome ->  {
+                onNavigateToHome()
+                pendingEffect = null
+            }
+            SplashEffect.NavigateLogin -> {
+                onNavigateToLogin()
+                pendingEffect = null
+            }
 
             is SplashEffect.ForceUpdate -> {
                 appUpdateManager.startUpdateFlowForResult(
@@ -84,6 +90,7 @@ fun SplashScreen(
                     activity,
                     1001
                 )
+                pendingEffect = null
             }
 
             null -> {}

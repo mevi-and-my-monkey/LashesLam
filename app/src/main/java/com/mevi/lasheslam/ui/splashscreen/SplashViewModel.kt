@@ -18,7 +18,7 @@ class SplashViewModel @Inject constructor(
     private val refreshSessionUseCase: RefreshSessionUseCase
 ) : ViewModel() {
 
-    private val _effect = MutableSharedFlow<SplashEffect>()
+    private val _effect = MutableSharedFlow<SplashEffect>(replay = 1)
     val effect = _effect
 
     private var initialized = false
