@@ -1,15 +1,13 @@
 package com.mevi.lasheslam.ui.splashscreen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mevi.lasheslam.domain.usecase.CheckUpdateUseCase
 import com.mevi.lasheslam.core.results.UpdateResult
+import com.mevi.lasheslam.domain.usecase.CheckUpdateUseCase
 import com.mevi.lasheslam.domain.usecase.GetSessionUseCase
 import com.mevi.lasheslam.domain.usecase.RefreshSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,19 +18,24 @@ class SplashViewModel @Inject constructor(
     private val refreshSessionUseCase: RefreshSessionUseCase
 ) : ViewModel() {
 
-    var state by mutableStateOf<SplashState>(SplashState.Loading)
-        private set
+    private val _effect = MutableSharedFlow<SplashEffect>()
+    val effect = _effect
 
+    private var initialized = false
 
     fun init() {
+        if (initialized) return
+        initialized = true
+
         viewModelScope.launch {
 
             // Update
             when (val update = checkUpdateUseCase()) {
                 is UpdateResult.Required -> {
-                    state = SplashState.ForceUpdate(update.appUpdateInfo)
+                    _effect.emit(SplashEffect.ForceUpdate(update.appUpdateInfo))
                     return@launch
                 }
+
                 else -> {}
             }
 
@@ -41,10 +44,10 @@ class SplashViewModel @Inject constructor(
 
             val isLoggedIn = getSessionUseCase()
 
-            state = if (isLoggedIn) {
-                SplashState.GoToHome
+            if (isLoggedIn) {
+                _effect.emit(SplashEffect.NavigateHome)
             } else {
-                SplashState.GoToLogin
+                _effect.emit(SplashEffect.NavigateLogin)
             }
         }
     }

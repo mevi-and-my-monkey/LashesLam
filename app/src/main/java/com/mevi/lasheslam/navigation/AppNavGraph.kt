@@ -27,6 +27,7 @@ import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
+import com.mevi.lasheslam.utils.NavTransitions
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -40,7 +41,17 @@ fun AppNavGraph(
         startDestination = Screen.Splash.route
     ) {
         composable(Screen.Splash.route) {
-            SplashScreen(navController, modifier)
+            SplashScreen(
+                modifier, onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                })
         }
         composable(Screen.Login.route) {
             LogIn(navController)
@@ -65,18 +76,8 @@ fun AppNavGraph(
 
         composable(
             route = Screen.ServiceDetails.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeOut()
-            }
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
             val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
             ServiceDetailView(
@@ -89,18 +90,8 @@ fun AppNavGraph(
 
         composable(
             route = Screen.ServiceEdit.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeOut()
-            }
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
             val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
             ServiceEditView(
@@ -121,18 +112,8 @@ fun AppNavGraph(
 
         composable(
             route = Screen.Request.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeOut()
-            }
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) {
             AdminRequestsScreen(navController)
         }
@@ -143,36 +124,16 @@ fun AppNavGraph(
 
         composable(
             route = Screen.Courses.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(450)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(450)
-                ) + fadeOut()
-            }
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) {
             EnrolledCoursesScreen(navController)
         }
 
         composable(
             route = Screen.CourseInscritos.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(450)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(450)
-                ) + fadeOut()
-            }
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
             val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
             val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
@@ -186,18 +147,8 @@ fun AppNavGraph(
 
         composable(
             route = Screen.Favorite.route,
-            enterTransition = {
-                slideIntoContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Left,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeIn()
-            },
-            exitTransition = {
-                slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Right,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeOut()
-            }
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) {
             FavoriteScreen(navController)
         }

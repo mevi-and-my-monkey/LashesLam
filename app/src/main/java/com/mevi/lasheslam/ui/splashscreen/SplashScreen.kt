@@ -14,19 +14,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.navigation.Screen
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SplashScreen(
-    navController: NavController,
     modifier: Modifier,
-    viewModel: SplashViewModel = hiltViewModel()
+    viewModel: SplashViewModel = hiltViewModel(),
+    onNavigateToHome: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
     var showFullName by remember { mutableStateOf(false) }
     var visibleText by remember { mutableStateOf("") }
@@ -39,8 +38,8 @@ fun SplashScreen(
     val context = LocalContext.current
     val activity = context as? Activity ?: return
 
+    var pendingEffect by remember { mutableStateOf<SplashEffect?>(null) }
     var uiState by remember { mutableStateOf<SplashUiState>(SplashUiState.Animating) }
-    val state = viewModel.state
 
     val appUpdateManager = remember {
         AppUpdateManagerFactory.create(context)
@@ -65,34 +64,29 @@ fun SplashScreen(
         viewModel.init()
     }
 
-    LaunchedEffect(state, uiState) {
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            pendingEffect = effect
+        }
+    }
+
+    LaunchedEffect(uiState, pendingEffect) {
         if (uiState != SplashUiState.Finished) return@LaunchedEffect
 
-        when (state) {
+        when (val effect = pendingEffect) {
+            SplashEffect.NavigateHome -> onNavigateToHome()
+            SplashEffect.NavigateLogin -> onNavigateToLogin()
 
-            is SplashState.ForceUpdate -> {
+            is SplashEffect.ForceUpdate -> {
                 appUpdateManager.startUpdateFlowForResult(
-                    state.info,
+                    effect.info,
                     AppUpdateType.IMMEDIATE,
                     activity,
                     1001
                 )
             }
 
-            SplashState.GoToHome -> {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-            }
-
-            SplashState.GoToLogin -> {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Splash.route) { inclusive = true }
-                }
-
-            }
-
-            else -> {}
+            null -> {}
         }
     }
 
