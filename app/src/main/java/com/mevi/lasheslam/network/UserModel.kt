@@ -7,5 +7,7 @@ data class UserModel(
     val phone: String? = null,
     val address: String? = null,
     val cartItems: Map<String, Long> = emptyMap(),
-    val userPhoto: String? = null
+    val userPhoto: String? = null,
+    val password: String? = null,
+    val confirmPassword: String? = null
 )

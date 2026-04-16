@@ -42,12 +42,16 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginBottomSheet(
-    onClose: () -> Unit,
-    onLogin: (String, String) -> Unit,
-    loginViewModel: LoginViewModel? = null
+    email: String,
+    password: String,
+    isEnabled: Boolean,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLogin: () -> Unit,
+    onClose: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+
+    var passwordVisible by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onClose,
@@ -57,32 +61,30 @@ fun LoginBottomSheet(
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.Companion.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 🔹 Título e ícono de cerrar
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
-                verticalAlignment = Alignment.Companion.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = Strings.login,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Companion.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSecondary
                 )
             }
 
-            Spacer(modifier = Modifier.Companion.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // 🔹 Campo de correo
             OutlinedTextField(
-                value = loginViewModel?.email ?: "",
-                onValueChange = {
-                    loginViewModel?.onLoginChanged(email = it, password = loginViewModel.password)
-                },
+                value = email,
+                onValueChange = onEmailChange,
                 label = { Text(Strings.email) },
                 leadingIcon = {
                     Icon(
@@ -91,19 +93,16 @@ fun LoginBottomSheet(
                     )
                 },
                 singleLine = true,
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // 🔹 Campo de contraseña
-            var passwordVisible by remember { mutableStateOf(false) }
             OutlinedTextField(
-                value = loginViewModel?.password ?: "",
-                onValueChange = {
-                    loginViewModel?.onLoginChanged(email = loginViewModel.email, password = it)
-                },
+                value = password,
+                onValueChange = onPasswordChange,
                 label = { Text(Strings.password) },
                 leadingIcon = {
                     Icon(
@@ -119,61 +118,65 @@ fun LoginBottomSheet(
                     }
                 },
                 singleLine = true,
-                visualTransformation = if (passwordVisible) VisualTransformation.Companion.None else PasswordVisualTransformation(),
-                modifier = Modifier.Companion.fillMaxWidth(),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.Companion.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // 🔹 Botón de acceder
             GenericButton(
                 Strings.access,
-                onClick = {
-                    onLogin(
-                        loginViewModel?.email ?: "",
-                        loginViewModel?.password ?: ""
-                    )
-                },
+                onClick = onLogin,
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                enabled = loginViewModel?.isLoginEnable ?: false
+                enabled = isEnabled
             )
 
-            Spacer(modifier = Modifier.Companion.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // 🔹 Línea divisoria y pie
             Divider(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .height(1.dp),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
             )
 
-            Spacer(modifier = Modifier.Companion.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = Strings.appNameByCreator,
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Companion.Medium
+                    fontWeight = FontWeight.Medium
                 )
             )
 
-            Spacer(modifier = Modifier.Companion.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
-@Composable
 @Preview(
-    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_DESK
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
 )
-fun Preview() {
+@Composable
+fun LoginBottomSheetPreview() {
     LashesLamTheme {
-        LoginBottomSheet({}, { _, _ -> })
+        LoginBottomSheet(
+            email = "test@email.com",
+            password = "12345678",
+            isEnabled = true,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onLogin = {},
+            onClose = {}
+        )
     }
 }

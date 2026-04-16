@@ -24,4 +24,8 @@
     <string name="button_understand">Entendido</string>
     <string name="empty_view_title">No hay elementos por ahora.</string>
     <string name="empty_view_content">Parece que aún no tienes nada aqui.¡Empieza a explorar tus productos y servicios favoritos!</string>
+    <string name="loading_generic">Procesando, por favor espera…</string>
+    <string name="success_generic">Operación exitosa</string>
+    <string name="error_generic">Procesando, por favor espera…</string>
+
 </resources>

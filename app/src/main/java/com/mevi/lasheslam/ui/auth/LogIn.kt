@@ -17,8 +17,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,8 +40,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.network.UserModel
-import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.GenericButton
@@ -52,43 +53,31 @@ import com.mevi.lasheslam.ui.components.WavyBackground
 fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hiltViewModel()) {
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }
-    var showSuccess by remember { mutableStateOf(false) }
-    var showError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var successMessage by remember { mutableStateOf("") }
-    val isLoading: Boolean by loginViewModel.isLoading.observeAsState(initial = false)
     val context = LocalContext.current
 
+    var showSuccess by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val state by loginViewModel.uiState.collectAsState()
+
     val launcher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
-            loginViewModel.showLoading()
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
             try {
                 val account = task.getResult(ApiException::class.java)
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
 
-                loginViewModel.signInWithGoogle(credential) { success, resultMessage ->
-                    if (success) {
-                        val isAdmin = SessionManager.isAdmin(account.email ?: "Sin dato")
-                        SessionManager.setAdmin(isAdmin)
-                        SessionManager.setInvited(false)
-                        loginViewModel.hideLoading()
-                        navController.navigate("home") {
-                            launchSingleTop = true
-                        }
-                    } else {
-                        errorMessage = resultMessage ?: "Error"
-                        showError = true
-                    }
-                }
-            } catch (e: Exception) {
-                Log.d("Google_aut", "Google SignIn fallo")
-            }
+                loginViewModel.signInWithGoogle(
+                    credential = credential,
+                    email = account.email
+                )
 
+            } catch (e: Exception) {
+                Log.e("Google_aut", e.message.toString())
+            }
         }
 
-    WavyBackground(
-    ) {
+    WavyBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -186,77 +175,85 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
             }
         }
         GenericLoading(
-            isLoading = isLoading,
-            message = "Procesando, por favor espera..."
+            isLoading = state.isLoading,
+            message = stringResource(R.string.loading_generic)
         )
     }
 
     if (showLoginSheet) {
         LoginBottomSheet(
-            onClose = { showLoginSheet = false },
-            onLogin = { email, password ->
-                loginViewModel.showLoading()
-                loginViewModel.login { success, resultMessage ->
-                    if (success) {
-                        val isAdmin = SessionManager.isAdmin(email)
-                        SessionManager.setAdmin(isAdmin)
-                        SessionManager.setInvited(false)
-                        navController.navigate("home") {
-                            popUpTo("login") { inclusive = true }
-                        }
-                    } else {
-                        errorMessage =
-                            if (resultMessage == "The supplied auth credential is incorrect, malformed or has expired.") {
-                                "Credenciales incorrectas"
-                            } else {
-                                resultMessage ?: "Error"
-                            }
-                        showError = true
-                    }
-                }
-                showLoginSheet = false
+            email = state.email,
+            password = state.password,
+            isEnabled = state.isLoginEnabled,
+            onEmailChange = {
+                loginViewModel.onLoginChanged(it.trim(), state.password)
             },
-            loginViewModel
-        )
+            onPasswordChange = {
+                loginViewModel.onLoginChanged(state.email, it.trim())
+            },
+            onLogin = {
+                loginViewModel.login()
+            },
+            onClose = { showLoginSheet = false })
     }
 
     if (showRegisterSheet) {
         RegisterBottomSheet(
-            { showRegisterSheet = false },
-            { name, email, password, _, phone ->
-                loginViewModel.showLoading()
-                val request = UserModel(name, email, password, phone)
-                loginViewModel.register(request) { success, resultMessage ->
-                    if (success) {
-                        val isAdmin = SessionManager.isAdmin(email)
-                        SessionManager.setAdmin(isAdmin)
-                        SessionManager.setInvited(false)
-                        showSuccess = true
-                        successMessage = "Registro exitoso"
-                    } else {
-                        errorMessage = resultMessage ?: "Error"
-                        showError = true
+            onCancel = { showRegisterSheet = false },
+            onRegister = { user ->
+                loginViewModel.register(user)
+            }
+        )
+    }
+
+    /***
+     * OPERACION EXITOSA
+     */
+    if (showSuccess) {
+        SuccessDialog(
+            message = stringResource(R.string.success_generic),
+            onDismiss = {
+                showSuccess = false
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                }
+            },
+            onCancel = {}
+        )
+    }
+
+    errorMessage?.let { message ->
+        ErrorDialog(
+            message = message,
+            onDismiss = {
+                errorMessage = null
+            },
+            onCancel = {}
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        loginViewModel.events.collect { event ->
+            when (event) {
+
+                is LoginUiEvent.NavigateToHome -> {
+                    showLoginSheet = false
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
-                showRegisterSheet = false
-            })
-    }
 
-    if (showSuccess) {
-        SuccessDialog(message = successMessage, onDismiss = {
-            navController.navigate("home") {
-                launchSingleTop = true
+                is LoginUiEvent.RegisterSuccess -> {
+                    showRegisterSheet = false
+                    showSuccess = true
+                }
+
+
+                is LoginUiEvent.ShowError -> errorMessage = event.message
+
             }
-            successMessage = ""
-            showSuccess = false
-        }, onCancel = {})
-    }
-
-    if (showError) {
-        ErrorDialog(message = errorMessage, onDismiss = {
-            errorMessage = ""
-            showError = false
-        }, onCancel = {})
+        }
     }
 }
 

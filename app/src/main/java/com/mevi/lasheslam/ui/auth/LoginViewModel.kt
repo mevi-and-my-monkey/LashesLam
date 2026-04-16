@@ -1,121 +1,106 @@
 package com.mevi.lasheslam.ui.auth
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import androidx.compose.runtime.*
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
-import com.mevi.lasheslam.core.AuthState
+import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
-import com.mevi.lasheslam.domain.usecase.SaveIsDarkModeUseCase
+import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val googleUseCase: SignInWithGoogleUseCase,
-    private val saveIsDarkModeUseCase: SaveIsDarkModeUseCase,
-) : ViewModel() {
+    private val saveSessionUseCase: SaveSessionUseCase
+) : BaseViewModel<LoginUiState, LoginUiEvent>() {
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    override fun createInitialState() = LoginUiState()
 
-    var email by mutableStateOf("")
-        private set
-
-    var password by mutableStateOf("")
-        private set
-
-    var isLoginEnable by mutableStateOf(false)
-        private set
-
-    var authState by mutableStateOf<AuthState>(AuthState.Idle)
-        private set
-
-    fun showLoading() {
-        _isLoading.value = true
-    }
-
-    fun hideLoading() {
-        _isLoading.value = false
-    }
-
-
-    fun login(onResult: (Boolean, String?) -> Unit) = viewModelScope.launch {
-        showLoading()
-        when (val result = loginUseCase(email, password)) {
-            is Resource.Success -> {
-                authState = AuthState.Success
-                onResult(true, null)
-            }
-
-            is Resource.Error -> {
-                authState = AuthState.Error(result.message)
-                onResult(false, result.message)
-            }
-
-            else -> Unit
-        }
-        hideLoading()
-    }
-
-    fun register(user: UserModel, onResult: (Boolean, String?) -> Unit) = viewModelScope.launch {
-        showLoading()
-        when (val result = registerUseCase(user)) {
-            is Resource.Success -> {
-                authState = AuthState.Success
-                onResult(true, null)
-            }
-
-            is Resource.Error -> {
-                authState = AuthState.Error(result.message)
-                onResult(false, result.message)
-            }
-
-            else -> Unit
-        }
-        hideLoading()
-    }
-
-    fun signInWithGoogle(credential: AuthCredential, onResult: (Boolean, String?) -> Unit) =
+    fun login() {
         viewModelScope.launch {
-            showLoading()
-            when (val result = googleUseCase(credential)) {
+            setState { copy(isLoading = true) }
+
+            when (val result = loginUseCase(uiState.value.email, uiState.value.password)) {
                 is Resource.Success -> {
-                    authState = AuthState.Success
-                    onResult(true, null)
+                    saveSessionUseCase(uiState.value.email)
+                    setState { copy(isLoading = false) }
+                    sendEvent(LoginUiEvent.NavigateToHome)
                 }
 
                 is Resource.Error -> {
-                    authState = AuthState.Error(result.message)
-                    onResult(false, result.message)
+                    setState { copy(isLoading = false) }
+                    sendEvent(LoginUiEvent.ShowError(result.message))
                 }
 
-                else -> Unit
+                else -> {}
             }
-            hideLoading()
         }
+    }
 
-    fun toggleDarkMode(enabled: Boolean) = viewModelScope.launch {
-        saveIsDarkModeUseCase(enabled)
+    fun register(user: UserModel) {
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
+
+            when (val result = registerUseCase(user)) {
+                is Resource.Success -> {
+                    user.email?.let {
+                        saveSessionUseCase(it)
+                    }
+                    setState { copy(isLoading = false) }
+                    sendEvent(LoginUiEvent.RegisterSuccess)
+                }
+
+                is Resource.Error -> {
+                    setState { copy(isLoading = false) }
+                    sendEvent(LoginUiEvent.ShowError(result.message))
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    fun signInWithGoogle(credential: AuthCredential, email: String?) {
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
+
+            when (val result = googleUseCase(credential)) {
+                is Resource.Success -> {
+                    email?.let {
+                        saveSessionUseCase(it)
+                    }
+                    setState { copy(isLoading = false) }
+                    sendEvent(LoginUiEvent.NavigateToHome)
+                }
+
+                is Resource.Error -> {
+                    setState { copy(isLoading = false) }
+                    sendEvent(LoginUiEvent.ShowError(result.message))
+                }
+
+                else -> {}
+            }
+        }
     }
 
     fun onLoginChanged(email: String, password: String) {
-        this.email = email
-        this.password = password
-        isLoginEnable = enableLogin(email = email, password = password)
+        setState {
+            copy(
+                email = email,
+                password = password,
+                isLoginEnabled = enableLogin(email, password)
+            )
+        }
     }
 
     private fun enableLogin(email: String, password: String) =
-        Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$").matches(email) && password.length > 6
-
+        Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$").matches(email) &&
+                password.length > 6
 }

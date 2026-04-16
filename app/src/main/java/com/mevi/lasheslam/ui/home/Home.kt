@@ -37,7 +37,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val isLoading: Boolean by loginViewModel.isLoading.observeAsState(initial = false)
+    val isLoading by loginViewModel.uiState.collectAsState()
     val isLoadingHome: Boolean by homeViewModel.isLoading.observeAsState(initial = false)
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
 
@@ -89,7 +89,7 @@ fun HomeScreen(
             }
 
             GenericLoading(
-                isLoading = isLoading,
+                isLoading = isLoading.isLoading,
                 message = "Procesando, por favor espera..."
             )
             GenericLoading(

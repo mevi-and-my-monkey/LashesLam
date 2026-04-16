@@ -1,6 +1,7 @@
 package com.mevi.lasheslam.ui.auth
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.core.Strings
+import com.mevi.lasheslam.network.UserModel
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
@@ -57,7 +59,7 @@ import com.mevi.lasheslam.utils.ValidationResult
 @Composable
 fun RegisterBottomSheet(
     onCancel: () -> Unit,
-    onRegister: (String, String, String, String, String) -> Unit
+    onRegister: (UserModel) -> Unit
 ) {
     val scrollState = rememberScrollState()
     var fullName by remember { mutableStateOf("") }
@@ -273,11 +275,13 @@ fun RegisterBottomSheet(
                     Strings.registerButton,
                     onClick = {
                         onRegister(
-                            fullName,
-                            email,
-                            password,
-                            confirmPassword,
-                            phone
+                            UserModel(
+                                name = fullName,
+                                email = email,
+                                password = password,
+                                confirmPassword = confirmPassword,
+                                phone = phone
+                            )
                         )
                     },
                     backgroundColor = MaterialTheme.colorScheme.primary,
@@ -321,11 +325,10 @@ fun RegisterBottomSheet(
     }
 }
 
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-@Preview(
-)
-fun PreviewSignUp() {
+fun RegisterBottomSheetPreview() {
     LashesLamTheme {
-        RegisterBottomSheet({}, { _, _, _, _, _ -> })
+        RegisterBottomSheet(onCancel = {}, onRegister = {})
     }
 }
