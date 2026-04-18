@@ -1,13 +1,15 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FavoritesRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val errorMapper: ErrorMapper
 ) : FavoritesRepository {
 
     private fun favoritesRef(userId: String) =
@@ -29,7 +31,7 @@ class FavoritesRepositoryImpl @Inject constructor(
             Resource.Success(true)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al agregar a favoritos")
+            Resource.Error(errorMapper.map(e))
         }
     }
 
@@ -47,7 +49,7 @@ class FavoritesRepositoryImpl @Inject constructor(
             Resource.Success(true)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al quitar favorito")
+            Resource.Error(errorMapper.map(e))
         }
     }
 
@@ -66,7 +68,7 @@ class FavoritesRepositoryImpl @Inject constructor(
             Resource.Success(ids)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al obtener favoritos")
+            Resource.Error(errorMapper.map(e))
         }
     }
 }

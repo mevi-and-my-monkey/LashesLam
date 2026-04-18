@@ -9,6 +9,7 @@ import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.ui.common.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,7 +37,8 @@ class LoginViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     setState { copy(isLoading = false) }
-                    sendEvent(LoginUiEvent.ShowError(result.message))
+                    val message = result.error.toUserMessage()
+                    sendEvent(LoginUiEvent.ShowError(message))
                 }
 
                 else -> {}
@@ -59,7 +61,8 @@ class LoginViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     setState { copy(isLoading = false) }
-                    sendEvent(LoginUiEvent.ShowError(result.message))
+                    val message = result.error.toUserMessage()
+                    sendEvent(LoginUiEvent.ShowError(message))
                 }
 
                 else -> {}
@@ -82,7 +85,8 @@ class LoginViewModel @Inject constructor(
 
                 is Resource.Error -> {
                     setState { copy(isLoading = false) }
-                    sendEvent(LoginUiEvent.ShowError(result.message))
+                    val message = result.error.toUserMessage()
+                    sendEvent(LoginUiEvent.ShowError(message))
                 }
 
                 else -> {}

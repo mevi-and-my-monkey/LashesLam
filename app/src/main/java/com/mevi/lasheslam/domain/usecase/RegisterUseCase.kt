@@ -4,7 +4,6 @@ import com.mevi.lasheslam.domain.repository.UserRepository
 import com.mevi.lasheslam.network.UserModel
 import javax.inject.Inject
 
-
 class RegisterUseCase @Inject constructor(
     private val repo: UserRepository
 ) {

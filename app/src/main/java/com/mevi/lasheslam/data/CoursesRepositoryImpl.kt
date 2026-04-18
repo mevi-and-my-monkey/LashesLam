@@ -2,6 +2,7 @@ package com.mevi.lasheslam.data
 
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.network.ServiceItem
@@ -9,7 +10,8 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class CoursesRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val errorMapper: ErrorMapper
 ) : CoursesRepository {
 
     override suspend fun getCoursesByIds(
@@ -35,7 +37,7 @@ class CoursesRepositoryImpl @Inject constructor(
             Resource.Success(result)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al cargar cursos")
+            Resource.Error(errorMapper.map(e))
         }
     }
 }

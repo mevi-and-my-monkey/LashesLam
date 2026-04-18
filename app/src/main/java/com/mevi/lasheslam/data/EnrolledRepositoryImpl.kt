@@ -1,6 +1,7 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.network.EnrolledCourse
 import com.mevi.lasheslam.network.EnrolledStudent
@@ -11,7 +12,8 @@ import java.util.Locale
 import javax.inject.Inject
 
 class EnrolledRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val errorMapper: ErrorMapper
 ) {
     private val inscritosRef = firestore.collection("alumnos_inscritos")
     private val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
@@ -61,7 +63,7 @@ class EnrolledRepositoryImpl @Inject constructor(
             Resource.Success(ordenados)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al obtener cursos inscritos")
+            Resource.Error(errorMapper.map(e))
         }
     }
 
@@ -79,7 +81,7 @@ class EnrolledRepositoryImpl @Inject constructor(
 
             Resource.Success(list)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al obtener alumnos del curso")
+            Resource.Error(errorMapper.map(e))
         }
     }
 }

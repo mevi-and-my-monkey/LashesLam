@@ -1,6 +1,8 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.error.AppError
+import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.network.CourseRequest
@@ -8,7 +10,8 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class CourseRequestRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val errorMapper: ErrorMapper
 ) : CourseRequestRepository {
 
     private val requestsRef = firestore.collection("course_requests")
@@ -22,7 +25,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
             Resource.Success(true)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al enviar solicitud")
+            Resource.Error(errorMapper.map(e))
         }
     }
 
@@ -36,7 +39,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
             val list = snapshot.toObjects(CourseRequest::class.java)
             Resource.Success(list)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al obtener solicitudes")
+            Resource.Error(errorMapper.map(e))
         }
     }
 
@@ -49,15 +52,15 @@ class CourseRequestRepositoryImpl @Inject constructor(
             val snapshot = requestRef.get().await()
 
             if (!snapshot.exists()) {
-                return Resource.Error("La solicitud no existe")
+                return Resource.Error(AppError.Unknown("La solicitud no existe"))
             }
 
-            val data = snapshot.data ?: return Resource.Error("La solicitud está vacía")
+            val data = snapshot.data ?: return Resource.Error(AppError.Unknown("La solicitud está vacía"))
 
             val userId = data["userId"] as? String
-                ?: return Resource.Error("userId no encontrado")
+                ?: return Resource.Error(AppError.Unknown("userId no encontrado"))
             val courseId = data["courseId"] as? String
-                ?: return Resource.Error("courseId no encontrado")
+                ?: return Resource.Error(AppError.Unknown("courseId no encontrado"))
 
             // 2. Crear curso dentro del usuario
             val cursoData = mapOf(
@@ -110,7 +113,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
             Resource.Success(true)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al aprobar solicitud")
+            Resource.Error(errorMapper.map(e))
         }
     }
 
@@ -122,11 +125,11 @@ class CourseRequestRepositoryImpl @Inject constructor(
                 .await()
 
             if (!requestSnap.exists()) {
-                return Resource.Error("La solicitud no existe")
+                return Resource.Error(AppError.Unknown("La solicitud no existe"))
             }
 
-            val userId = requestSnap.getString("userId") ?: return Resource.Error("userId no encontrado")
-            val courseId = requestSnap.getString("courseId") ?: return Resource.Error("courseId no encontrado")
+            val userId = requestSnap.getString("userId") ?: return Resource.Error(AppError.Unknown("userId no encontrado"))
+            val courseId = requestSnap.getString("courseId") ?: return Resource.Error(AppError.Unknown("courseId no encontrado"))
 
             firestore.collection("course_requests")
                 .document(requestId)
@@ -143,7 +146,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
             Resource.Success(true)
 
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "Error al rechazar solicitud")
+            Resource.Error(errorMapper.map(e))
         }
     }
 }
