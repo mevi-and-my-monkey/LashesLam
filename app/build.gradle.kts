@@ -18,7 +18,7 @@ android {
         applicationId = "com.mevi.lasheslam"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
+        versionCode = 10
         versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
