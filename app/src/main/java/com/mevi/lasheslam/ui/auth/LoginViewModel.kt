@@ -1,17 +1,13 @@
 package com.mevi.lasheslam.ui.auth
 
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.mevi.lasheslam.BaseViewModel
-import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
-import com.mevi.lasheslam.ui.common.toUserMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,74 +20,50 @@ class LoginViewModel @Inject constructor(
 
     override fun createInitialState() = LoginUiState()
 
-    fun login() {
-        viewModelScope.launch {
-            setState { copy(isLoading = true) }
-
-            when (val result = loginUseCase(uiState.value.email, uiState.value.password)) {
-                is Resource.Success -> {
-                    saveSessionUseCase(uiState.value.email)
-                    setState { copy(isLoading = false) }
-                    sendEvent(LoginUiEvent.NavigateToHome)
-                }
-
-                is Resource.Error -> {
-                    setState { copy(isLoading = false) }
-                    val message = result.error.toUserMessage()
-                    sendEvent(LoginUiEvent.ShowError(message))
-                }
-
-                else -> {}
+    fun login() = launchWithLoading {
+        val result = loginUseCase(uiState.value.email, uiState.value.password)
+        handleResult(
+            result = result,
+            onSuccess = {
+                saveSessionUseCase(uiState.value.email)
+                sendEvent(LoginUiEvent.NavigateToHome)
+            },
+            onError = { error ->
+                sendError(error) { LoginUiEvent.ShowError(it) }
             }
-        }
+        )
     }
 
-    fun register(user: UserModel) {
-        viewModelScope.launch {
-            setState { copy(isLoading = true) }
+    fun register(user: UserModel) = launchWithLoading {
 
-            when (val result = registerUseCase(user)) {
-                is Resource.Success -> {
-                    user.email?.let {
-                        saveSessionUseCase(it)
-                    }
-                    setState { copy(isLoading = false) }
-                    sendEvent(LoginUiEvent.RegisterSuccess)
+        val result = registerUseCase(user)
+
+        handleResult(
+            result = result,
+            onSuccess = {
+                user.email?.let {
+                    saveSessionUseCase(it)
                 }
-
-                is Resource.Error -> {
-                    setState { copy(isLoading = false) }
-                    val message = result.error.toUserMessage()
-                    sendEvent(LoginUiEvent.ShowError(message))
-                }
-
-                else -> {}
-            }
-        }
+                sendEvent(LoginUiEvent.RegisterSuccess)
+            },
+            onError = { error ->
+                sendError(error) { LoginUiEvent.ShowError(it) }
+            })
     }
 
-    fun signInWithGoogle(credential: AuthCredential, email: String?) {
-        viewModelScope.launch {
-            setState { copy(isLoading = true) }
-
-            when (val result = googleUseCase(credential)) {
-                is Resource.Success -> {
-                    email?.let {
-                        saveSessionUseCase(it)
-                    }
-                    setState { copy(isLoading = false) }
-                    sendEvent(LoginUiEvent.NavigateToHome)
+    fun signInWithGoogle(credential: AuthCredential, email: String?) = launchWithLoading {
+        val result = googleUseCase(credential)
+        handleResult(
+            result = result,
+            onSuccess = {
+                email?.let {
+                    saveSessionUseCase(it)
                 }
-
-                is Resource.Error -> {
-                    setState { copy(isLoading = false) }
-                    val message = result.error.toUserMessage()
-                    sendEvent(LoginUiEvent.ShowError(message))
-                }
-
-                else -> {}
-            }
-        }
+                sendEvent(LoginUiEvent.NavigateToHome)
+            },
+            onError = { error ->
+                sendError(error) { LoginUiEvent.ShowError(it) }
+            })
     }
 
     fun onLoginChanged(email: String, password: String) {
