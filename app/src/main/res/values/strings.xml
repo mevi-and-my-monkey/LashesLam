@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">LashesLam</string>
     <string name="default_web_client_id">818775184063-ple7ioqve0ugjcpa4dq21qg7a3lg1mnj.apps.googleusercontent.com</string>
+
+    <!-- LOGIN -->
     <string name="create_account">Crear cuenta</string>
     <string name="full_name">Nombre completo</string>
     <string name="email">Correo electrónico</string>
@@ -14,11 +16,21 @@
     <string name="app_name_by_creator">LashesLam by Mevi</string>
     <string name="access">Acceder</string>
     <string name="login_with_google">Acceder con Google</string>
+
+    <!-- LOGIN REPOSITORY -->
+    <string name="without_display_name">Sin nombre registrado</string>
+    <string name="without_email">Sin correo electronico registrado</string>
+    <string name="without_phone">Sin numero telefonico registrado"</string>
+    <string name="without_address">Sin direccion registrada</string>
+
+    <!-- LOGIN -->
     <string name="key_remote_config_list_admin">list_admin</string>
     <string name="key_remote_config_whatsapp_admin">whatsapp_administrador</string>
     <string name="default_admin_whatsapp">5514023853</string>
     <string name="log_error_processing_admin_list">Error al procesar list_admin</string>
     <string name="log_error_fetching_remote_config">Error al obtener Remote Config</string>
+
+    <!-- LOGIN -->
     <string name="content_coming_soon">Estamos trabajando en esta sección para darte la mejor experiencia. Estará lista muy pronto.</string>
     <string name="title_coming_soon">¡Próximamente!</string>
     <string name="button_understand">Entendido</string>

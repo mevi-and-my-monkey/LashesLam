@@ -67,9 +67,8 @@ abstract class BaseViewModel<State : UiState<State>, Event> : ViewModel() {
 
     protected suspend fun sendError(
         error: AppError,
-        mapper: (String) -> Event
+        mapper: (AppError) -> Event
     ) {
-        val message = error.toUserMessage()
-        sendEvent(mapper(message))
+        sendEvent(mapper(error))
     }
 }

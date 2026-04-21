@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.ui.auth
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -33,14 +32,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.GenericButton
@@ -50,7 +48,7 @@ import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WavyBackground
 
 @Composable
-fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hiltViewModel()) {
+fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltViewModel()) {
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -73,7 +71,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 )
 
             } catch (e: Exception) {
-                Log.e("Google_aut", e.message.toString())
+                loginViewModel.onError(e)
             }
         }
 
@@ -154,7 +152,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 Spacer(modifier = Modifier.height(24.dp))
 
                 GenericOutlinedButton(
-                    text = "Acceder con Google",
+                    text = stringResource(R.string.login_with_google),
                     onClick = {
                         val opciones =
                             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -214,9 +212,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
             message = stringResource(R.string.success_generic),
             onDismiss = {
                 showSuccess = false
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                }
+                onNavigateToHome()
             },
             onCancel = {}
         )
@@ -238,10 +234,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
 
                 is LoginUiEvent.NavigateToHome -> {
                     showLoginSheet = false
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
+                    onNavigateToHome()
                 }
 
                 is LoginUiEvent.RegisterSuccess -> {
@@ -250,7 +243,7 @@ fun LogIn(navController: NavHostController, loginViewModel: LoginViewModel = hil
                 }
 
 
-                is LoginUiEvent.ShowError -> errorMessage = event.message
+                is LoginUiEvent.ShowError -> errorMessage = event.error.toUserMessage()
 
             }
         }

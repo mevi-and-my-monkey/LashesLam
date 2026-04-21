@@ -17,3 +17,5 @@ fun AppError.toUserMessage(): String {
     }
 
 }
+
+fun String?.orDefault(default: String) = if (this.isNullOrEmpty()) default else this

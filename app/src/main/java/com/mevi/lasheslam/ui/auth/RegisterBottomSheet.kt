@@ -240,8 +240,11 @@ fun RegisterBottomSheet(
             OutlinedTextField(
                 value = phone,
                 onValueChange = {
-                    phone = it.filter(Char::isDigit)
-                    phoneValidation.value = InputValidator.validatePhone(phone)
+                    if (it.length <= 10) {
+                        val filtered = it.filter(Char::isDigit)
+                        phone = filtered
+                        phoneValidation.value = InputValidator.validatePhone(filtered)
+                    }
                 },
                 label = { Text(Strings.phoneNumber) },
                 leadingIcon = {
@@ -254,7 +257,7 @@ fun RegisterBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 isError = !phoneValidation.value.isValid,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             )
             if (!phoneValidation.value.isValid) {
                 Text(
@@ -277,9 +280,9 @@ fun RegisterBottomSheet(
                         onRegister(
                             UserModel(
                                 name = fullName,
-                                email = email,
-                                password = password,
-                                confirmPassword = confirmPassword,
+                                email = email.trim(),
+                                password = password.trim(),
+                                confirmPassword = confirmPassword.trim(),
                                 phone = phone
                             )
                         )

@@ -1,13 +1,16 @@
 package com.mevi.lasheslam.ui.auth
 
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthCredential
 import com.mevi.lasheslam.BaseViewModel
+import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,10 +18,17 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
     private val googleUseCase: SignInWithGoogleUseCase,
-    private val saveSessionUseCase: SaveSessionUseCase
+    private val saveSessionUseCase: SaveSessionUseCase,
+    private val errorMapper: ErrorMapper
 ) : BaseViewModel<LoginUiState, LoginUiEvent>() {
 
     override fun createInitialState() = LoginUiState()
+
+    fun onError(e: Exception) {
+        viewModelScope.launch {
+            sendError(errorMapper.map(e)){ LoginUiEvent.ShowError(it) }
+        }
+    }
 
     fun login() = launchWithLoading {
         val result = loginUseCase(uiState.value.email, uiState.value.password)

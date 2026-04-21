@@ -7,6 +7,8 @@ import com.google.firebase.firestore.SetOptions
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.core.error.ErrorMapper
+import com.mevi.lasheslam.data.constants.FirestoreOptions
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.UserRepository
 import com.mevi.lasheslam.network.UserModel
 import kotlinx.coroutines.Dispatchers
@@ -36,15 +38,13 @@ class UserRepositoryImpl @Inject constructor(
                 val authResult =
                     auth.createUserWithEmailAndPassword(user.email ?: "", user.password ?: "")
                         .await()
-                val firebaseUser =
-                    authResult.user
-                        ?: return@withContext Resource.Error(AppError.Unknown(null))
+                val firebaseUser = authResult.user ?: return@withContext Resource.Error(AppError.Unknown(null))
+
                 val userId = firebaseUser.uid
 
                 val userToSave = user.copy(uid = userId)
-                firestore.collection("users")
-                    .document(userId)
-                    .set(userToSave, SetOptions.merge()).await()
+                firestore.document(FirestorePaths.Users.document(userId))
+                    .set(userToSave, FirestoreOptions.MERGE).await()
 
                 Resource.Success(true)
             } catch (e: Exception) {
@@ -61,16 +61,15 @@ class UserRepositoryImpl @Inject constructor(
                 val userId = user?.uid ?: return@withContext Resource.Error(AppError.Unknown(null))
 
                 val userModel = UserModel(
-                    name = user.displayName ?: "Sin nombre registrado",
-                    email = user.email ?: "Sin correo electronico registrado",
+                    name = user.displayName ?: "",
+                    email = user.email ?: "",
                     uid = userId,
-                    phone = user.phoneNumber ?: "Sin numero telefonico registrado",
-                    address = "Sin direccion registrada",
+                    phone = user.phoneNumber ?: "",
+                    address = "",
                     userPhoto = user.photoUrl?.toString() ?: ""
                 )
-                firestore.collection("users")
-                    .document(user.uid)
-                    .set(userModel, SetOptions.merge())
+                firestore.document(FirestorePaths.Users.document(userId))
+                    .set(userModel, FirestoreOptions.MERGE)
                     .await()
 
                 Resource.Success(true)

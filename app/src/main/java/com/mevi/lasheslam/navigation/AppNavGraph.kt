@@ -54,7 +54,12 @@ fun AppNavGraph(
                 })
         }
         composable(Screen.Login.route) {
-            LogIn(navController)
+            LogIn(onNavigateToHome = {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            })
         }
         composable(Screen.Home.route) {
             HomeScreen(navController, modifier)

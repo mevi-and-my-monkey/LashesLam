@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.ui.common.orDefault
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.ProfileOptionButton
 import com.mevi.lasheslam.ui.components.SuccessDialog
@@ -132,7 +134,7 @@ fun ProfilePage(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Telefono: ${user.phone?.takeIf { it.isNotEmpty() } ?: "Sin número registrado"}",
+                    text = "Telefono: ${user.phone.orDefault(stringResource(R.string.without_phone))}",
                     fontSize = 14.sp,
                     color = Color.Black,
                     textAlign = TextAlign.Center

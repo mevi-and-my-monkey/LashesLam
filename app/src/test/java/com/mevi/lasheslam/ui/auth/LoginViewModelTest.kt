@@ -2,20 +2,22 @@ package com.mevi.lasheslam.ui.auth
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.firebase.auth.AuthCredential
-import com.mevi.lasheslam.core.AuthState
+import com.mevi.lasheslam.core.error.AppError
+import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
-import com.mevi.lasheslam.domain.usecase.SaveIsDarkModeUseCase
+import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -29,7 +31,8 @@ class LoginViewModelTest {
     private val loginUseCase: LoginUseCase = mockk()
     private val registerUseCase: RegisterUseCase = mockk()
     private val googleUseCase: SignInWithGoogleUseCase = mockk()
-    private val saveIsDarkModeUseCase: SaveIsDarkModeUseCase = mockk(relaxed = true)
+    private val saveSessionUseCase: SaveSessionUseCase = mockk()
+    private val errorMapper : ErrorMapper = mockk()
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -39,116 +42,142 @@ class LoginViewModelTest {
 
     @Before
     fun setup() {
-        // simulamos el flujo de dark mode con un valor inicial
-
         viewModel = LoginViewModel(
-            loginUseCase,
-            registerUseCase,
-            googleUseCase,
-            saveIsDarkModeUseCase
+            loginUseCase = loginUseCase,
+            registerUseCase = registerUseCase,
+            googleUseCase = googleUseCase,
+            saveSessionUseCase = saveSessionUseCase,
+            errorMapper = errorMapper
         )
     }
 
-    // ----------- VALIDACIONES DE LOGIN -----------
+    @Test
+    fun `login success emits NavigateToHome`() = runTest {
+        coEvery { loginUseCase(any(), any()) } returns Resource.Success(true)
+        coEvery { saveSessionUseCase(any()) } returns Unit
+
+        viewModel.onLoginChanged("test@example.com", "password123")
+
+        val events = mutableListOf<LoginUiEvent>()
+
+        val job = launch {
+            viewModel.events.collect {
+                events.add(it)
+            }
+        }
+
+        viewModel.login()
+        advanceUntilIdle()
+
+        assertTrue(events.contains(LoginUiEvent.NavigateToHome))
+
+        job.cancel()
+    }
+
+    @Test
+    fun `login error emits ShowError`() = runTest {
+        val appError = AppError.InvalidCredentials
+
+        coEvery { loginUseCase(any(), any()) } returns Resource.Error(appError)
+        coEvery { errorMapper.map(any()) } returns appError
+
+        viewModel.onLoginChanged("test@example.com", "wrongpass")
+
+        val events = mutableListOf<LoginUiEvent>()
+
+        val job = launch {
+            viewModel.events.collect {
+                events.add(it)
+            }
+        }
+
+        viewModel.login()
+        advanceUntilIdle()
+
+        val errorEvent = events.filterIsInstance<LoginUiEvent.ShowError>().firstOrNull()
+
+        assertEquals(appError.toUserMessage(), errorEvent?.error?.toUserMessage() ?: "")
+
+        job.cancel()
+    }
+
+    @Test
+    fun `google sign in success emits NavigateToHome`() = runTest {
+        val credential = mockk<AuthCredential>()
+        coEvery { googleUseCase(credential) } returns Resource.Success(true)
+        coEvery { saveSessionUseCase(any()) } returns Unit
+
+        val events = mutableListOf<LoginUiEvent>()
+
+        val job = launch {
+            viewModel.events.collect {
+                events.add(it)
+            }
+        }
+
+        viewModel.signInWithGoogle(credential, "test@example.com")
+        advanceUntilIdle()
+
+        assertTrue(events.contains(LoginUiEvent.NavigateToHome))
+
+        job.cancel()
+    }
+
+    @Test
+    fun `register success emits RegisterSuccess`() = runTest {
+        val user = UserModel("123", "test@example.com", "Test User")
+
+        coEvery { registerUseCase(user) } returns Resource.Success(true)
+        coEvery { saveSessionUseCase(any()) } returns Unit
+
+        val events = mutableListOf<LoginUiEvent>()
+
+        val job = launch {
+            viewModel.events.collect {
+                events.add(it)
+            }
+        }
+
+        viewModel.register(user)
+        advanceUntilIdle()
+
+        assertTrue(events.contains(LoginUiEvent.RegisterSuccess))
+
+        job.cancel()
+    }
+
+    @Test
+    fun `onError emits ShowError event`() = runTest {
+        val exception = Exception("test")
+        val appError = AppError.Unknown("test")
+
+        coEvery { errorMapper.map(exception) } returns appError
+
+        val events = mutableListOf<LoginUiEvent>()
+
+        val job = launch {
+            viewModel.events.collect {
+                events.add(it)
+            }
+        }
+
+        viewModel.onError(exception)
+        advanceUntilIdle()
+
+        val errorEvent = events.filterIsInstance<LoginUiEvent.ShowError>().firstOrNull()
+
+        assertEquals(appError.toUserMessage(), errorEvent?.error?.toUserMessage() ?: "")
+
+        job.cancel()
+    }
 
     @Test
     fun `email and password validation works`() {
         viewModel.onLoginChanged("test@example.com", "1234567")
-        assertTrue(viewModel.isLoginEnable)
+        assertTrue(viewModel.uiState.value.isLoginEnabled)
 
         viewModel.onLoginChanged("invalid", "1234567")
-        assertFalse(viewModel.isLoginEnable)
-    }
-
-    // ----------- LOGIN -----------
-
-    @Test
-    fun `login success updates authState and stops loading`() = runTest {
-        coEvery { loginUseCase(any(), any()) } returns Resource.Success(true)
-
-        var called = false
-        viewModel.onLoginChanged("test@example.com", "password123")
-
-        viewModel.login { success, _ ->
-            called = success
-        }
-
-        advanceUntilIdle()
-
-        assertEquals(AuthState.Success, viewModel.authState)
-        assertFalse(viewModel.isLoading.value!!)
-        assertTrue(called)
-    }
-
-    @Test
-    fun `login error updates authState with message`() = runTest {
-        coEvery { loginUseCase(any(), any()) } returns Resource.Error("Invalid credentials")
-
-        var called = false
-        var message: String? = null
-
-        viewModel.onLoginChanged("test@example.com", "wrongpass")
-
-        viewModel.login { success, msg ->
-            called = success
-            message = msg
-        }
-
-        advanceUntilIdle()
-
-        assertEquals(AuthState.Error("Invalid credentials"), viewModel.authState)
-        assertFalse(viewModel.isLoading.value!!)
-        assertFalse(called)
-        assertEquals("Invalid credentials", message)
-    }
-
-    // ----------- REGISTER -----------
-
-    @Test
-    fun `register success sets authState success`() = runTest {
-        val user = UserModel("123", "test@example.com", "Test User")
-        coEvery { registerUseCase(user) } returns Resource.Success(true)
-
-        var called = false
-        viewModel.register(user) { success, _ ->
-            called = success
-        }
-
-        advanceUntilIdle()
-
-        assertEquals(AuthState.Success, viewModel.authState)
-        assertTrue(called)
-    }
-
-    // ----------- GOOGLE SIGN-IN -----------
-
-    @Test
-    fun `sign in with Google success updates authState`() = runTest {
-        val credential = mockk<AuthCredential>()
-        coEvery { googleUseCase(credential) } returns Resource.Success(true)
-
-        var called = false
-        viewModel.signInWithGoogle(credential) { success, _ ->
-            called = success
-        }
-
-        advanceUntilIdle()
-
-        assertEquals(AuthState.Success, viewModel.authState)
-        assertTrue(called)
-    }
-
-    // ----------- DARK MODE -----------
-
-    @Test
-    fun `toggleDarkMode calls saveIsDarkModeUseCase`() = runTest {
-        coEvery { saveIsDarkModeUseCase(any()) } returns Unit
-
-        viewModel.toggleDarkMode(true)
-
-        advanceUntilIdle()
-
-        coVerify { saveIsDarkModeUseCase(true) }
+        assertFalse(viewModel.uiState.value.isLoginEnabled)
     }
 
 
