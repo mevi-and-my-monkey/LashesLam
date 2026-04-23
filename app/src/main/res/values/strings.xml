@@ -3,6 +3,10 @@
     <string name="default_web_client_id">818775184063-ple7ioqve0ugjcpa4dq21qg7a3lg1mnj.apps.googleusercontent.com</string>
 
     <!-- LOGIN -->
+    <string name="welcome">¡Bienvenida!</string>
+    <string name="register">Registrarse</string>
+    <string name="continue_with">  Continuar con  </string>
+    <string name="login">Iniciar sesión</string>
     <string name="create_account">Crear cuenta</string>
     <string name="full_name">Nombre completo</string>
     <string name="email">Correo electrónico</string>

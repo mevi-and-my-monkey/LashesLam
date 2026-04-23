@@ -3,12 +3,12 @@ package com.mevi.lasheslam.data
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.data.constants.FirestoreOptions
 import com.mevi.lasheslam.data.constants.FirestorePaths
+import com.mevi.lasheslam.data.dto.UserDto
 import com.mevi.lasheslam.domain.repository.UserRepository
 import com.mevi.lasheslam.network.UserModel
 import kotlinx.coroutines.Dispatchers
@@ -60,16 +60,16 @@ class UserRepositoryImpl @Inject constructor(
                 val user = authResult.user
                 val userId = user?.uid ?: return@withContext Resource.Error(AppError.Unknown(null))
 
-                val userModel = UserModel(
-                    name = user.displayName ?: "",
-                    email = user.email ?: "",
-                    uid = userId,
-                    phone = user.phoneNumber ?: "",
+                val dto = UserDto(
+                    name = user.displayName,
+                    email = user.email,
+                    uid = user.uid,
+                    phone = user.phoneNumber,
                     address = "",
-                    userPhoto = user.photoUrl?.toString() ?: ""
+                    userPhoto = user.photoUrl?.toString()
                 )
                 firestore.document(FirestorePaths.Users.document(userId))
-                    .set(userModel, FirestoreOptions.MERGE)
+                    .set(dto, FirestoreOptions.MERGE)
                     .await()
 
                 Resource.Success(true)

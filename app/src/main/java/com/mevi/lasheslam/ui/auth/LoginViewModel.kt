@@ -8,6 +8,7 @@ import com.mevi.lasheslam.domain.usecase.LoginUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
+import com.mevi.lasheslam.domain.usecase.ValidateLoginUseCase
 import com.mevi.lasheslam.network.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -19,7 +20,8 @@ class LoginViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val googleUseCase: SignInWithGoogleUseCase,
     private val saveSessionUseCase: SaveSessionUseCase,
-    private val errorMapper: ErrorMapper
+    private val errorMapper: ErrorMapper,
+    private val validateLoginUseCase: ValidateLoginUseCase
 ) : BaseViewModel<LoginUiState, LoginUiEvent>() {
 
     override fun createInitialState() = LoginUiState()
@@ -77,16 +79,14 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginChanged(email: String, password: String) {
+        val isValid = validateLoginUseCase(email, password)
         setState {
             copy(
                 email = email,
                 password = password,
-                isLoginEnabled = enableLogin(email, password)
+                isLoginEnabled = isValid
             )
         }
     }
 
-    private fun enableLogin(email: String, password: String) =
-        Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$").matches(email) &&
-                password.length > 6
 }

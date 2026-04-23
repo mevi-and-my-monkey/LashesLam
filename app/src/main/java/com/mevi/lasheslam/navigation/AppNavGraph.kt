@@ -2,9 +2,6 @@ package com.mevi.lasheslam.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -15,9 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.auth.LogIn
-import com.mevi.lasheslam.ui.splashscreen.SplashScreen
+import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.home.components.ServiceDetailView
 import com.mevi.lasheslam.ui.home.components.ServiceEditView
 import com.mevi.lasheslam.ui.products.ProductsView
@@ -27,6 +23,7 @@ import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
+import com.mevi.lasheslam.ui.splashscreen.SplashScreen
 import com.mevi.lasheslam.utils.NavTransitions
 
 @RequiresApi(Build.VERSION_CODES.O)
