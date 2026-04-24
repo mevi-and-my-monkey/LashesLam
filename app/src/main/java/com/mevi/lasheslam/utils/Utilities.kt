@@ -1,22 +1,20 @@
 package com.mevi.lasheslam.utils
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.firestore
 import com.google.firebase.remoteconfig.remoteConfig
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
-import androidx.core.net.toUri
 
 object Utilities {
 
@@ -46,19 +44,39 @@ object Utilities {
     ) {
         val context = navController.context
 
-        val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        val inicioMillis = formatter.parse("$fecha $horaInicio")?.time ?: return
-        val finMillis = formatter.parse("$fecha $horaFin")?.time ?: return
+        val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.getDefault())
+        outputFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+        val inicioDate = inputFormat.parse("$fecha $horaInicio") ?: return
+        val finDate = inputFormat.parse("$fecha $horaFin") ?: return
 
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
             putExtra(CalendarContract.Events.TITLE, titulo)
-            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, inicioMillis)
-            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, finMillis)
+            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, inicioDate.time)
+            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, finDate.time)
             putExtra(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().id)
         }
 
-        context.startActivity(intent)
+        val inicioUTC = outputFormat.format(inicioDate)
+        val finUTC = outputFormat.format(finDate)
+
+        val calendarUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+                "&text=${Uri.encode(titulo)}" +
+                "&dates=$inicioUTC/$finUTC"
+
+        val webIntent = Intent(Intent.ACTION_VIEW, calendarUrl.toUri())
+
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            try {
+                context.startActivity(webIntent)
+            } catch (e: Exception) {
+                Toast.makeText(context, "No se puede abrir el calendario", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     fun openGoogleMaps(context: Context, lat: Double, lng: Double) {

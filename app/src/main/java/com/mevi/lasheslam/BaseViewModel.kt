@@ -5,13 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.ui.common.UiState
-import com.mevi.lasheslam.ui.common.toUserMessage
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -22,15 +19,15 @@ abstract class BaseViewModel<State : UiState<State>, Event> : ViewModel() {
     private val _uiState = MutableStateFlow(createInitialState())
     val uiState: StateFlow<State> = _uiState
 
-    private val _events = Channel<Event>()
-    val events = _events.receiveAsFlow()
+    private val _events = MutableSharedFlow<Event>()
+    val events = _events.asSharedFlow()
 
     protected fun setState(reducer: State.() -> State) {
         _uiState.update { it.reducer() }
     }
 
     protected suspend fun sendEvent(event: Event) {
-        _events.send(event)
+        _events.emit(event)
     }
 
     private var loadingCount = 0
@@ -71,4 +68,5 @@ abstract class BaseViewModel<State : UiState<State>, Event> : ViewModel() {
     ) {
         sendEvent(mapper(error))
     }
+
 }

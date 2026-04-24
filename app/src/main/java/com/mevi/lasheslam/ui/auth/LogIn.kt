@@ -16,10 +16,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.ui.common.toUserMessage
 
 @Composable
 fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltViewModel()) {
+
+    LaunchedEffect(Unit) {
+        loginViewModel.trackScreen("login_screen")
+    }
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -72,8 +77,14 @@ fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltVie
         showRegisterSheet = showRegisterSheet,
         showSuccess = showSuccess,
         errorMessage = errorMessage,
-        onLoginClick = { showLoginSheet = true },
-        onRegisterClick = { showRegisterSheet = true },
+        onLoginClick = {
+            loginViewModel.trackEvent(AnalyticsEvent.LoginClick)
+            showLoginSheet = true
+        },
+        onRegisterClick = {
+            loginViewModel.trackEvent(AnalyticsEvent.RegisterClick)
+            showRegisterSheet = true
+        },
         onRegister = { user ->
             loginViewModel.register(user)
         },
@@ -85,6 +96,7 @@ fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltVie
         },
         onLogin = { loginViewModel.login() },
         onGoogleClick = {
+            loginViewModel.trackEvent(AnalyticsEvent.GoogleLoginClick)
             val opciones =
                 GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(context.getString(R.string.default_web_client_id))
