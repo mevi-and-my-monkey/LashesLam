@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ fun WavyBackground(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val backgroundColor = Color(0xFFFFFBFB)
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     Box(
         modifier = modifier

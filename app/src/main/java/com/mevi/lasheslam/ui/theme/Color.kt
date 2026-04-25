@@ -12,7 +12,7 @@ val PinkTertiaryLight = Color(0xFFFACCCE)
 val PinkTertiaryDark = Color(0xFFEFB8C8)
 
 // --- Backgrounds ---
-val BackgroundLight = Color(0xFFFFF5F7)
+val BackgroundLight = Color(0xFFFBF6F2)
 val BackgroundDark = Color(0xFF121212)
 val SurfaceLight = Color.White
 val SurfaceDark = Color(0xFF1E1E1E)
