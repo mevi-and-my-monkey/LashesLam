@@ -56,11 +56,13 @@ fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltVie
             when (event) {
 
                 is LoginUiEvent.NavigateToHome -> {
+                    loginViewModel.trackEvent(AnalyticsEvent.LoginBottomHide)
                     showLoginSheet = false
                     onNavigateToHome()
                 }
 
                 is LoginUiEvent.RegisterSuccess -> {
+                    loginViewModel.trackEvent(AnalyticsEvent.RegisterBottomHide)
                     showRegisterSheet = false
                     showSuccess = true
                 }
@@ -78,10 +80,12 @@ fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltVie
         showSuccess = showSuccess,
         errorMessage = errorMessage,
         onLoginClick = {
+            loginViewModel.trackEvent(AnalyticsEvent.LoginBottomShow)
             loginViewModel.trackEvent(AnalyticsEvent.LoginClick)
             showLoginSheet = true
         },
         onRegisterClick = {
+            loginViewModel.trackEvent(AnalyticsEvent.RegisterBottomShow)
             loginViewModel.trackEvent(AnalyticsEvent.RegisterClick)
             showRegisterSheet = true
         },

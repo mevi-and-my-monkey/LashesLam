@@ -9,5 +9,6 @@ class SaveSessionUseCase @Inject constructor(
     suspend operator fun invoke(email: String) {
         val isAdmin = repo.isAdmin(email)
         repo.setAdmin(isAdmin)
+        repo.setSessionManager()
     }
 }

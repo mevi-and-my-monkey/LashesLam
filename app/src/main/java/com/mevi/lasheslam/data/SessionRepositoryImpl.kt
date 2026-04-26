@@ -11,6 +11,8 @@ class SessionRepositoryImpl @Inject constructor(private val firebaseAuth: Fireba
 
     override fun getEmail(): String? = firebaseAuth.currentUser?.email
 
+    override fun getUid(): String? = firebaseAuth.currentUser?.uid
+
     override suspend fun refreshSession() {
         SessionManager.refreshAdmins()
     }
@@ -20,5 +22,10 @@ class SessionRepositoryImpl @Inject constructor(private val firebaseAuth: Fireba
     override fun setAdmin(isAdmin: Boolean) {
         SessionManager.setAdmin(isAdmin)
         SessionManager.setInvited(false)
+    }
+
+    override fun setSessionManager() {
+        SessionManager.setCurrentUserId(getUid())
+        SessionManager.setEmailUser(getEmail())
     }
 }

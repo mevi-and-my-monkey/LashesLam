@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.network.ServiceItem
@@ -45,7 +44,9 @@ import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomePage(
-    navController: NavController
+    onNavigateToSearch: () -> Unit,
+    onNavigateToRequest: () -> Unit,
+    onNavigateToServiceDetails: (String) -> Unit,
 ) {
     RequestNotificationPermission()
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
@@ -78,7 +79,8 @@ fun HomePage(
         Column(modifier = Modifier.fillMaxSize()) {
 
             HeaderView(
-                navController = navController,
+                onNavigateToSearch = onNavigateToSearch,
+                onNavigateToRequest = onNavigateToRequest,
                 selectedSection = selectedSection,
                 onSelectSection = { selectedSection = it }
             )
@@ -92,7 +94,7 @@ fun HomePage(
                     when (selectedSection) {
                         Section.CURSOS -> {
                             CursosPageContent(
-                                navController = navController,
+                                onNavigateToServiceDetails = onNavigateToServiceDetails,
                                 services = services,
                                 isLoading = isLoadingServices
                             )

@@ -13,6 +13,7 @@ class RefreshSessionUseCase @Inject constructor(
         if (email != null) {
             val isAdmin = repository.isAdmin(email)
             repository.setAdmin(isAdmin)
+            repository.setSessionManager()
         }
     }
 }

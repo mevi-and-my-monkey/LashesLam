@@ -42,14 +42,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material3.placeholder
 import com.google.accompanist.placeholder.material3.shimmer
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.NotificationBadge
 import com.mevi.lasheslam.ui.home.HomeViewModel
@@ -63,7 +61,8 @@ enum class Section {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HeaderView(
-    navController: NavController,
+    onNavigateToSearch: () -> Unit,
+    onNavigateToRequest: () -> Unit,
     selectedSection: Section,
     onSelectSection: (Section) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
@@ -153,7 +152,7 @@ fun HeaderView(
                 IconButton(
                     onClick = {
                         if (isAdmin) {
-                            navController.navigate(Screen.Request.route)
+                           onNavigateToRequest()
                         } else {
                             //navController.navigate(Screen.UserCourses.route)
                         }
@@ -190,7 +189,7 @@ fun HeaderView(
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White.copy(alpha = 0.2f))
                 .clickable {
-                    navController.navigate(Screen.Search.route)
+                    onNavigateToSearch()
                 },
             contentAlignment = Alignment.CenterStart
         ) {

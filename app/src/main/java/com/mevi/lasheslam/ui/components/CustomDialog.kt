@@ -41,7 +41,7 @@ fun CustomDialog(
     Dialog(onDismissRequest = { onDismiss() }) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.9f) // ocupa 90% del ancho de pantalla
+                .fillMaxWidth(0.9f) 
                 .background(backgroundColor, RoundedCornerShape(16.dp))
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

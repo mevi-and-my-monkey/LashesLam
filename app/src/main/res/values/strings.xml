@@ -27,6 +27,9 @@
     <string name="without_phone">Sin numero telefonico registrado"</string>
     <string name="without_address">Sin direccion registrada</string>
 
+    <!-- HOME -->
+    <string name="exit_warning">¿Seguro que deseas salir de la aplicación?</string>">
+
     <!-- LOGIN -->
     <string name="key_remote_config_list_admin">list_admin</string>
     <string name="key_remote_config_whatsapp_admin">whatsapp_administrador</string>

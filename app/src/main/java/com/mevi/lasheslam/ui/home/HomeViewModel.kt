@@ -34,6 +34,7 @@ import java.time.LocalTime
 import androidx.work.workDataOf
 import androidx.work.OneTimeWorkRequestBuilder
 import com.google.firebase.firestore.DocumentChange
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.utils.showNotification
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.format.DateTimeFormatter
@@ -113,7 +114,7 @@ class HomeViewModel @Inject constructor(
             if (isUserInvited.value) {
                 name = "Invitado"
             } else {
-                firestore.collection("users").document(user.uid)
+                firestore.collection(FirestorePaths.Users.COLLECTION).document(user.uid)
                     .get()
                     .addOnSuccessListener {
                         name = it.getString("name")?.split(" ")?.firstOrNull() ?: ""
@@ -155,7 +156,7 @@ class HomeViewModel @Inject constructor(
 
             println("DEBUG: Solicitud creada en course_requests")
 
-            firestore.collection("users")
+            firestore.collection(FirestorePaths.Users.COLLECTION)
                 .document(userId)
                 .collection("cursos")
                 .document(courseId)
@@ -169,7 +170,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadUserCourseStatus(userId: String, courseId: String) {
-        firestore.collection("users")
+        firestore.collection(FirestorePaths.Users.COLLECTION)
             .document(userId)
             .collection("cursos")
             .document(courseId)
@@ -188,7 +189,7 @@ class HomeViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadUserAcceptedCourses(userId: String) {
-        firestore.collection("users")
+        firestore.collection(FirestorePaths.Users.COLLECTION)
             .document(userId)
             .collection("cursos")
             .whereEqualTo("status", "aceptado")

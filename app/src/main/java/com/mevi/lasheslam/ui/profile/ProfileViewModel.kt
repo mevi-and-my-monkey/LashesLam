@@ -5,11 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.data.DataStoreRepository
-import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -83,11 +81,8 @@ class ProfileViewModel @Inject constructor(
             }
     }
 
-    fun signOut(navController: NavController) {
+    fun signOut(onNavigateToLogOut: () -> Unit) {
         auth.signOut()
-        navController.navigate(Screen.Login.route) {
-            popUpTo(0) { inclusive = true }
-            launchSingleTop = true
-        }
+        onNavigateToLogOut()
     }
 }

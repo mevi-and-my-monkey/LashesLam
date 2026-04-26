@@ -59,10 +59,65 @@ fun AppNavGraph(
             })
         }
         composable(Screen.Home.route) {
-            HomeScreen(navController, modifier)
+            HomeScreen(
+                onNavigateToSearch = {
+                    navController.navigate(Screen.Search.route) {
+                        popUpTo(Screen.Home.route)
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToFavorite = {
+                    navController.navigate(Screen.Request.route) {
+                        popUpTo(Screen.Home.route)
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToRequest = {
+                    navController.navigate(Screen.Request.route) {
+                        popUpTo(Screen.Home.route)
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToCourses = {
+                    navController.navigate(Screen.Courses.route)
+                },
+                onNavigateToLogOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToServiceDetails = { Id ->
+                    navController.navigate(Screen.ServiceDetails.createRoute(Id))
+                },
+                modifier
+            )
         }
         composable(Screen.Profile.route) {
-            ProfilePage(navController)
+            ProfilePage(
+                onNavigateToFavorite = {
+                    navController.navigate(Screen.Favorite.route) {
+                        popUpTo(Screen.Profile.route)
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToRequest = {
+                    navController.navigate(Screen.Request.route) {
+                        popUpTo(Screen.Profile.route)
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToCourses = {
+                    navController.navigate(Screen.Courses.route)
+                },
+                onNavigateToLogOut = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+
+            )
         }
         composable(
             Screen.Search.route,

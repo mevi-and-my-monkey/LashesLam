@@ -41,10 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.common.orDefault
 import com.mevi.lasheslam.ui.components.ErrorDialog
@@ -54,7 +52,10 @@ import com.mevi.lasheslam.ui.components.WarningDialog
 
 @Composable
 fun ProfilePage(
-    navController: NavController,
+    onNavigateToFavorite: () -> Unit,
+    onNavigateToRequest: () -> Unit,
+    onNavigateToCourses: () -> Unit,
+    onNavigateToLogOut: () -> Unit,
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val user = profileViewModel.userModel
@@ -193,7 +194,7 @@ fun ProfilePage(
                 icon = R.drawable.ic_favorite,
                 text = "Favoritos",
                 onClick = {
-                    navController.navigate(Screen.Favorite.route)
+                    onNavigateToFavorite()
                 }
             )
             ProfileOptionButton(
@@ -201,7 +202,7 @@ fun ProfilePage(
                 text = "Órdenes",
                 onClick = {
                     if (isAdmin) {
-                        navController.navigate(Screen.Request.route)
+                        onNavigateToRequest()
                     } else {
 
                     }
@@ -212,7 +213,7 @@ fun ProfilePage(
                     icon = R.drawable.ic_inscripciones,
                     text = "Inscripciones",
                     onClick = {
-                        navController.navigate(Screen.Courses.route)
+                        onNavigateToCourses()
                     }
                 )
             }
@@ -291,7 +292,7 @@ fun ProfilePage(
     if (showWarning) {
         WarningDialog(message = warningMessae, onDismiss = {
             showWarning = false
-            profileViewModel.signOut(navController)
+            profileViewModel.signOut(onNavigateToLogOut)
             warningMessae = ""
         }, onCancel = {
             showWarning = false
