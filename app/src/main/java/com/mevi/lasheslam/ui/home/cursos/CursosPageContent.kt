@@ -8,13 +8,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.home.components.BannerView
 
 @Composable
 fun CursosPageContent(
     onNavigateToServiceDetails: (String) -> Unit,
-    services: List<ServiceItem>,
+    services: List<CoursesItem>,
     isLoading: Boolean
 ) {
     Column(modifier = Modifier.fillMaxSize()) {

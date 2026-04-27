@@ -5,11 +5,13 @@ import com.mevi.lasheslam.data.CoursesRepositoryImpl
 import com.mevi.lasheslam.data.DataStoreRepository
 import com.mevi.lasheslam.data.FavoritesRepositoryImpl
 import com.mevi.lasheslam.data.PlayCoreUpdateRepository
+import com.mevi.lasheslam.data.SessionDataSourceImpl
 import com.mevi.lasheslam.data.SessionRepositoryImpl
 import com.mevi.lasheslam.data.UserRepositoryImpl
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
+import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
 import com.mevi.lasheslam.domain.repository.UpdateRepository
 import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
@@ -57,4 +59,9 @@ abstract class RepositoryModule {
     abstract fun bindSessionRepository(
         impl: SessionRepositoryImpl
     ): SessionRepository
+
+    @Binds
+    abstract fun bindSessionDataSource(
+        impl: SessionDataSourceImpl
+    ) : SessionDataSource
 }

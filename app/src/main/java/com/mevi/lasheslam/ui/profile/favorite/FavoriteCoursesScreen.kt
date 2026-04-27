@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mevi.lasheslam.navigation.Screen
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsViewModel
 
@@ -77,7 +77,7 @@ fun FavoriteCoursesScreen(
 }
 
 @Composable
-fun FavoriteCourseCard(course: ServiceItem, onClick: () -> Unit) {
+fun FavoriteCourseCard(course: CoursesItem, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

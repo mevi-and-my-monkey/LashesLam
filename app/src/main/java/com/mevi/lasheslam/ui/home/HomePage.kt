@@ -28,10 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.ServiceItem
-import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.components.RequestNotificationPermission
@@ -47,30 +45,15 @@ fun HomePage(
     onNavigateToSearch: () -> Unit,
     onNavigateToRequest: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
+    viewModel: HomePageViewModel = hiltViewModel()
 ) {
     RequestNotificationPermission()
-    val isAdmin by SessionManager.isUserAdmin.collectAsState()
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
-    var selectedSection by remember { mutableStateOf(Section.CURSOS) }
 
-    val firestore = FirebaseFirestore.getInstance()
-    var services by remember { mutableStateOf<List<ServiceItem>>(emptyList()) }
-    var isLoadingServices by remember { mutableStateOf(true) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    var showDialogComingSoon by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        firestore.collection("data").document("curse")
-            .collection("items")
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    services =
-                        snapshot.documents.mapNotNull { it.toObject(ServiceItem::class.java) }
-                    isLoadingServices = false
-                }
-            }
-    }
+    var dialogState by remember { mutableStateOf<HomeUiEvent?>(null) }
 
     Box(
         modifier = Modifier
@@ -81,8 +64,10 @@ fun HomePage(
             HeaderView(
                 onNavigateToSearch = onNavigateToSearch,
                 onNavigateToRequest = onNavigateToRequest,
-                selectedSection = selectedSection,
-                onSelectSection = { selectedSection = it }
+                selectedSection = uiState.selectedSection,
+                onSelectSection = { section ->
+                    viewModel.onSectionSelected(section)
+                }
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
@@ -91,32 +76,22 @@ fun HomePage(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 item {
-                    when (selectedSection) {
+                    when (uiState.selectedSection) {
                         Section.CURSOS -> {
                             CursosPageContent(
                                 onNavigateToServiceDetails = onNavigateToServiceDetails,
-                                services = services,
-                                isLoading = isLoadingServices
+                                services = uiState.courses,
+                                isLoading = uiState.isLoading
                             )
                         }
 
-                        Section.PRODUCTOS -> {
-                            showDialogComingSoon = true
-                        }
-
-                        Section.SERVICIOS -> {
-                            showDialogComingSoon = true
-                        }
-
-                        else -> {
-                            showDialogComingSoon = true
-                        }
+                        else -> {}
                     }
                 }
             }
         }
 
-        if (isAdmin) {
+        if (uiState.isAdmin) {
             FloatingActionButton(
                 onClick = {
                     showOptionsBottomSheet = true
@@ -130,7 +105,7 @@ fun HomePage(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar",
+                    contentDescription = stringResource(R.string.add),
                     tint = Color.White
                 )
             }
@@ -138,17 +113,17 @@ fun HomePage(
 
         if (showOptionsBottomSheet) {
             GenericOptionsBottomSheet(
-                title = "Administrar productos y servicios",
+                title = stringResource(R.string.manege_products_and_services),
                 onDismiss = { showOptionsBottomSheet = false },
                 options = listOf(
                     BottomSheetOption(
-                        label = "Subir nuevo producto",
+                        label = stringResource(R.string.uploaded_new_product),
                         icon = Icons.Default.AddBusiness
                     ) {
 
                     },
                     BottomSheetOption(
-                        label = "Subir nuevo curso",
+                        label = stringResource(R.string.uploaded_new_product),
                         icon = Icons.Default.PostAdd
                     ) {
                         showOptionsBottomSheet = false
@@ -165,11 +140,17 @@ fun HomePage(
         }
     }
 
-    if (showDialogComingSoon) {
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { events ->
+            dialogState = events
+        }
+    }
+
+    if (dialogState is HomeUiEvent.ShowComingSoon) {
         DialogComingSon(
             onDismiss = {
-                showDialogComingSoon = false
-                selectedSection = Section.CURSOS
+                dialogState = null
+                viewModel.onSectionSelected(Section.CURSOS)
             },
             drawableRes = R.drawable.ic_star,
             title = stringResource(R.string.title_coming_soon),
@@ -177,4 +158,5 @@ fun HomePage(
             textButton = stringResource(R.string.button_understand)
         )
     }
+
 }

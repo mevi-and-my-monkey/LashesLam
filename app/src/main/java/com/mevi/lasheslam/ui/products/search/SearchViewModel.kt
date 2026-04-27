@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     var searchQuery by mutableStateOf("")
         private set
 
-    var rawItems by mutableStateOf(listOf<ServiceItem>())
+    var rawItems by mutableStateOf(listOf<CoursesItem>())
         private set
 
     var isLoading by mutableStateOf(false)
@@ -44,7 +44,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         searchQuery = query
     }
 
-    val filteredItems: List<ServiceItem>
+    val filteredItems: List<CoursesItem>
         get() = rawItems.filter {
             it.titulo.contains(searchQuery, ignoreCase = true)
         }
@@ -65,7 +65,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             .collection("items")
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
-                    rawItems = snapshot.documents.mapNotNull { it.toObject(ServiceItem::class.java) }
+                    rawItems = snapshot.documents.mapNotNull { it.toObject(CoursesItem::class.java) }
                 }
                 isLoading = false
             }

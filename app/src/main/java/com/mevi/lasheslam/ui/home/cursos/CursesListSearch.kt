@@ -7,16 +7,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.ServiceItem
-import com.mevi.lasheslam.ui.home.cursos.components.AnimatedMarketplaceItem
+import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.home.cursos.components.AnimatedMarketplaceItemSearch
 import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox
 
 @Composable
 fun CursesListSearch(
-    services: List<ServiceItem>,
+    services: List<CoursesItem>,
     isLoading: Boolean,
-    onClick: (ServiceItem) -> Unit
+    onClick: (CoursesItem) -> Unit
 ) {
     Column {
         if (isLoading) {

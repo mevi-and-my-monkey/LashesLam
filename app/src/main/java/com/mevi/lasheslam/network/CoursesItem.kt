@@ -1,6 +1,6 @@
 package com.mevi.lasheslam.network
 
-data class ServiceItem(
+data class CoursesItem(
     val id: String = "",
     val titulo: String = "",
     val imagen: String = "",

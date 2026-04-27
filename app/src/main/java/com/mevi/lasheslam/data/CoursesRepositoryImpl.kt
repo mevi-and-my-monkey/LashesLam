@@ -4,10 +4,15 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.CoursesRepository
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.network.CoursesItem
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.collections.chunked
 
 class CoursesRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
@@ -16,9 +21,9 @@ class CoursesRepositoryImpl @Inject constructor(
 
     override suspend fun getCoursesByIds(
         ids: List<String>
-    ): Resource<List<ServiceItem>> {
+    ): Resource<List<CoursesItem>> {
         return try {
-            val result = mutableListOf<ServiceItem>()
+            val result = mutableListOf<CoursesItem>()
 
             ids.chunked(10).forEach { chunk ->
                 val snapshot = firestore
@@ -30,7 +35,7 @@ class CoursesRepositoryImpl @Inject constructor(
                     .await()
 
                 result += snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(ServiceItem::class.java)?.copy(id = doc.id)
+                    doc.toObject(CoursesItem::class.java)?.copy(id = doc.id)
                 }
             }
 
@@ -39,5 +44,29 @@ class CoursesRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))
         }
+    }
+
+    override fun getAllCourses(): Flow<Resource<List<CoursesItem>>> = callbackFlow {
+        val listener = firestore
+            .collection(FirestorePaths.Courses.COLLECTION)
+            .document(FirestorePaths.Courses.DOCUMENT)
+            .collection(FirestorePaths.Courses.COLLECTION_ITEMS)
+            .addSnapshotListener { snapshot, error ->
+
+                if (error != null) {
+                    trySend(Resource.Error(errorMapper.map(error)))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val courses = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(CoursesItem::class.java)?.copy(id = doc.id)
+                    }
+
+                    trySend(Resource.Success(courses))
+                }
+            }
+
+        awaitClose { listener.remove() }
     }
 }

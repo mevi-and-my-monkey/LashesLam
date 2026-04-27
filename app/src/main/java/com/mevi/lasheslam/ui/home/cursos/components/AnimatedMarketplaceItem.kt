@@ -13,12 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.network.CoursesItem
 import kotlinx.coroutines.delay
 
 @Composable
 fun AnimatedMarketplaceItem(
-    service: ServiceItem,
+    service: CoursesItem,
     index: Int,
     onClick: () -> Unit = {}
 ) {

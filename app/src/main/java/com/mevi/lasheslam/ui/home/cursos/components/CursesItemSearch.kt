@@ -1,7 +1,6 @@
 package com.mevi.lasheslam.ui.home.cursos.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,12 +31,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.network.CoursesItem
 
 @Composable
 fun CursesItemSearch(
     modifier: Modifier = Modifier,
-    service: ServiceItem,
+    service: CoursesItem,
     onClick: () -> Unit = {},
 ) {
     Card(

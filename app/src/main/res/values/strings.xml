@@ -47,4 +47,10 @@
     <string name="success_generic">Operación exitosa</string>
     <string name="error_generic">Procesando, por favor espera…</string>
 
+    <!-- HOME PAG-->
+    <string name="add">Agregar</string>">
+    <string name="manege_products_and_services">Administrar productos y servicios</string>">
+    <string name="uploaded_new_product">Subir nuevo producto</string>">
+    <string name="uploaded_new_service">Subir nuevo curso</string>">
+
 </resources>
