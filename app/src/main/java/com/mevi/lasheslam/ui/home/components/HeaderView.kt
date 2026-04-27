@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -50,6 +50,7 @@ import com.google.accompanist.placeholder.material3.shimmer
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.NotificationBadge
+import com.mevi.lasheslam.ui.home.HomePageViewModel
 import com.mevi.lasheslam.ui.home.HomeViewModel
 
 enum class Section {
@@ -65,32 +66,30 @@ fun HeaderView(
     onNavigateToRequest: () -> Unit,
     selectedSection: Section,
     onSelectSection: (Section) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    viewModelHP: HomePageViewModel = hiltViewModel()
 ) {
+    val uiState by viewModelHP.uiState.collectAsState()
+
     val name by remember { derivedStateOf { viewModel.name } }
     val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
     val isUserInvited by viewModel.isUserInvited.collectAsState()
     val isLoading by remember { derivedStateOf { name.isEmpty() } }
-    val isAdmin by SessionManager.isUserAdmin.collectAsState()
 
     val userId = SessionManager.currentUserId
 
-    LaunchedEffect(isAdmin) {
-        viewModel.initUserStatus(isAdmin, userId.value ?: "")
+    LaunchedEffect(uiState.isAdmin) {
+        viewModel.initUserStatus(uiState.isAdmin, userId.value ?: "")
     }
 
     val context = LocalContext.current
 
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(
-                    listOf(Color(0xFFFF80AB), Color(0xFFFFC1E3))
-                ),
-                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
-            )
-            .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
     ) {
 
         // ----------- PERFIL + BOTÓN CARRITO -------------
@@ -151,30 +150,39 @@ fun HeaderView(
 
                 IconButton(
                     onClick = {
-                        if (isAdmin) {
-                           onNavigateToRequest()
+                        if (uiState.isAdmin) {
+                            onNavigateToRequest()
                         } else {
                             //navController.navigate(Screen.UserCourses.route)
                         }
                     },
                     modifier = Modifier
                         .size(36.dp)
-                        .background(Color.Black.copy(alpha = 0.2f), CircleShape)
+                        .background(
+                            Color.White.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color.Gray.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ShoppingBag,
+                        imageVector = Icons.Outlined.ShoppingBag,
                         contentDescription = "Solicitudes",
-                        tint = Color.White
+                        tint = Color.Black,
                     )
                 }
 
                 val badgeCount =
-                    if (isAdmin) viewModel.adminPendingCount
+                    if (uiState.isAdmin) viewModel.adminPendingCount
                     else viewModel.userAcceptedCount
 
                 NotificationBadge(
                     count = badgeCount,
-                    color = if (isAdmin) Color.Red else Color(0xFF2196F3)
+                    color = if (uiState.isAdmin) Color.Red else Color(0xFF2196F3)
                 )
             }
         }
@@ -188,6 +196,11 @@ fun HeaderView(
                 .height(50.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White.copy(alpha = 0.2f))
+                .border(
+                    width = 1.dp,
+                    color = Color.Gray,
+                    shape = RoundedCornerShape(16.dp)
+                )
                 .clickable {
                     onNavigateToSearch()
                 },
@@ -209,7 +222,7 @@ fun HeaderView(
         Spacer(modifier = Modifier.height(14.dp))
 
         // ----------- MENÚ DE SECCIONES --------------------
-        HeaderCategoriesMenu(
+        HeaderHPCategoriesMenu(
             selected = selectedSection,
             onSelect = onSelectSection
         )

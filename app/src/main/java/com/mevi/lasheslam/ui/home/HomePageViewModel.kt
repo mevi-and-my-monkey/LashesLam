@@ -60,12 +60,6 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
-    fun onComingSoonClicked() {
-        viewModelScope.launch {
-            sendEvent(HomeUiEvent.ShowComingSoon)
-        }
-    }
-
     fun onSectionSelected(section: Section) {
         when (section) {
             Section.CURSOS -> {
