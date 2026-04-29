@@ -4,18 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
-import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.domain.analytics.AuthMethod
-import com.mevi.lasheslam.domain.analytics.toAnalyticsType
-import com.mevi.lasheslam.domain.usecase.GetAllCoursesUseCase
+import com.mevi.lasheslam.domain.notifications.ObserveUserCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
-import com.mevi.lasheslam.ui.auth.LoginUiEvent
+import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,6 +25,8 @@ class HomePageViewModel @Inject constructor(
     private val getIsUserInvitedUseCase: GetIsUserInvitedUseCase,
     private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRequestsUseCase: GetRequestsUseCase,
+    private val observeUserCoursesUseCase: ObserveUserCoursesUseCase,
+    private val handleCourseNotificationsUseCase: HandleCourseNotificationsUseCase
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -102,7 +102,7 @@ class HomePageViewModel @Inject constructor(
                 if (isAdmin) {
                     loadAdminPendingRequests()
                 } else if (userId != null) {
-                    //loadUserAcceptedCourses(userId)
+                    observeUserCourses(userId)
                 }
             }
         }
@@ -118,6 +118,16 @@ class HomePageViewModel @Inject constructor(
                 viewModelScope.launch {
                     sendEvent(HomeUiEvent.ShowComingSoon)
                 }
+            }
+        }
+    }
+
+    private var observeJob: Job? = null
+
+    fun observeUserCourses(userId: String) {
+        observeJob = viewModelScope.launch {
+            observeUserCoursesUseCase(userId).collect { courses ->
+                handleCourseNotificationsUseCase(userId, courses)
             }
         }
     }

@@ -7,6 +7,7 @@ import com.mevi.lasheslam.data.FavoritesRepositoryImpl
 import com.mevi.lasheslam.data.PlayCoreUpdateRepository
 import com.mevi.lasheslam.data.SessionDataSourceImpl
 import com.mevi.lasheslam.data.SessionRepositoryImpl
+import com.mevi.lasheslam.data.UserCourseRepositoryImpl
 import com.mevi.lasheslam.data.UserRepositoryImpl
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.domain.repository.CoursesRepository
@@ -14,6 +15,7 @@ import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
 import com.mevi.lasheslam.domain.repository.UpdateRepository
+import com.mevi.lasheslam.domain.repository.UserCourseRepository
 import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
 import com.mevi.lasheslam.domain.repository.UserRepository
 import dagger.Binds
@@ -64,4 +66,10 @@ abstract class RepositoryModule {
     abstract fun bindSessionDataSource(
         impl: SessionDataSourceImpl
     ) : SessionDataSource
+
+
+    @Binds
+    abstract fun bindUserCourseRepository(
+        impl: UserCourseRepositoryImpl
+    ): UserCourseRepository
 }

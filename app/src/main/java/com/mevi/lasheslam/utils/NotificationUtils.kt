@@ -18,15 +18,12 @@ fun showNotification(
     title: String,
     message: String
 ) {
-    // 🔐 ANDROID 13+ → verificar permiso
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         val granted = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
-
         if (!granted) {
-            // Permiso no concedido → salimos sin crash
             return
         }
     }
