@@ -45,7 +45,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val getRequestsUseCase: GetRequestsUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
     @ApplicationContext private val appContext: Context
@@ -67,9 +66,6 @@ class HomeViewModel @Inject constructor(
 
     private val _courseStatusCurse = MutableStateFlow<String?>(null)
     val courseStatusCurse: StateFlow<String?> = _courseStatusCurse
-
-    var adminPendingCount by mutableStateOf(0)
-        private set
 
     var userAcceptedCount by mutableStateOf(0)
         private set
@@ -179,14 +175,6 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-    fun loadAdminPendingRequests() = viewModelScope.launch {
-        adminPendingCount = when (val result = getRequestsUseCase("pendiente")) {
-            is Resource.Success -> result.data.size
-            is Resource.Error -> 0
-            else -> 0
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadUserAcceptedCourses(userId: String) {
         firestore.collection(FirestorePaths.Users.COLLECTION)
@@ -210,7 +198,6 @@ class HomeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun initUserStatus(isAdmin: Boolean, userId: String) {
         if (isAdmin) {
-            loadAdminPendingRequests()
         } else {
             loadUserAcceptedCourses(userId)
         }

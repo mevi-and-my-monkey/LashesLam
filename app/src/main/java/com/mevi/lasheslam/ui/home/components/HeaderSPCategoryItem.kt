@@ -37,8 +37,8 @@ fun HeaderHPCategoryItem(
             .width(100.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(
-                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                else Color.White.copy(alpha = 0.5f)
+                if (isSelected) Color.White.copy(alpha = 0.5f)
+                else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             )
             .border(
                 width = 1.dp,

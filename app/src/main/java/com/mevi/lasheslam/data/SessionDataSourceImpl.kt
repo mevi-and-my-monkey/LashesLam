@@ -8,6 +8,10 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
 
     override val isUserAdmin = SessionManager.isUserAdmin
 
+    override val isUserInvited = SessionManager.isUserInvited
+
+    override val currentUserId = SessionManager.currentUserId
+
     override suspend fun refreshAdmins() {
         SessionManager.refreshAdmins()
     }

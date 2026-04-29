@@ -5,10 +5,13 @@ import com.mevi.lasheslam.ui.common.UiState
 import com.mevi.lasheslam.ui.home.components.Section
 
 data class HomePageUiState (
-    val courses: List<CoursesItem> = emptyList(),
     override val isLoading: Boolean = false,
+    val courses: List<CoursesItem> = emptyList(),
     val selectedSection: Section = Section.CURSOS,
-    val isAdmin: Boolean = false
+    val isAdmin: Boolean = false,
+    val isUserInvited: Boolean = false,
+    val currentUserId: String? = null,
+    val adminPendingCount: Int = 0
 ) : UiState<HomePageUiState> {
 
     override fun copyWithLoading(isLoading: Boolean): HomePageUiState {

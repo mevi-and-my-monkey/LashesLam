@@ -27,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -35,9 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +49,6 @@ import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material3.placeholder
 import com.google.accompanist.placeholder.material3.shimmer
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.NotificationBadge
 import com.mevi.lasheslam.ui.home.HomePageViewModel
 import com.mevi.lasheslam.ui.home.HomeViewModel
@@ -73,22 +73,18 @@ fun HeaderView(
 
     val name by remember { derivedStateOf { viewModel.name } }
     val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
-    val isUserInvited by viewModel.isUserInvited.collectAsState()
     val isLoading by remember { derivedStateOf { name.isEmpty() } }
-
-    val userId = SessionManager.currentUserId
-
-    LaunchedEffect(uiState.isAdmin) {
-        viewModel.initUserStatus(uiState.isAdmin, userId.value ?: "")
-    }
-
     val context = LocalContext.current
-
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFFFF80AB), Color(0xFFFFC1E3))
+                ),
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+            )
             .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
     ) {
 
@@ -109,7 +105,7 @@ fun HeaderView(
                         .error(R.drawable.ic_guest)
                         .placeholder(R.drawable.ic_guest)
                         .build(),
-                    contentDescription = "Foto de perfil",
+                    contentDescription = stringResource(R.string.profile_picture),
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
@@ -119,7 +115,7 @@ fun HeaderView(
 
                 Column {
                     Text(
-                        text = if (!isUserInvited) "Bienvenido de nuevo" else "Bienvenido",
+                        text = stringResource(R.string.welcome),
                         color = Color.Black.copy(alpha = 0.9f),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.placeholder(
@@ -160,7 +156,7 @@ fun HeaderView(
                         .size(36.dp)
                         .background(
                             Color.White.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(16.dp)
                         )
                         .border(
                             width = 1.dp,
@@ -171,14 +167,13 @@ fun HeaderView(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ShoppingBag,
-                        contentDescription = "Solicitudes",
+                        contentDescription = stringResource(R.string.requests),
                         tint = Color.Black,
                     )
                 }
 
                 val badgeCount =
-                    if (uiState.isAdmin) viewModel.adminPendingCount
-                    else viewModel.userAcceptedCount
+                    if (uiState.isAdmin) uiState.adminPendingCount else viewModel.userAcceptedCount
 
                 NotificationBadge(
                     count = badgeCount,
@@ -222,72 +217,9 @@ fun HeaderView(
         Spacer(modifier = Modifier.height(14.dp))
 
         // ----------- MENÚ DE SECCIONES --------------------
-        HeaderHPCategoriesMenu(
+        HeaderCategoriesMenu(
             selected = selectedSection,
             onSelect = onSelectSection
-        )
-    }
-}
-
-@Composable
-fun HeaderCategoriesMenu(
-    selected: Section,
-    onSelect: (Section) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 6.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        HeaderCategoryItem(
-            title = "Cursos",
-            icon = R.drawable.ic_courses,
-            isSelected = selected == Section.CURSOS,
-            onClick = { onSelect(Section.CURSOS) }
-        )
-
-        HeaderCategoryItem(
-            title = "Productos",
-            icon = R.drawable.ic_products,
-            isSelected = selected == Section.PRODUCTOS,
-            onClick = { onSelect(Section.PRODUCTOS) }
-        )
-
-        HeaderCategoryItem(
-            title = "Servicios",
-            icon = R.drawable.ic_services,
-            isSelected = selected == Section.SERVICIOS,
-            onClick = { onSelect(Section.SERVICIOS) }
-        )
-    }
-}
-
-@Composable
-fun HeaderCategoryItem(
-    title: String,
-    icon: Int,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
-    ) {
-        Image(
-            painter = painterResource(id = icon),
-            contentDescription = title,
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-        )
-        Text(
-            text = title,
-            color = if (isSelected) Color.White else Color.Black.copy(alpha = 0.6f),
-            fontSize = 13.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
     }
 }

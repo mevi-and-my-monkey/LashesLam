@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
 import com.mevi.lasheslam.ui.home.components.HeaderCategoriesMenu
+import com.mevi.lasheslam.ui.home.components.HeaderHPCategoriesMenu
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.cursos.CursesListSearch
 import com.mevi.lasheslam.ui.products.search.SearchViewModel
@@ -74,12 +76,7 @@ fun SearchPage(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color(0xFFFF80AB), Color(0xFFFFC1E3))
-                        ),
-                        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
-                    )
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 20.dp)
             ) {
                 Row(
@@ -118,8 +115,8 @@ fun SearchPage(
                             .clip(RoundedCornerShape(16.dp))
                             .background(Color.White.copy(alpha = 0.2f)),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = Color.White.copy(alpha = 0.7f),
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
                             cursorColor = Color.Black,
@@ -132,7 +129,7 @@ fun SearchPage(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
-                HeaderCategoriesMenu(
+                HeaderHPCategoriesMenu(
                     selected = selectedSection,
                     onSelect = { viewModel.onSectionChanged(it) }
                 )

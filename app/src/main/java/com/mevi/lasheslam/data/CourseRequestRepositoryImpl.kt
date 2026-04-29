@@ -1,9 +1,11 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.network.CourseRequest
 import kotlinx.coroutines.tasks.await
@@ -14,7 +16,7 @@ class CourseRequestRepositoryImpl @Inject constructor(
     private val errorMapper: ErrorMapper
 ) : CourseRequestRepository {
 
-    private val requestsRef = firestore.collection("course_requests")
+    private val requestsRef = firestore.collection(FirestorePaths.Courses.COURSES_REQUESTS)
 
     override suspend fun sendRequest(request: CourseRequest): Resource<Boolean> {
         return try {
@@ -32,11 +34,11 @@ class CourseRequestRepositoryImpl @Inject constructor(
     override suspend fun getRequestsByStatus(status: String): Resource<List<CourseRequest>> {
         return try {
             val snapshot = requestsRef
-                .whereEqualTo("status", status)
+                .whereEqualTo(FirestorePaths.Courses.STATUS, status)
                 .get()
                 .await()
 
-            val list = snapshot.toObjects(CourseRequest::class.java)
+            val list = snapshot.documents.mapNotNull { it.toObject(CourseRequest::class.java) }
             Resource.Success(list)
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))
@@ -45,70 +47,60 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
     override suspend fun approveRequest(requestId: String): Resource<Boolean> {
         return try {
-            // 1. Obtener data del request original
-            val requestRef = firestore.collection("course_requests")
+            val requestRef = firestore
+                .collection(FirestorePaths.Courses.COURSES_REQUESTS)
                 .document(requestId)
 
             val snapshot = requestRef.get().await()
 
             if (!snapshot.exists()) {
-                return Resource.Error(AppError.Unknown("La solicitud no existe"))
+                return Resource.Error(AppError.Unknown(Strings.Firestore.REQUEST_NOT_FOUND))
             }
 
-            val data = snapshot.data ?: return Resource.Error(AppError.Unknown("La solicitud está vacía"))
+            val data = snapshot.data
+                ?: return Resource.Error(AppError.Unknown(Strings.Firestore.REQUEST_EMPTY))
 
-            val userId = data["userId"] as? String
-                ?: return Resource.Error(AppError.Unknown("userId no encontrado"))
-            val courseId = data["courseId"] as? String
-                ?: return Resource.Error(AppError.Unknown("courseId no encontrado"))
+            val userId = data[FirestorePaths.Users.USER_ID] as? String
+                ?: return Resource.Error(AppError.Unknown(Strings.Firestore.USER_NOT_FOUND))
 
-            // 2. Crear curso dentro del usuario
+            val courseId = data[FirestorePaths.Courses.COURSE_ID] as? String
+                ?: return Resource.Error(AppError.Unknown(Strings.Firestore.COURSE_NOT_FOUND))
+
+            val userCourseRef = firestore
+                .collection(FirestorePaths.Users.COLLECTION)
+                .document(userId)
+                .collection(FirestorePaths.Users.COURSE)
+                .document(courseId)
+
+            val courseParentRef = firestore
+                .collection(FirestorePaths.Courses.STUDENTS_ENROLLED)
+                .document(courseId)
+
+            val enrolledRef = courseParentRef
+                .collection(FirestorePaths.Courses.ENROLLED)
+                .document(requestId)
+
             val cursoData = mapOf(
-                "courseId" to courseId,
-                "courseName" to (data["courseName"] as? String ?: ""),
-                "date" to (data["date"] as? String ?: ""),
-                "schedule" to (data["schedule"] as? String ?: ""),
-                "status" to "aceptado",
-                "requestId" to requestId,
-                "notification" to "notCreated",
-                "timestamp" to (data["timestamp"] ?: System.currentTimeMillis())
+                FirestorePaths.Courses.COURSE_ID to courseId,
+                FirestorePaths.Courses.COURSE_NAME to (data[FirestorePaths.Courses.COURSE_NAME] as? String ?: ""),
+                FirestorePaths.Courses.DATE to (data[FirestorePaths.Courses.DATE] as? String ?: ""),
+                FirestorePaths.Courses.SCHEDULE to (data[FirestorePaths.Courses.SCHEDULE] as? String ?: ""),
+                FirestorePaths.Courses.STATUS to FirestorePaths.Courses.STATUS_ACCEPTED,
+                FirestorePaths.Courses.REQUEST_ID to requestId,
+                FirestorePaths.Courses.NOTIFICATION to FirestorePaths.Courses.NOTIFICATION_NOT_CREATED,
+                FirestorePaths.Courses.TIMESTAMP to (data[FirestorePaths.Courses.TIMESTAMP] ?: System.currentTimeMillis())
             )
 
-            firestore.collection("users")
-                .document(userId)
-                .collection("cursos")
-                .document(courseId)
-                .set(cursoData)
-                .await()
-
-            // 3. Obtener foto del usuario
-            val userSnapshot = firestore.collection("users")
-                .document(userId)
-                .get()
-                .await()
-
-            val userPhoto = userSnapshot.getString("userPhoto")
-
-            // 4. Crear documento padre del curso
-            val cursoRef = firestore.collection("alumnos_inscritos")
-                .document(courseId)
-
-            cursoRef.set(mapOf("courseId" to courseId)).await()
-
-            // 5. Crear alumno inscrito
             val alumnoData = data.toMutableMap()
-            if (!userPhoto.isNullOrEmpty()) {
-                alumnoData["userPhoto"] = userPhoto
-            }
 
-            cursoRef
-                .collection("inscritos")
-                .document(requestId)
-                .set(alumnoData)
-                .await()
+            val batch = firestore.batch()
 
-            // 6. ELIMINAR REQUEST (FINAL)
-            requestRef.delete().await()
+            batch.set(userCourseRef, cursoData)
+            batch.set(courseParentRef, mapOf(FirestorePaths.Courses.COURSE_ID to courseId))
+            batch.set(enrolledRef, alumnoData)
+            batch.delete(requestRef)
+
+            batch.commit().await()
 
             Resource.Success(true)
 
@@ -119,29 +111,38 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
     override suspend fun rejectRequest(requestId: String): Resource<Boolean> {
         return try {
-            val requestSnap = firestore.collection("course_requests")
+            val requestRef = firestore
+                .collection(FirestorePaths.Courses.COURSES_REQUESTS)
                 .document(requestId)
-                .get()
-                .await()
 
-            if (!requestSnap.exists()) {
-                return Resource.Error(AppError.Unknown("La solicitud no existe"))
+            val snapshot = requestRef.get().await()
+
+            if (!snapshot.exists()) {
+                return Resource.Error(AppError.Unknown(Strings.Firestore.REQUEST_NOT_FOUND))
             }
 
-            val userId = requestSnap.getString("userId") ?: return Resource.Error(AppError.Unknown("userId no encontrado"))
-            val courseId = requestSnap.getString("courseId") ?: return Resource.Error(AppError.Unknown("courseId no encontrado"))
+            val userId = snapshot.getString(FirestorePaths.Users.USER_ID)
+                ?: return Resource.Error(AppError.Unknown(Strings.Firestore.USER_NOT_FOUND))
 
-            firestore.collection("course_requests")
-                .document(requestId)
-                .delete()
-                .await()
+            val courseId = snapshot.getString(FirestorePaths.Courses.COURSE_ID)
+                ?: return Resource.Error(AppError.Unknown(Strings.Firestore.COURSE_NOT_FOUND))
 
-            firestore.collection("users")
+            val userCourseRef = firestore
+                .collection(FirestorePaths.Users.COLLECTION)
                 .document(userId)
-                .collection("cursos")
+                .collection(FirestorePaths.Users.COURSE)
                 .document(courseId)
-                .update("status", "solicitar")
-                .await()
+
+            val batch = firestore.batch()
+
+            batch.delete(requestRef)
+            batch.update(
+                userCourseRef,
+                FirestorePaths.Courses.STATUS,
+                FirestorePaths.Courses.REQUEST
+            )
+
+            batch.commit().await()
 
             Resource.Success(true)
 

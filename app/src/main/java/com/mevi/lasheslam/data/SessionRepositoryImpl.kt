@@ -17,9 +17,13 @@ class SessionRepositoryImpl @Inject constructor(
 
     override fun getUid(): String? = firebaseAuth.currentUser?.uid
 
-    override suspend fun refreshSession() { sessionDataSource.refreshAdmins() }
+    override suspend fun refreshSession() {
+        sessionDataSource.refreshAdmins()
+    }
 
-    override fun isAdmin(email: String): Boolean { return sessionDataSource.isAdmin(email) }
+    override fun isAdmin(email: String): Boolean {
+        return sessionDataSource.isAdmin(email)
+    }
 
     override fun setAdmin(isAdmin: Boolean) {
         sessionDataSource.setAdmin(isAdmin)
@@ -34,4 +38,14 @@ class SessionRepositoryImpl @Inject constructor(
     override fun getIsAdmin(): Flow<Boolean> {
         return sessionDataSource.isUserAdmin
     }
+
+    override fun getIsUserInvited(): Flow<Boolean> {
+        return sessionDataSource.isUserInvited
+    }
+
+    override fun getCurrentUserId(): Flow<String?> {
+        return sessionDataSource.currentUserId
+    }
+
+
 }

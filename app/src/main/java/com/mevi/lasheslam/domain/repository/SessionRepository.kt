@@ -11,4 +11,6 @@ interface SessionRepository {
     fun setAdmin(isAdmin: Boolean)
     fun setSessionManager()
     fun getIsAdmin(): Flow<Boolean>
+    fun getIsUserInvited(): Flow<Boolean>
+    fun getCurrentUserId(): Flow<String?>
 }

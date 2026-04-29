@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
 
 @Composable
-fun HeaderHPCategoriesMenu(
+fun HeaderCategoriesMenu(
     selected: Section,
     onSelect: (Section) -> Unit
 ) {
@@ -23,22 +24,22 @@ fun HeaderHPCategoriesMenu(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        HeaderHPCategoryItem(
-            title = "Cursos",
+        HeaderCategoryItem(
+            title = stringResource(R.string.courses),
             icon = R.drawable.ic_courses,
             isSelected = selected == Section.CURSOS,
             onClick = { onSelect(Section.CURSOS) }
         )
 
-        HeaderHPCategoryItem(
-            title = "Productos",
+        HeaderCategoryItem(
+            title = stringResource(R.string.products),
             icon = R.drawable.ic_products,
             isSelected = selected == Section.PRODUCTOS,
             onClick = { onSelect(Section.PRODUCTOS) }
         )
 
-        HeaderHPCategoryItem(
-            title = "Servicios",
+        HeaderCategoryItem(
+            title = stringResource(R.string.services),
             icon = R.drawable.ic_services,
             isSelected = selected == Section.SERVICIOS,
             onClick = { onSelect(Section.SERVICIOS) }

@@ -2,6 +2,9 @@
     <string name="app_name">LashesLam</string>
     <string name="default_web_client_id">818775184063-ple7ioqve0ugjcpa4dq21qg7a3lg1mnj.apps.googleusercontent.com</string>
 
+    <!-- GENERAL -->
+
+
     <!-- LOGIN -->
     <string name="welcome">¡Bienvenida!</string>
     <string name="register">Registrarse</string>
@@ -52,6 +55,11 @@
     <string name="manege_products_and_services">Administrar productos y servicios</string>">
     <string name="uploaded_new_product">Subir nuevo producto</string>">
     <string name="uploaded_new_service">Subir nuevo curso</string>">
+    <string name="profile_picture">Foto de perfil</string>
+    <string name="requests">Solicitudes</string>
+    <string name="courses">Cursos</string>
+    <string name="products">Productos</string>
+    <string name="services">Servicios</string>
 
     <!-- CURSOS CONTENT - HOME PAGE-->
     <string name="courses_available">Cursos disponibles</string>

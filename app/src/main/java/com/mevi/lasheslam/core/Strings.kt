@@ -31,4 +31,11 @@ object Strings {
     const val defaultAdminFacebook = "https://facebook.com/"
     const val logErrorProcessingAdminList = "Error al procesar list_admin"
     const val logErrorFetchingRemoteConfig = "Error al obtener Remote Config"
+
+    object Firestore{
+        const val REQUEST_EMPTY = "La solicitud está vacía"
+        const val USER_NOT_FOUND = "Usuario no encontrado"
+        const val COURSE_NOT_FOUND = "Curso no encontrado"
+        const val REQUEST_NOT_FOUND = "Solicitud no encontrada"
+    }
 }
