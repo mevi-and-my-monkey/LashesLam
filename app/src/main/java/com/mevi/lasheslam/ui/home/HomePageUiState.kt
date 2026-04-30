@@ -13,6 +13,7 @@ data class HomePageUiState (
     val currentUserId: String? = null,
     val nameUser: String? = null,
     val photoUser: String? = null,
+    val isProfileLoading: Boolean = true,
     val adminPendingCount: Int = 0
 ) : UiState<HomePageUiState> {
 

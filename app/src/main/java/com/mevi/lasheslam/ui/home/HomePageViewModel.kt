@@ -96,25 +96,38 @@ class HomePageViewModel @Inject constructor(
             combine(
                 getIsAdminUseCase(),
                 getIsUserInvitedUseCase(),
-                getCurrentUserIdUseCase(),
-                getNameUserUseCase(),
-                getPhotoUserUseCase()
-            ) { isAdmin, isInvited, userId, nameUser, photoUser ->
-                SessionData(isAdmin, isInvited, userId ?: "", nameUser ?: "", photoUser ?: "")
-            }.collect { (isAdmin, isInvited, userId, nameUser, photoUser) ->
+                getCurrentUserIdUseCase()
+            ) { isAdmin, isInvited, userId ->
+                SessionData(isAdmin, isInvited, userId ?: "")
+            }.collect { (isAdmin, isInvited, userId) ->
                 setState {
                     copy(
                         isAdmin = isAdmin,
                         isUserInvited = isInvited,
-                        currentUserId = userId,
-                        nameUser = nameUser,
-                        photoUser = photoUser
+                        currentUserId = userId
                     )
                 }
                 if (isAdmin) {
                     loadAdminPendingRequests()
                 } else if (userId.isNotEmpty()) {
                     observeUserCourses(userId)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                getNameUserUseCase(),
+                getPhotoUserUseCase()
+            ) { name, photo ->
+                name to photo
+            }.collect { (name, photo) ->
+                setState {
+                    copy(
+                        nameUser = name,
+                        photoUser = photo,
+                        isProfileLoading = false
+                    )
                 }
             }
         }
