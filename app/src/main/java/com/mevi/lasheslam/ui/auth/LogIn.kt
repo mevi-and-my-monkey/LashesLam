@@ -17,13 +17,14 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.common.toUserMessage
 
 @Composable
 fun LogIn(onNavigateToHome: () -> Unit, loginViewModel: LoginViewModel = hiltViewModel()) {
 
     LaunchedEffect(Unit) {
-        loginViewModel.trackScreen("login_screen")
+        loginViewModel.trackScreen(Screen.Login.route)
     }
     var showLoginSheet by remember { mutableStateOf(false) }
     var showRegisterSheet by remember { mutableStateOf(false) }

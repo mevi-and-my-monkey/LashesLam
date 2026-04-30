@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.home.components.HeaderView
@@ -42,6 +43,8 @@ fun HomePageContent(
     onNavigateToRequest: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     onSelectedSection: (Section) -> Unit,
+    trackEvent: (AnalyticsEvent) -> Unit,
+    trackScreen: (String) -> Unit,
 ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
@@ -53,12 +56,15 @@ fun HomePageContent(
         Column(modifier = Modifier.fillMaxSize()) {
 
             HeaderView(
+                uiState = state,
                 onNavigateToSearch = onNavigateToSearch,
                 onNavigateToRequest = onNavigateToRequest,
                 selectedSection = state.selectedSection,
                 onSelectSection = { section ->
                     onSelectedSection(section)
-                }
+                },
+                trackEvent = trackEvent,
+                trackScreen = trackScreen,
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
@@ -86,6 +92,8 @@ fun HomePageContent(
         if (state.isAdmin) {
             FloatingActionButton(
                 onClick = {
+                    trackEvent(AnalyticsEvent.FloatingHomeClick)
+                    trackEvent(AnalyticsEvent.HomeOptionBottomShow)
                     showOptionsBottomSheet = true
                 },
                 containerColor = Color(0xFFFF80AB),
@@ -106,7 +114,10 @@ fun HomePageContent(
         if (showOptionsBottomSheet) {
             GenericOptionsBottomSheet(
                 title = stringResource(R.string.manege_products_and_services),
-                onDismiss = { showOptionsBottomSheet = false },
+                onDismiss = {
+                    trackEvent(AnalyticsEvent.HomeOptionBottomHide)
+                    showOptionsBottomSheet = false
+                },
                 options = listOf(
                     BottomSheetOption(
                         label = stringResource(R.string.uploaded_new_product),
@@ -118,6 +129,8 @@ fun HomePageContent(
                         label = stringResource(R.string.uploaded_new_product),
                         icon = Icons.Default.PostAdd
                     ) {
+                        trackEvent(AnalyticsEvent.HomeOptionBottomHide)
+                        trackEvent(AnalyticsEvent.AddServiceShow)
                         showOptionsBottomSheet = false
                         showAddView = true
                     }
@@ -128,7 +141,10 @@ fun HomePageContent(
         if (showAddView) {
             ServiceAddView(
                 linkedBannerIndex = 99,
-                onDismiss = { showAddView = false })
+                onDismiss = {
+                    trackEvent(AnalyticsEvent.AddServiceHide)
+                    showAddView = false
+                })
         }
     }
 }

@@ -7,6 +7,9 @@ interface SessionRepository {
     fun isLoggedIn(): Boolean
     fun getEmail(): String?
     fun getUid(): String?
+    fun getPhotoUrl(): Flow<String?>
+    fun setName()
+    fun getUserName(): Flow<String?>
     fun isAdmin(email: String): Boolean
     fun setAdmin(isAdmin: Boolean)
     fun setSessionManager()

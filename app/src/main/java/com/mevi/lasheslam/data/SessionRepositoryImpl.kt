@@ -1,6 +1,8 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
 import com.mevi.lasheslam.session.SessionManager
@@ -9,6 +11,7 @@ import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     private val sessionDataSource: SessionDataSource
 ) : SessionRepository {
     override fun isLoggedIn(): Boolean = firebaseAuth.currentUser != null
@@ -16,6 +19,25 @@ class SessionRepositoryImpl @Inject constructor(
     override fun getEmail(): String? = firebaseAuth.currentUser?.email
 
     override fun getUid(): String? = firebaseAuth.currentUser?.uid
+
+
+    override fun setName() {
+        firestore.collection(FirestorePaths.Users.COLLECTION).document(getUid() ?: "")
+            .get()
+            .addOnSuccessListener {
+                sessionDataSource.setNameUser(
+                    it.getString(FirestorePaths.Users.USER_NAME)?.split(" ")?.firstOrNull() ?: ""
+                )
+            }
+    }
+
+    override fun getUserName(): Flow<String?> {
+        return sessionDataSource.nameUser
+    }
+
+    override fun getPhotoUrl(): Flow<String?> {
+        return sessionDataSource.photoUrl
+    }
 
     override suspend fun refreshSession() {
         sessionDataSource.refreshAdmins()

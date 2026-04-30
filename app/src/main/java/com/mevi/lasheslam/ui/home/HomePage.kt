@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.components.RequestNotificationPermission
 import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
 import com.mevi.lasheslam.ui.home.components.Section
@@ -34,6 +35,10 @@ fun HomePage(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.trackScreen(Screen.Home.route)
+    }
+
     HomePageContent(
         state = uiState,
         onNavigateToRequest = onNavigateToRequest,
@@ -41,6 +46,12 @@ fun HomePage(
         onNavigateToServiceDetails = onNavigateToServiceDetails,
         onSelectedSection = { section ->
             viewModel.onSectionSelected(section)
+        },
+        trackEvent = { event ->
+            viewModel.trackEvent(event)
+        },
+        trackScreen = { screen ->
+            viewModel.trackScreen(screen)
         }
     )
 

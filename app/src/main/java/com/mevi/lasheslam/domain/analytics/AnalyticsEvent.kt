@@ -24,5 +24,26 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object LoginBottomHide : AnalyticsEvent("login_bottom_hide")
 
+    // HOME
+    data class BottomSelection(val section: String) : AnalyticsEvent("bottom_selected")
+
+    data object FloatingHomeClick : AnalyticsEvent("floating_home_click")
+
+    data object HomeOptionBottomShow : AnalyticsEvent("home_option_bottom_show")
+
+    data object HomeOptionBottomHide : AnalyticsEvent("home_option_bottom_hide")
+
+    data object AddServiceShow : AnalyticsEvent("add_service_show")
+
+    data object AddServiceHide : AnalyticsEvent("add_service_hide")
+
+    data object IconHeaderClick : AnalyticsEvent("icon_header_click")
+
+    data object IconSearchClick : AnalyticsEvent("icon_search_click")
+
+    // GENERAL
+
+    data class SectionSelected(val section: String) : AnalyticsEvent("section_selected")
+
     data class ScreenView(val screen: String) : AnalyticsEvent("screen_view")
 }

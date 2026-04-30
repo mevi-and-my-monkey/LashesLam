@@ -4,11 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.notifications.ObserveUserCoursesUseCase
+import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
+import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
+import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.ui.home.components.Section
@@ -20,13 +25,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomePageViewModel @Inject constructor(
+    private val analytics: AnalyticsTracker,
     private val getACoursesUseCase: GetCoursesUseCase,
     private val getIsAdminUseCase: GetIsAdminUseCase,
     private val getIsUserInvitedUseCase: GetIsUserInvitedUseCase,
     private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRequestsUseCase: GetRequestsUseCase,
     private val observeUserCoursesUseCase: ObserveUserCoursesUseCase,
-    private val handleCourseNotificationsUseCase: HandleCourseNotificationsUseCase
+    private val handleCourseNotificationsUseCase: HandleCourseNotificationsUseCase,
+    private val getNameUserUseCase: GetNameUserUseCase,
+    private val getPhotoUserUseCase: GetPhotoUserUseCase
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -88,22 +96,37 @@ class HomePageViewModel @Inject constructor(
             combine(
                 getIsAdminUseCase(),
                 getIsUserInvitedUseCase(),
-                getCurrentUserIdUseCase()
-            ) { isAdmin, isInvited, userId ->
-                Triple(isAdmin, isInvited, userId)
-            }.collect { (isAdmin, isInvited, userId) ->
+                getCurrentUserIdUseCase(),
+                getNameUserUseCase(),
+                getPhotoUserUseCase()
+            ) { isAdmin, isInvited, userId, nameUser, photoUser ->
+                SessionData(isAdmin, isInvited, userId ?: "", nameUser ?: "", photoUser ?: "")
+            }.collect { (isAdmin, isInvited, userId, nameUser, photoUser) ->
                 setState {
                     copy(
                         isAdmin = isAdmin,
                         isUserInvited = isInvited,
-                        currentUserId = userId
+                        currentUserId = userId,
+                        nameUser = nameUser,
+                        photoUser = photoUser
                     )
                 }
                 if (isAdmin) {
                     loadAdminPendingRequests()
-                } else if (userId != null) {
+                } else if (userId.isNotEmpty()) {
                     observeUserCourses(userId)
                 }
+            }
+        }
+    }
+
+    private var observeJob: Job? = null
+
+    fun observeUserCourses(userId: String) {
+        if (observeJob?.isActive == true) return
+        observeJob = viewModelScope.launch {
+            observeUserCoursesUseCase(userId).collect { courses ->
+                handleCourseNotificationsUseCase(userId, courses)
             }
         }
     }
@@ -111,6 +134,7 @@ class HomePageViewModel @Inject constructor(
     fun onSectionSelected(section: Section) {
         when (section) {
             Section.CURSOS -> {
+                trackEvent(AnalyticsEvent.SectionSelected(section.name))
                 setState { copy(selectedSection = section) }
             }
 
@@ -122,13 +146,11 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
-    private var observeJob: Job? = null
+    fun trackEvent(event: AnalyticsEvent) {
+        analytics.track(event)
+    }
 
-    fun observeUserCourses(userId: String) {
-        observeJob = viewModelScope.launch {
-            observeUserCoursesUseCase(userId).collect { courses ->
-                handleCourseNotificationsUseCase(userId, courses)
-            }
-        }
+    fun trackScreen(screen: String) {
+        analytics.track(AnalyticsEvent.ScreenView(screen))
     }
 }

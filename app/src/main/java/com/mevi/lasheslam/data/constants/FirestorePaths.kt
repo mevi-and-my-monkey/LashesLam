@@ -6,6 +6,7 @@ object FirestorePaths {
         const val USER_ID = "userId"
         const val COURSE = "cursos"
         const val USER_PHOTO = "userPhoto"
+        const val USER_NAME = "name"
         fun document(userId: String) = "$COLLECTION/$userId"
     }
 

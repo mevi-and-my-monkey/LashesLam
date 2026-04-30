@@ -41,6 +41,9 @@ object SessionManager {
     private val _emailUser = MutableStateFlow<String?>(null)
     val emailUser = _emailUser.asStateFlow()
 
+    private val _photoUrl = MutableStateFlow<String?>(null)
+    val photoUrl = _photoUrl.asStateFlow()
+
     private var adminEmailsCache: List<String> = emptyList()
 
     private val _locations = MutableStateFlow<List<LocationItem>>(emptyList())
@@ -78,6 +81,10 @@ object SessionManager {
         _emailUser.value = email
     }
 
+    fun setPhotoUrl(photoUrl: String?) {
+        _photoUrl.value = photoUrl
+    }
+
     private fun parseAdminList(jsonString: String): List<String> {
         return try {
             val jsonArray = JSONArray(jsonString)
@@ -101,7 +108,7 @@ object SessionManager {
             val facebook = remoteConfig.getString(Strings.keyRemoteConfigFacebookAdmin)
                 .ifEmpty { Strings.defaultAdminFacebook }
             val instagram = remoteConfig.getString(Strings.keyRemoteConfigInstagramAdmin)
-                .ifEmpty { Strings.defaultAdminIntagram}
+                .ifEmpty { Strings.defaultAdminIntagram }
             setWhatsApp(whatsApp)
             setInstagram(instagram)
             setFacebook(facebook)

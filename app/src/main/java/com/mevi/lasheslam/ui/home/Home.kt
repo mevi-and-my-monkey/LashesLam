@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
@@ -38,7 +40,8 @@ fun HomeScreen(
     onNavigateToLogOut: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     modifier: Modifier,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomePageViewModel = hiltViewModel()
 ) {
     val activity = (LocalContext.current as? Activity)
 
@@ -62,9 +65,25 @@ fun HomeScreen(
                 onItemSelected = { index ->
                     selectedIndex = index
                     when (index) {
-                        1 -> onNavigateToSearch()
-                        2 -> onNavigateToFavorite()
-                        3 -> if (isAdmin) onNavigateToRequest()
+                        1 -> {
+                            viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Search.route))
+                            viewModel.trackScreen(Screen.Search.route)
+                            onNavigateToSearch()
+                        }
+
+                        2 -> {
+                            viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Favorite.route))
+                            viewModel.trackScreen(Screen.Favorite.route)
+                            onNavigateToFavorite()
+                        }
+
+                        3 -> {
+                            if (isAdmin) {
+                                viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Request.route))
+                                viewModel.trackScreen(Screen.Request.route)
+                                onNavigateToRequest()
+                            }
+                        }
                     }
                 }
             )
@@ -76,23 +95,31 @@ fun HomeScreen(
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             when (selectedIndex) {
-                0 -> HomePage(
-                    onNavigateToRequest = onNavigateToRequest,
-                    onNavigateToSearch = onNavigateToSearch,
-                    onNavigateToServiceDetails = onNavigateToServiceDetails
+                0 -> {
+                    viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Home.route))
+                    viewModel.trackScreen(Screen.Home.route)
+                    HomePage(
+                        onNavigateToRequest = onNavigateToRequest,
+                        onNavigateToSearch = onNavigateToSearch,
+                        onNavigateToServiceDetails = onNavigateToServiceDetails
+                    )
+                }
 
-                )
                 3 -> if (!isAdmin) EmptyViewScreen()
-                4 -> ProfilePage(
-                    onNavigateToFavorite,
-                    onNavigateToRequest,
-                    onNavigateToCourses,
-                    onNavigateToLogOut
-                )
+                4 -> {
+                    viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Profile.route))
+                    viewModel.trackScreen(Screen.Profile.route)
+                    ProfilePage(
+                        onNavigateToFavorite,
+                        onNavigateToRequest,
+                        onNavigateToCourses,
+                        onNavigateToLogOut
+                    )
+                }
             }
             GenericLoading(
                 isLoading = isLoadingHome,
-                message = "Procesando, por favor espera..."
+                message = stringResource(R.string.loading_generic)
             )
         }
     }

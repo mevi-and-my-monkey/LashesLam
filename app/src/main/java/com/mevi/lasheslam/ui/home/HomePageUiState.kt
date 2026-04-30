@@ -11,6 +11,8 @@ data class HomePageUiState (
     val isAdmin: Boolean = false,
     val isUserInvited: Boolean = false,
     val currentUserId: String? = null,
+    val nameUser: String? = null,
+    val photoUser: String? = null,
     val adminPendingCount: Int = 0
 ) : UiState<HomePageUiState> {
 

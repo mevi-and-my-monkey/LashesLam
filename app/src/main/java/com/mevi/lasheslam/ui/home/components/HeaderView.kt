@@ -2,7 +2,6 @@ package com.mevi.lasheslam.ui.home.components
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,7 +26,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -37,21 +35,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material3.placeholder
 import com.google.accompanist.placeholder.material3.shimmer
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.components.NotificationBadge
-import com.mevi.lasheslam.ui.home.HomePageViewModel
-import com.mevi.lasheslam.ui.home.HomeViewModel
+import com.mevi.lasheslam.ui.home.HomePageUiState
 
 enum class Section {
     CURSOS,
@@ -62,18 +59,17 @@ enum class Section {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HeaderView(
+    uiState: HomePageUiState,
     onNavigateToSearch: () -> Unit,
     onNavigateToRequest: () -> Unit,
     selectedSection: Section,
     onSelectSection: (Section) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel(),
-    viewModelHP: HomePageViewModel = hiltViewModel()
+    trackEvent: (AnalyticsEvent) -> Unit,
+    trackScreen: (String) -> Unit,
 ) {
-    val uiState by viewModelHP.uiState.collectAsState()
 
-    val name by remember { derivedStateOf { viewModel.name } }
-    val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
-    val isLoading by remember { derivedStateOf { name.isEmpty() } }
+    val nameState by remember { derivedStateOf { uiState.nameUser ?: "" } }
+    val isLoading by remember { derivedStateOf { nameState.isEmpty() } }
     val context = LocalContext.current
 
     Column(
@@ -100,7 +96,7 @@ fun HeaderView(
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data(photoUrl)
+                        .data(uiState.photoUser ?: "")
                         .crossfade(true)
                         .error(R.drawable.ic_guest)
                         .placeholder(R.drawable.ic_guest)
@@ -125,7 +121,7 @@ fun HeaderView(
                         )
                     )
                     Text(
-                        text = name,
+                        text = uiState.nameUser ?: "",
                         style = MaterialTheme.typography.titleMedium.copy(
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
@@ -147,6 +143,8 @@ fun HeaderView(
                 IconButton(
                     onClick = {
                         if (uiState.isAdmin) {
+                            trackScreen(Screen.Request.route)
+                            trackEvent(AnalyticsEvent.IconHeaderClick)
                             onNavigateToRequest()
                         } else {
                             //navController.navigate(Screen.UserCourses.route)
@@ -172,8 +170,7 @@ fun HeaderView(
                     )
                 }
 
-                val badgeCount =
-                    if (uiState.isAdmin) uiState.adminPendingCount else viewModel.userAcceptedCount
+                val badgeCount = uiState.adminPendingCount
 
                 NotificationBadge(
                     count = badgeCount,
@@ -197,6 +194,8 @@ fun HeaderView(
                     shape = RoundedCornerShape(16.dp)
                 )
                 .clickable {
+                    trackEvent(AnalyticsEvent.IconSearchClick)
+                    trackScreen(Screen.Search.route)
                     onNavigateToSearch()
                 },
             contentAlignment = Alignment.CenterStart
@@ -208,7 +207,7 @@ fun HeaderView(
                 Icon(Icons.Default.Search, contentDescription = null, tint = Color.Black)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Buscar...",
+                    stringResource(R.string.search_placeholder),
                     color = Color.Black.copy(alpha = 0.8f)
                 )
             }

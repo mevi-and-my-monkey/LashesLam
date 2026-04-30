@@ -1,6 +1,7 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.model.UserCourse
 import com.mevi.lasheslam.domain.repository.UserCourseRepository
 import kotlinx.coroutines.channels.awaitClose
@@ -14,10 +15,10 @@ class UserCourseRepositoryImpl @Inject constructor(
 
     override fun observeAcceptedCourses(userId: String) = callbackFlow {
 
-        val listener = firestore.collection("users")
+        val listener = firestore.collection(FirestorePaths.Users.COLLECTION)
             .document(userId)
-            .collection("cursos")
-            .whereEqualTo("status", "aceptado")
+            .collection(FirestorePaths.Users.COURSE)
+            .whereEqualTo(FirestorePaths.Courses.STATUS, FirestorePaths.Courses.STATUS_ACCEPTED)
             .addSnapshotListener { snapshot, _ ->
 
                 if (snapshot == null) return@addSnapshotListener
@@ -25,10 +26,13 @@ class UserCourseRepositoryImpl @Inject constructor(
                 val courses = snapshot.documents.mapNotNull { doc ->
                     UserCourse(
                         id = doc.id,
-                        name = doc.getString("courseName") ?: return@mapNotNull null,
-                        date = doc.getString("date") ?: return@mapNotNull null,
-                        schedule = doc.getString("schedule") ?: return@mapNotNull null,
-                        notification = doc.getString("notification") ?: "notCreated"
+                        name = doc.getString(FirestorePaths.Courses.COURSE_NAME)
+                            ?: return@mapNotNull null,
+                        date = doc.getString(FirestorePaths.Courses.DATE) ?: return@mapNotNull null,
+                        schedule = doc.getString(FirestorePaths.Courses.SCHEDULE)
+                            ?: return@mapNotNull null,
+                        notification = doc.getString(FirestorePaths.Courses.NOTIFICATION)
+                            ?: FirestorePaths.Courses.NOTIFICATION_NOT_CREATED
                     )
                 }
 
@@ -42,11 +46,14 @@ class UserCourseRepositoryImpl @Inject constructor(
         userId: String,
         courseId: String
     ) {
-        firestore.collection("users")
+        firestore.collection(FirestorePaths.Users.COLLECTION)
             .document(userId)
-            .collection("cursos")
+            .collection(FirestorePaths.Users.COURSE)
             .document(courseId)
-            .update("notification", "created")
+            .update(
+                FirestorePaths.Courses.NOTIFICATION,
+                FirestorePaths.Courses.NOTIFICATION_CREATED
+            )
             .await()
     }
 }

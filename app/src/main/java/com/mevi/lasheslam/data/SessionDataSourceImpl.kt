@@ -12,6 +12,10 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
 
     override val currentUserId = SessionManager.currentUserId
 
+    override val nameUser = SessionManager.nameUser
+
+    override val photoUrl = SessionManager.photoUrl
+
     override suspend fun refreshAdmins() {
         SessionManager.refreshAdmins()
     }
@@ -34,5 +38,13 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
 
     override fun setEmailUser(email: String?) {
         SessionManager.setEmailUser(email)
+    }
+
+    override fun setNameUser(nameUser: String?) {
+        SessionManager.setEmailUser(nameUser)
+    }
+
+    override fun setPhotoUrl(photoUrl: String?) {
+        SessionManager.setPhotoUrl(photoUrl)
     }
 }
