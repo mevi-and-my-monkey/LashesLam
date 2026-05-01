@@ -39,6 +39,7 @@ import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsViewModel
+import com.mevi.lasheslam.utils.toUiFormat
 
 @Composable
 fun FavoriteCoursesScreen(
@@ -130,7 +131,7 @@ fun FavoriteCourseCard(course: CoursesItem, onClick: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "Fecha: ${course.fecha}",
+                        "Fecha: ${course.date.toUiFormat()}",
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodyMedium
                     )

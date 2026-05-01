@@ -67,7 +67,7 @@ fun AppNavGraph(
                     }
                 },
                 onNavigateToFavorite = {
-                    navController.navigate(Screen.Request.route) {
+                    navController.navigate(Screen.Favorite.route) {
                         popUpTo(Screen.Home.route)
                         launchSingleTop = true
                     }

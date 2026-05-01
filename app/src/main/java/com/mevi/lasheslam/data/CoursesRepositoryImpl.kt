@@ -6,7 +6,9 @@ import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.CoursesRepository
+import com.mevi.lasheslam.network.CourseItemDto
 import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.network.toDomain
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -27,15 +29,17 @@ class CoursesRepositoryImpl @Inject constructor(
 
             ids.chunked(10).forEach { chunk ->
                 val snapshot = firestore
-                    .collection("data")
-                    .document("curse")
-                    .collection("items")
+                    .collection(FirestorePaths.Courses.COLLECTION)
+                    .document(FirestorePaths.Courses.DOCUMENT)
+                    .collection(FirestorePaths.Courses.COLLECTION_ITEMS)
                     .whereIn(FieldPath.documentId(), chunk)
                     .get()
                     .await()
 
                 result += snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(CoursesItem::class.java)?.copy(id = doc.id)
+                    doc.toObject(CourseItemDto::class.java)
+                        ?.copy(id = doc.id)
+                        ?.toDomain()
                 }
             }
 
@@ -60,7 +64,9 @@ class CoursesRepositoryImpl @Inject constructor(
 
                 if (snapshot != null) {
                     val courses = snapshot.documents.mapNotNull { doc ->
-                        doc.toObject(CoursesItem::class.java)?.copy(id = doc.id)
+                        doc.toObject(CourseItemDto::class.java)
+                            ?.copy(id = doc.id)
+                            ?.toDomain()
                     }
 
                     trySend(Resource.Success(courses))

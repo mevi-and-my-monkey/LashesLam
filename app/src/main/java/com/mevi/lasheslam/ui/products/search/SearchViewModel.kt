@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
+import com.mevi.lasheslam.network.CourseItemDto
 import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.network.toDomain
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -65,7 +67,11 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             .collection("items")
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
-                    rawItems = snapshot.documents.mapNotNull { it.toObject(CoursesItem::class.java) }
+                    rawItems = snapshot.documents.mapNotNull {
+                        it.toObject(CourseItemDto::class.java)
+                            ?.copy(id = it.id)
+                            ?.toDomain()
+                    }
                 }
                 isLoading = false
             }

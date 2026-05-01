@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,12 +54,17 @@ class HomePageViewModel @Inject constructor(
         viewModelScope.launch {
             setState { copy(isLoading = true) }
 
+            val today = Calendar.getInstance().time
+
             getACoursesUseCase().collect { result ->
                 when (result) {
                     is Resource.Success -> {
+                        val filteredCourses = result.data
+                            .filter { it.date >= today }
+                            .sortedBy { it.date }
                         setState {
                             copy(
-                                courses = result.data.sortedByDescending { it.fecha },
+                                courses = filteredCourses,
                                 isLoading = false
                             )
                         }

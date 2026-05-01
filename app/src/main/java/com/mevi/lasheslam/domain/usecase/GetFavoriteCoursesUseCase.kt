@@ -6,6 +6,5 @@ import javax.inject.Inject
 class GetFavoriteCoursesUseCase @Inject constructor(
     private val repo: CoursesRepository
 ) {
-    suspend operator fun invoke(ids: List<String>) =
-        repo.getCoursesByIds(ids)
+    suspend operator fun invoke(ids: List<String>) = repo.getCoursesByIds(ids)
 }

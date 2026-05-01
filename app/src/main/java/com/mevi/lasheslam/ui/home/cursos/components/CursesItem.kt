@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.utils.toUiFormat
 
 @Composable
 fun CursesItem(
@@ -80,7 +81,7 @@ fun CursesItem(
                 )
 
                 Text(
-                    text = "Fecha: ${service.fecha} - ${service.horaIncio}",
+                    text = "Fecha: ${service.date.toUiFormat()} - ${service.horaIncio}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Black,
                     fontWeight = FontWeight.Medium

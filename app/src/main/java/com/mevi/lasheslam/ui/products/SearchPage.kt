@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -45,7 +44,6 @@ import androidx.navigation.NavController
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
-import com.mevi.lasheslam.ui.home.components.HeaderCategoriesMenu
 import com.mevi.lasheslam.ui.home.components.HeaderHPCategoriesMenu
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.cursos.CursesListSearch
