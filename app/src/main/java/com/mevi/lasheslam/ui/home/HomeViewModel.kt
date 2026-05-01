@@ -50,9 +50,6 @@ class HomeViewModel @Inject constructor(
     private val _courseStatusCurse = MutableStateFlow<String?>(null)
     val courseStatusCurse: StateFlow<String?> = _courseStatusCurse
 
-    var userAcceptedCount by mutableStateOf(0)
-        private set
-
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
 

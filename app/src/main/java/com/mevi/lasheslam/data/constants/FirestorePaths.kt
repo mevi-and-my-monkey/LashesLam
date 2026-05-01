@@ -37,4 +37,11 @@ object FirestorePaths {
         const val ENROLLED = "inscritos"
         const val REQUEST_ID = "requestId"
     }
+
+    object Products {
+        const val COLLECTION_PRODUCTS = "data"
+        const val DOCUMENT = "stock"
+        const val COLLECTION_CATEGORIES = "categories"
+
+    }
 }

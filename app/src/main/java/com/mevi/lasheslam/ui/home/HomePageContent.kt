@@ -28,12 +28,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.home.components.HeaderView
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.components.ServiceAddView
 import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
+import com.mevi.lasheslam.ui.home.products.ProductsHPContent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -45,6 +47,8 @@ fun HomePageContent(
     onSelectedSection: (Section) -> Unit,
     trackEvent: (AnalyticsEvent) -> Unit,
     trackScreen: (String) -> Unit,
+    selectedCategoryId: String?,
+    onCategorySelected: (CategoryModel) -> Unit
 ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
@@ -80,6 +84,15 @@ fun HomePageContent(
                                 onNavigateToServiceDetails = onNavigateToServiceDetails,
                                 services = state.courses,
                                 isLoading = state.isLoading
+                            )
+                        }
+
+                        Section.PRODUCTOS -> {
+                            ProductsHPContent(
+                                categories = state.categoriesProducts,
+                                selectedCategoryId = selectedCategoryId,
+                                onCategorySelected =  onCategorySelected
+
                             )
                         }
 

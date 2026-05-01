@@ -11,7 +11,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,13 +39,13 @@ fun HomeScreen(
     onNavigateToLogOut: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     modifier: Modifier,
-    homeViewModel: HomeViewModel = hiltViewModel(),
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
     val activity = (LocalContext.current as? Activity)
 
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val isLoadingHome: Boolean by homeViewModel.isLoading.observeAsState(initial = false)
+    val uiState by viewModel.uiState.collectAsState()
+
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     var showExitDialog by remember { mutableStateOf(false) }
 
@@ -118,7 +117,7 @@ fun HomeScreen(
                 }
             }
             GenericLoading(
-                isLoading = isLoadingHome,
+                isLoading = uiState.isLoading,
                 message = stringResource(R.string.loading_generic)
             )
         }

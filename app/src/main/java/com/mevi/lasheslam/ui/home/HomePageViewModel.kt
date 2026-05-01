@@ -1,5 +1,8 @@
 package com.mevi.lasheslam.ui.home
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
@@ -8,6 +11,7 @@ import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.notifications.ObserveUserCoursesUseCase
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
+import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
@@ -16,6 +20,7 @@ import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
+import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -35,10 +40,14 @@ class HomePageViewModel @Inject constructor(
     private val observeUserCoursesUseCase: ObserveUserCoursesUseCase,
     private val handleCourseNotificationsUseCase: HandleCourseNotificationsUseCase,
     private val getNameUserUseCase: GetNameUserUseCase,
-    private val getPhotoUserUseCase: GetPhotoUserUseCase
+    private val getPhotoUserUseCase: GetPhotoUserUseCase,
+    private val getCategoriesProducts: GetCategoriesProducts
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
+
+    var selectedCategoryId by mutableStateOf<String?>(null)
+        private set
 
     init {
         loadCourses()
@@ -150,11 +159,38 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
+    private var isCategoriesLoaded = false
+
+    fun loadCategories() {
+        if (isCategoriesLoaded) return
+        isCategoriesLoaded = true
+
+        viewModelScope.launch {
+            getCategoriesProducts().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        setState { copy(categoriesProducts = result.data) }
+                    }
+
+                    is Resource.Error -> {
+                        sendError(result.error) { HomeUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
     fun onSectionSelected(section: Section) {
         when (section) {
             Section.CURSOS -> {
                 trackEvent(AnalyticsEvent.SectionSelected(section.name))
                 setState { copy(selectedSection = section) }
+            }
+
+            Section.PRODUCTOS -> {
+                trackEvent(AnalyticsEvent.SectionSelected(section.name))
+                setState { copy(selectedSection = section) }
+                loadCategories()
             }
 
             else -> {
@@ -165,6 +201,9 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
+    fun onCategorySelected(category: CategoryModel) {
+        selectedCategoryId = if (selectedCategoryId == category.id) null else category.id
+    }
     fun trackEvent(event: AnalyticsEvent) {
         analytics.track(event)
     }

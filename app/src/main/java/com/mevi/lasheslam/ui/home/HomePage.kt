@@ -52,7 +52,9 @@ fun HomePage(
         },
         trackScreen = { screen ->
             viewModel.trackScreen(screen)
-        }
+        },
+        selectedCategoryId = viewModel.selectedCategoryId,
+        onCategorySelected = { viewModel.onCategorySelected(it) }
     )
 
     if (dialogState is HomeUiEvent.ShowComingSoon) {
