@@ -6,6 +6,11 @@ import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.network.CourseItemDto
+import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.network.ProductItemDto
+import com.mevi.lasheslam.network.toDomain
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,6 +39,32 @@ class ProductsRepositoryImpl @Inject constructor(
                     }
 
                     trySend(Resource.Success(courses))
+                }
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    override fun getAllProducts(): Flow<Resource<List<ProductItem>>> = callbackFlow {
+        val listener = firestore
+            .collection(FirestorePaths.Products.COLLECTION_PRODUCTS)
+            .document(FirestorePaths.Products.DOCUMENT)
+            .collection(FirestorePaths.Products.COLLECTION_PRODUCTS_ITEMS)
+            .addSnapshotListener { snapshot, error ->
+
+                if (error != null) {
+                    trySend(Resource.Error(errorMapper.map(error)))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val products = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(ProductItemDto::class.java)
+                            ?.copy(id = doc.id)
+                            ?.toDomain()
+                    }
+
+                    trySend(Resource.Success(products))
                 }
             }
 

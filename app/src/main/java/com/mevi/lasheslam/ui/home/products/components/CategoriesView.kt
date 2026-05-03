@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.ui.home.products.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,11 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.network.CategoryModel
 
 @Composable
-fun CategoriesProductsView(
+fun CategoriesView(
     categories: List<CategoryModel>,
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit
@@ -34,10 +36,10 @@ fun CategoriesProductsView(
                     Text(text = category.name)
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedContainerColor = MaterialTheme.colorScheme.onSurface,
                     selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceVariant else Color.White,
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
 
                 modifier = Modifier.padding(end = 8.dp)

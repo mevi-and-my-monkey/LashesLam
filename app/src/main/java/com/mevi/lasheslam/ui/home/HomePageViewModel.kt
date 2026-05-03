@@ -18,6 +18,7 @@ import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
+import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.network.CategoryModel
@@ -41,7 +42,8 @@ class HomePageViewModel @Inject constructor(
     private val handleCourseNotificationsUseCase: HandleCourseNotificationsUseCase,
     private val getNameUserUseCase: GetNameUserUseCase,
     private val getPhotoUserUseCase: GetPhotoUserUseCase,
-    private val getCategoriesProducts: GetCategoriesProducts
+    private val getCategoriesProducts: GetCategoriesProducts,
+    private val getProductsUseCase: GetProductsUseCase
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -55,6 +57,7 @@ class HomePageViewModel @Inject constructor(
     }
 
     private var isCoursesLoaded = false
+    private var isProductsLoaded = false
 
     fun loadCourses() {
         if (isCoursesLoaded) return
@@ -191,6 +194,7 @@ class HomePageViewModel @Inject constructor(
                 trackEvent(AnalyticsEvent.SectionSelected(section.name))
                 setState { copy(selectedSection = section) }
                 loadCategories()
+                loadProducts()
             }
 
             else -> {
@@ -201,9 +205,36 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
+    private fun loadProducts() {
+        if (isProductsLoaded) return
+        isProductsLoaded = true
+
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
+            getProductsUseCase().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        setState {
+                            copy(
+                                products = result.data,
+                                isLoading = false
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        setState { copy(isLoading = false) }
+                        sendError(result.error) { HomeUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
     fun onCategorySelected(category: CategoryModel) {
         selectedCategoryId = if (selectedCategoryId == category.id) null else category.id
     }
+
     fun trackEvent(event: AnalyticsEvent) {
         analytics.track(event)
     }
