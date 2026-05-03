@@ -29,7 +29,6 @@ fun ProductsHPContent(
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit
 ) {
-
     Column(modifier = Modifier.fillMaxSize()) {
 
         CategoriesView(

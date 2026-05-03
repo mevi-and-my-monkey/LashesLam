@@ -22,6 +22,7 @@ import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -48,7 +49,7 @@ class HomePageViewModel @Inject constructor(
 
     override fun createInitialState() = HomePageUiState()
 
-    var selectedCategoryId by mutableStateOf<String?>(null)
+    var selectedCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
         private set
 
     init {
@@ -172,7 +173,17 @@ class HomePageViewModel @Inject constructor(
             getCategoriesProducts().collect { result ->
                 when (result) {
                     is Resource.Success -> {
-                        setState { copy(categoriesProducts = result.data) }
+
+                        val sorted = result.data
+                            .sortedBy { it.name.lowercase() }
+
+                        val categoriesWithAll = listOf(
+                            CategoryModel(id = "all", name = "Todos")
+                        ) + sorted
+
+                        setState {
+                            copy(categoriesProducts = categoriesWithAll)
+                        }
                     }
 
                     is Resource.Error -> {
@@ -211,15 +222,20 @@ class HomePageViewModel @Inject constructor(
 
         viewModelScope.launch {
             setState { copy(isLoading = true) }
+
             getProductsUseCase().collect { result ->
                 when (result) {
                     is Resource.Success -> {
+                        val products = result.data
+
                         setState {
                             copy(
-                                products = result.data,
+                                products = products,
                                 isLoading = false
                             )
                         }
+
+                        applyFilter(products)
                     }
 
                     is Resource.Error -> {
@@ -232,7 +248,23 @@ class HomePageViewModel @Inject constructor(
     }
 
     fun onCategorySelected(category: CategoryModel) {
-        selectedCategoryId = if (selectedCategoryId == category.id) null else category.id
+        selectedCategoryId = category.id
+        applyFilter(uiState.value.products)
+    }
+
+    private fun applyFilter(products: List<ProductItem>) {
+        val filtered =
+            if (selectedCategoryId == FirestorePaths.Products.CATEGORY_ALL || selectedCategoryId == null) {
+                products
+            } else {
+                products.filter {
+                    it.category.equals(selectedCategoryId, ignoreCase = true)
+                }
+            }
+
+        setState {
+            copy(filteredProducts = filtered)
+        }
     }
 
     fun trackEvent(event: AnalyticsEvent) {

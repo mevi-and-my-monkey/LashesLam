@@ -10,6 +10,7 @@ data class HomePageUiState (
     override val isLoading: Boolean = false,
     val courses: List<CoursesItem> = emptyList(),
     val products: List<ProductItem> = emptyList(),
+    val filteredProducts: List<ProductItem> = emptyList(),
     val categoriesProducts: List<CategoryModel> = emptyList(),
     val selectedSection: Section = Section.CURSOS,
     val isAdmin: Boolean = false,

@@ -82,7 +82,7 @@ fun HomePageContent(
                         categories = state.categoriesProducts,
                         selectedCategoryId = selectedCategoryId,
                         onCategorySelected = onCategorySelected,
-                        products = state.products,
+                        products = state.filteredProducts,
                         isLoading = state.isLoading
                     )
                 }
