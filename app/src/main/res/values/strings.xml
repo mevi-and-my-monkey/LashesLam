@@ -71,4 +71,7 @@
     <string name="products_text">productos</string>">
     <string name="best_selling">Más vendidos</string>
 
+    <string name="service_subtitle">Reserva tu cita</string>
+    <string name="available_services">Servicios disponibles</string>
+
 </resources>

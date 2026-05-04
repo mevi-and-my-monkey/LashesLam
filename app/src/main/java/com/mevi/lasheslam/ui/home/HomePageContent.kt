@@ -33,6 +33,7 @@ import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.components.ServiceAddView
 import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
 import com.mevi.lasheslam.ui.home.products.ProductsHPContent
+import com.mevi.lasheslam.ui.home.services.ServicesHPContent
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -45,7 +46,9 @@ fun HomePageContent(
     trackEvent: (AnalyticsEvent) -> Unit,
     trackScreen: (String) -> Unit,
     selectedCategoryId: String?,
-    onCategorySelected: (CategoryModel) -> Unit
+    onCategorySelected: (CategoryModel) -> Unit,
+    selectedServiceCategoryId: String?,
+    onCategoryServiceSelected: (CategoryModel) -> Unit
 ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
@@ -90,7 +93,17 @@ fun HomePageContent(
                     )
                 }
 
-                else -> {}
+                Section.SERVICIOS -> {
+                    ServicesHPContent(
+                        categories = state.categoriesServices,
+                        selectedCategoryId = selectedServiceCategoryId,
+                        onCategorySelected = onCategoryServiceSelected,
+                        services = state.filteredServices,
+                        isLoading = state.isLoading,
+                        trackEvent = trackEvent
+                    )
+                }
+
             }
 
         }

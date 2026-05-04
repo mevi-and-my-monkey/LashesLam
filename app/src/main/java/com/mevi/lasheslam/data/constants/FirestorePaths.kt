@@ -47,4 +47,12 @@ object FirestorePaths {
         // Products categories
         const val CATEGORY_ALL = "all"
     }
+
+    object Services {
+        const val COLLECTION_SERVICES = "data"
+        const val DOCUMENT = "service"
+        const val COLLECTION_CATEGORIES = "categories"
+        const val COLLECTION_SERVICES_ITEMS = "service"
+
+    }
 }

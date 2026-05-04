@@ -12,6 +12,7 @@ import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.notifications.ObserveUserCoursesUseCase
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
+import com.mevi.lasheslam.domain.usecase.GetCategoriesServices
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
@@ -20,9 +21,11 @@ import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
+import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -44,12 +47,17 @@ class HomePageViewModel @Inject constructor(
     private val getNameUserUseCase: GetNameUserUseCase,
     private val getPhotoUserUseCase: GetPhotoUserUseCase,
     private val getCategoriesProducts: GetCategoriesProducts,
-    private val getProductsUseCase: GetProductsUseCase
+    private val getProductsUseCase: GetProductsUseCase,
+    private val getCategoriesServices: GetCategoriesServices,
+    private val getServicesUseCase: GetServicesUseCase
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
 
     var selectedCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
+        private set
+
+    var selectedServiceCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
         private set
 
     init {
@@ -59,6 +67,7 @@ class HomePageViewModel @Inject constructor(
 
     private var isCoursesLoaded = false
     private var isProductsLoaded = false
+    private var isServicesLoaded = false
 
     fun loadCourses() {
         if (isCoursesLoaded) return
@@ -208,10 +217,11 @@ class HomePageViewModel @Inject constructor(
                 loadProducts()
             }
 
-            else -> {
-                viewModelScope.launch {
-                    sendEvent(HomeUiEvent.ShowComingSoon)
-                }
+            Section.SERVICIOS -> {
+                trackEvent(AnalyticsEvent.SectionSelected(section.name))
+                setState { copy(selectedSection = section) }
+                loadCategoriesService()
+                loadServices()
             }
         }
     }
@@ -266,6 +276,88 @@ class HomePageViewModel @Inject constructor(
 
         setState {
             copy(filteredProducts = filtered)
+        }
+    }
+
+    fun onCategoryServiceSelected(category: CategoryModel) {
+        trackEvent(AnalyticsEvent.CategorySelected(category.name))
+        selectedServiceCategoryId = category.id
+        applyFilterServices(uiState.value.services)
+    }
+
+    private var isCategoriesServiceLoaded = false
+
+    fun loadCategoriesService() {
+        if (isCategoriesServiceLoaded) return
+        isCategoriesServiceLoaded = true
+
+        viewModelScope.launch {
+            getCategoriesServices().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+
+                        val sorted = result.data
+                            .sortedBy { it.name.lowercase() }
+
+                        val categoriesWithAll = listOf(
+                            CategoryModel(id = "all", name = "Todos")
+                        ) + sorted
+
+                        setState {
+                            copy(categoriesServices = categoriesWithAll)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        sendError(result.error) { HomeUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadServices() {
+        if (isServicesLoaded) return
+        isServicesLoaded = true
+
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
+
+            getServicesUseCase().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val services = result.data
+                        setState {
+                            copy(
+                                services = services,
+                                isLoading = false
+                            )
+                        }
+
+                        applyFilterServices(services)
+                    }
+
+                    is Resource.Error -> {
+                        setState { copy(isLoading = false) }
+                        sendError(result.error) { HomeUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyFilterServices(services: List<ServiceItem>) {
+        val filtered =
+            if (selectedServiceCategoryId == FirestorePaths.Products.CATEGORY_ALL || selectedServiceCategoryId == null) {
+                services
+            } else {
+                services.filter {
+                    it.category.equals(selectedServiceCategoryId, ignoreCase = true)
+                }
+            }
+
+        setState {
+            copy(filteredServices = filtered)
         }
     }
 

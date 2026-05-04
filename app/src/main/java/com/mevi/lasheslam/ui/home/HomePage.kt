@@ -54,7 +54,9 @@ fun HomePage(
             viewModel.trackScreen(screen)
         },
         selectedCategoryId = viewModel.selectedCategoryId,
-        onCategorySelected = { viewModel.onCategorySelected(it) }
+        onCategorySelected = { viewModel.onCategorySelected(it) },
+        selectedServiceCategoryId = viewModel.selectedServiceCategoryId,
+        onCategoryServiceSelected = { viewModel.onCategoryServiceSelected(it) }
     )
 
     if (dialogState is HomeUiEvent.ShowComingSoon) {

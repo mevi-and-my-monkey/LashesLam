@@ -6,6 +6,7 @@ import com.mevi.lasheslam.data.DataStoreRepository
 import com.mevi.lasheslam.data.FavoritesRepositoryImpl
 import com.mevi.lasheslam.data.PlayCoreUpdateRepository
 import com.mevi.lasheslam.data.ProductsRepositoryImpl
+import com.mevi.lasheslam.data.ServicesRepositoryImpl
 import com.mevi.lasheslam.data.SessionDataSourceImpl
 import com.mevi.lasheslam.data.SessionRepositoryImpl
 import com.mevi.lasheslam.data.UserCourseRepositoryImpl
@@ -14,6 +15,7 @@ import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import com.mevi.lasheslam.domain.repository.ProductsRepository
+import com.mevi.lasheslam.domain.repository.ServicesRepository
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
 import com.mevi.lasheslam.domain.repository.UpdateRepository
@@ -79,4 +81,9 @@ abstract class RepositoryModule {
     abstract fun binProductsRepository(
         impl: ProductsRepositoryImpl
     ): ProductsRepository
+
+    @Binds
+    abstract fun bindServicesRepository(
+        impl: ServicesRepositoryImpl
+    ): ServicesRepository
 }

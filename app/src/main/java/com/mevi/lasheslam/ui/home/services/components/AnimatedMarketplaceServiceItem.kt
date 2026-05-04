@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.home.products.components
+package com.mevi.lasheslam.ui.home.services.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -14,12 +14,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.network.ServiceItem
 import kotlinx.coroutines.delay
 
 @Composable
-fun AnimatedMarketplaceProductItem(
-    products: ProductItem,
+fun AnimatedMarketplaceServiceItem(
+    services: ServiceItem,
     index: Int,
     onClick: () -> Unit = {},
     trackEvent: (AnalyticsEvent) -> Unit
@@ -37,11 +37,11 @@ fun AnimatedMarketplaceProductItem(
         visible = visible,
         enter = fadeIn(tween(400)) + slideInVertically(tween(400)) { it / 3 }
     ) {
-        ProductItemView(
+        ServiceItemView(
             trackEvent = trackEvent,
             modifier = Modifier.padding(vertical = 8.dp),
-            products,
-            onClick
+            service = services,
+            onClick = onClick
         )
     }
 }
