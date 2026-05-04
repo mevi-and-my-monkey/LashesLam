@@ -27,14 +27,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.ui.theme.WarmGray
 
 @Composable
-fun ProductItem(
+fun ProductItemView(
+    trackEvent: (AnalyticsEvent) -> Unit,
     modifier: Modifier = Modifier,
     product: ProductItem,
-    onClick: () -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
 
     Card(
@@ -42,7 +44,10 @@ fun ProductItem(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(8.dp),
-        onClick = onClick
+        onClick = {
+            trackEvent(AnalyticsEvent.ProductClick(product.title))
+            onClick()
+        }
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             AsyncImage(
@@ -59,6 +64,7 @@ fun ProductItem(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
             )
 
             Row(
@@ -69,9 +75,11 @@ fun ProductItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    if (product.price != 0.0){
+                    if (product.price != 0.0) {
                         Text(
-                            text = "$" + product.price.toString(), fontSize = 14.sp, style = TextStyle(
+                            text = "$" + product.price.toString(),
+                            fontSize = 14.sp,
+                            style = TextStyle(
                                 textDecoration = TextDecoration.LineThrough, color = WarmGray
                             )
                         )
@@ -85,8 +93,14 @@ fun ProductItem(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Outlined.ShoppingCart, contentDescription = null)
+                IconButton(onClick = {
+                    trackEvent(AnalyticsEvent.AddToCartClick(product.title))
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.ShoppingCart,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
 

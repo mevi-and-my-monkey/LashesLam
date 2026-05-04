@@ -22,16 +22,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.utils.toUiFormat
 
 @Composable
 fun CursesItem(
+    trackEvent: (AnalyticsEvent) -> Unit,
     modifier: Modifier = Modifier,
     service: CoursesItem,
     onClick: () -> Unit = {},
@@ -44,7 +48,10 @@ fun CursesItem(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp),
-        onClick = onClick
+        onClick = {
+            trackEvent(AnalyticsEvent.CourseClick(service.titulo))
+            onClick()
+        }
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
@@ -88,7 +95,10 @@ fun CursesItem(
                 )
 
                 Button(
-                    onClick = onClick,
+                    onClick = {
+                        trackEvent(AnalyticsEvent.CourseClick(service.titulo))
+                        onClick()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp),
@@ -99,7 +109,7 @@ fun CursesItem(
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
-                        text = "Reservar",
+                        text = stringResource(R.string.reservation),
                         color = Color.White,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold

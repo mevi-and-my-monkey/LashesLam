@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.ProductItem
 import kotlinx.coroutines.delay
 
@@ -21,7 +22,8 @@ import kotlinx.coroutines.delay
 fun AnimatedMarketplaceProductItem(
     products: ProductItem,
     index: Int,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    trackEvent: (AnalyticsEvent) -> Unit
 ) {
     val animationDelay = 50 * index
 
@@ -36,6 +38,11 @@ fun AnimatedMarketplaceProductItem(
         visible = visible,
         enter = fadeIn(tween(400)) + slideInVertically(tween(400)) { it / 3 }
     ) {
-        ProductItem(modifier = Modifier.padding(vertical = 8.dp), products, onClick)
+        ProductItemView(
+            trackEvent = trackEvent,
+            modifier = Modifier.padding(vertical = 8.dp),
+            products,
+            onClick
+        )
     }
 }

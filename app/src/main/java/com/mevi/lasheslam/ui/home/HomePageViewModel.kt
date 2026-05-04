@@ -249,6 +249,7 @@ class HomePageViewModel @Inject constructor(
     }
 
     fun onCategorySelected(category: CategoryModel) {
+        trackEvent(AnalyticsEvent.CategorySelected(category.name))
         selectedCategoryId = category.id
         applyFilter(uiState.value.products)
     }

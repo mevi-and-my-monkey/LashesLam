@@ -7,15 +7,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.home.cursos.components.AnimatedMarketplaceItem
 import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox
 
 @Composable
 fun CursesList(
+    trackEvent: (AnalyticsEvent) -> Unit,
     services: List<CoursesItem>,
     isLoading: Boolean,
-    onClick: (CoursesItem) -> Unit
+    onClick: (CoursesItem) -> Unit,
 ) {
     Column {
         if (isLoading) {
@@ -29,7 +31,7 @@ fun CursesList(
             }
         } else {
             services.forEachIndexed { index, service ->
-                AnimatedMarketplaceItem(service, index) {
+                AnimatedMarketplaceItem(trackEvent = trackEvent, service = service, index = index) {
                     onClick(service)
                 }
             }

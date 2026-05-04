@@ -23,6 +23,7 @@ class FirebaseAnalyticsTracker @Inject constructor(
     private fun mapParams(event: AnalyticsEvent): Bundle {
         return Bundle().apply {
             when (event) {
+
                 is AnalyticsEvent.LoginSuccess -> {
                     putString(AnalyticsParams.METHOD, event.method)
                 }
@@ -33,6 +34,14 @@ class FirebaseAnalyticsTracker @Inject constructor(
 
                 is AnalyticsEvent.ScreenView -> {
                     putString(AnalyticsParams.SCREEN_NAME, event.screen)
+                }
+
+                is AnalyticsEvent.SectionSelected -> {
+                    putString(AnalyticsParams.SECTION, event.section)
+                }
+
+                is AnalyticsEvent.BottomSelection -> {
+                    putString(AnalyticsParams.SECTION, event.section)
                 }
 
                 else -> Unit

@@ -6,16 +6,19 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.ProductItem
 
 @Composable
-fun BestSellingRow(products: List<ProductItem>) {
+fun BestSellingRow(
+    products: List<ProductItem>, trackEvent: (AnalyticsEvent) -> Unit
+) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(products) { product ->
-            BestSellingItem(product)
+            BestSellingItem(product = product, trackEvent = trackEvent)
         }
     }
 }

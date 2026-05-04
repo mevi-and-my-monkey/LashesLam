@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.ui.home.products.components.BestSellingRow
@@ -30,6 +31,7 @@ fun ProductsHPContent(
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit,
     bestSellingProducts: List<ProductItem>,
+    trackEvent: (AnalyticsEvent) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -42,10 +44,10 @@ fun ProductsHPContent(
         if (bestSellingProducts.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.best_selling),
-                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
-            BestSellingRow(products = bestSellingProducts)
+            BestSellingRow(products = bestSellingProducts, trackEvent = trackEvent)
         }
 
         Row(
@@ -71,6 +73,7 @@ fun ProductsHPContent(
         }
 
         ProductsList(
+            trackEvent = trackEvent,
             products = products,
             isLoading = isLoading
         ) { products ->

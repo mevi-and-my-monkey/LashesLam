@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.home.components.BannerView
 
@@ -27,7 +28,8 @@ fun CursosPageContent(
     onNavigateToSearch: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     services: List<CoursesItem>,
-    isLoading: Boolean
+    isLoading: Boolean,
+    trackEvent: (AnalyticsEvent) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -52,7 +54,10 @@ fun CursosPageContent(
                 fontSize = 24.sp,
                 style = MaterialTheme.typography.titleMedium,
             )
-            TextButton(onClick = onNavigateToSearch) {
+            TextButton(onClick = {
+                trackEvent(AnalyticsEvent.IconSearchClick)
+                onNavigateToSearch()
+            }) {
                 Text(
                     text = stringResource(R.string.see_all),
                     fontSize = 14.sp,
@@ -64,7 +69,8 @@ fun CursosPageContent(
 
         CursesList(
             services = services,
-            isLoading = isLoading
+            isLoading = isLoading,
+            trackEvent = trackEvent
         ) { service ->
             onNavigateToServiceDetails(service.id)
         }

@@ -41,6 +41,16 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object IconSearchClick : AnalyticsEvent("icon_search_click")
 
+    data class CourseClick(val course: String) : AnalyticsEvent("course_click")
+
+    data class ProductClick(val product: String) : AnalyticsEvent("product_click")
+
+    data class CategorySelected(val category: String) : AnalyticsEvent("category_selected")
+
+    data class AddToCartClick(val product: String) : AnalyticsEvent("add_to_cart_click")
+
+    data class AddToFavoriteClick(val product: String) : AnalyticsEvent("add_to_favorite_click")
+
     // GENERAL
 
     data class SectionSelected(val section: String) : AnalyticsEvent("section_selected")

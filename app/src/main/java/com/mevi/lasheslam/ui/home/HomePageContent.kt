@@ -73,7 +73,8 @@ fun HomePageContent(
                         onNavigateToSearch = onNavigateToSearch,
                         onNavigateToServiceDetails = onNavigateToServiceDetails,
                         services = state.courses,
-                        isLoading = state.isLoading
+                        isLoading = state.isLoading,
+                        trackEvent = trackEvent,
                     )
                 }
 
@@ -84,7 +85,8 @@ fun HomePageContent(
                         onCategorySelected = onCategorySelected,
                         products = state.filteredProducts,
                         isLoading = state.isLoading,
-                        bestSellingProducts = state.bestSellingProducts
+                        bestSellingProducts = state.bestSellingProducts,
+                        trackEvent = trackEvent
                     )
                 }
 

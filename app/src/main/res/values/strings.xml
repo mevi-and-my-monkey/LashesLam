@@ -64,6 +64,7 @@
     <!-- CURSOS CONTENT - HOME PAGE-->
     <string name="courses_available">Cursos disponibles</string>
     <string name="see_all">Ver todos</string>">
+    <string name="reservation">Reservar</string>">
 
     <!-- PRODUCTS CONTENT - HOME PAGE-->
     <string name="products_subtitle">Boutique LashesLam</string>
