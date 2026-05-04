@@ -1,18 +1,21 @@
 package com.mevi.lasheslam.ui.home.services.components
 
-import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -25,14 +28,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.ServiceItem
-import com.mevi.lasheslam.ui.components.GenericButton
+import com.mevi.lasheslam.ui.theme.CormorantGaramond
+import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun ServiceItemView(
@@ -41,15 +48,13 @@ fun ServiceItemView(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
-    Log.d("ServiceItemView", "ServiceItemView: $service")
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .height(120.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         onClick = {
             trackEvent(AnalyticsEvent.ProductClick(service.title))
             onClick()
@@ -57,8 +62,8 @@ fun ServiceItemView(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
@@ -74,69 +79,105 @@ fun ServiceItemView(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = service.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 16.sp
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 18.sp
+                        ),
+                        color = Color(0xFF1C1C1C)
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = " ★",
-                        color = Color(0xFFFFC107)
+                        text = "★",
+                        color = Color(0xFFC19A6B),
+                        fontSize = 12.sp
                     )
                 }
 
                 Text(
                     text = service.subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
                     maxLines = 1,
-                    fontSize = 12.sp,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(2.dp),
-                    color = Color.Gray
+                    overflow = TextOverflow.Ellipsis
                 )
 
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Row(
-                    modifier = Modifier
-                        .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(Color(0xFFFCEEEC))
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Timer,
                             contentDescription = null,
-                            tint = Color(0xFFE57373),
-                            modifier = Modifier.size(16.dp)
+                            tint = Color(0xFFD97D8C),
+                            modifier = Modifier.size(14.dp)
                         )
-
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${service.duration} h",
-                            fontSize = 12.sp,
-                            color = Color(0xFFE57373),
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-
-                        Text(
-                            text = "   $${service.price}",
-                            fontSize = 12.sp,
-                            color = Color(0xFFE57373)
+                            text = "${service.duration.toInt()} h",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = Color(0xFFD97D8C)
                         )
                     }
+
+                    Text(
+                        text = "$${service.price.toInt()}",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = CormorantGaramond
+                        ),
+                        color = Color(0xFFD97D8C)
+                    )
                 }
             }
 
-            GenericButton(
-                text = stringResource(R.string.reservation),
+            Button(
                 onClick = onClick,
-                backgroundColor = MaterialTheme.colorScheme.primary,
-                textColor = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier
-                    .height(36.dp)
-            )
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFD97D8C)
+                ),
+                shape = RoundedCornerShape(50),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.height(42.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.reservation),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ServiceItemViewPreview() {
+    LashesLamTheme {
+        ServiceItemView(
+            trackEvent = {},
+            service = ServiceItem(
+                id = "1",
+                duration = 2.0,
+                image = "",
+                price = 600.0,
+                title = "Pestañas Híbridas",
+                subtitle = "Pelo a pelo + volumen",
+                category = "Lashes"
+            )
+        )
     }
 }

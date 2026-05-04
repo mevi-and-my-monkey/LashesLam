@@ -39,7 +39,7 @@ fun AnimatedMarketplaceServiceItem(
     ) {
         ServiceItemView(
             trackEvent = trackEvent,
-            modifier = Modifier.padding(vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 2.dp),
             service = services,
             onClick = onClick
         )
