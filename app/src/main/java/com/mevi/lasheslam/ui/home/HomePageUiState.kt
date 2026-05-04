@@ -11,6 +11,7 @@ data class HomePageUiState (
     val courses: List<CoursesItem> = emptyList(),
     val products: List<ProductItem> = emptyList(),
     val filteredProducts: List<ProductItem> = emptyList(),
+    val bestSellingProducts: List<ProductItem> = emptyList(),
     val categoriesProducts: List<CategoryModel> = emptyList(),
     val selectedSection: Section = Section.CURSOS,
     val isAdmin: Boolean = false,

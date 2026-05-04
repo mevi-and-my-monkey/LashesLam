@@ -68,5 +68,6 @@
     <!-- PRODUCTS CONTENT - HOME PAGE-->
     <string name="products_subtitle">Boutique LashesLam</string>
     <string name="products_text">productos</string>">
+    <string name="best_selling">Más vendidos</string>
 
 </resources>

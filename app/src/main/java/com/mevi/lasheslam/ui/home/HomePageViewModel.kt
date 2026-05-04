@@ -227,10 +227,11 @@ class HomePageViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         val products = result.data
-
+                        val bestSelling = products.filter { it.bestSelling }
                         setState {
                             copy(
                                 products = products,
+                                bestSellingProducts = bestSelling,
                                 isLoading = false
                             )
                         }

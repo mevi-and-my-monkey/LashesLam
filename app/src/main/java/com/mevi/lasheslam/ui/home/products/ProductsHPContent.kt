@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.ui.home.products.components.BestSellingRow
 import com.mevi.lasheslam.ui.home.products.components.CategoriesView
 import com.mevi.lasheslam.ui.home.products.components.ProductsList
 
@@ -27,7 +28,8 @@ fun ProductsHPContent(
     isLoading: Boolean,
     categories: List<CategoryModel>,
     selectedCategoryId: String?,
-    onCategorySelected: (CategoryModel) -> Unit
+    onCategorySelected: (CategoryModel) -> Unit,
+    bestSellingProducts: List<ProductItem>,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -36,6 +38,15 @@ fun ProductsHPContent(
             selectedCategoryId = selectedCategoryId,
             onCategorySelected = onCategorySelected
         )
+
+        if (bestSellingProducts.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.best_selling),
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                style = MaterialTheme.typography.titleMedium
+            )
+            BestSellingRow(products = bestSellingProducts)
+        }
 
         Row(
             modifier = Modifier
