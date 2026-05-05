@@ -70,34 +70,12 @@ class HomeViewModel @Inject constructor(
         hideLoading()
     }
 
-    init {
-        loadUserData()
-    }
-
     fun showLoading() {
         _isLoading.value = true
     }
 
     fun hideLoading() {
         _isLoading.value = false
-    }
-
-    private fun loadUserData() {
-        val user = auth.currentUser ?: return
-        photoUrl = user.photoUrl?.toString()
-
-        viewModelScope.launch {
-            if (isUserInvited.value) {
-                name = "Invitado"
-            } else {
-                firestore.collection(FirestorePaths.Users.COLLECTION).document(user.uid)
-                    .get()
-                    .addOnSuccessListener {
-                        name = it.getString("name")?.split(" ")?.firstOrNull() ?: ""
-                        SessionManager.setNameUser(name)
-                    }
-            }
-        }
     }
 
     suspend fun createCourseRequest(

@@ -55,4 +55,8 @@ object FirestorePaths {
         const val COLLECTION_SERVICES_ITEMS = "service"
 
     }
+
+    object Favorites {
+        const val COLLECTION_FAVORITES = "favorites"
+    }
 }

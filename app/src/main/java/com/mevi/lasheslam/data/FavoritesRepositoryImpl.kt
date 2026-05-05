@@ -3,6 +3,7 @@ package com.mevi.lasheslam.data
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -13,9 +14,9 @@ class FavoritesRepositoryImpl @Inject constructor(
 ) : FavoritesRepository {
 
     private fun favoritesRef(userId: String) =
-        firestore.collection("users")
+        firestore.collection(FirestorePaths.Users.COLLECTION)
             .document(userId)
-            .collection("favorites")
+            .collection(FirestorePaths.Favorites.COLLECTION_FAVORITES)
 
     override suspend fun addToFavorites(
         userId: String,

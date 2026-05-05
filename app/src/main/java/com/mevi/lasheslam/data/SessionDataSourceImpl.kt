@@ -41,7 +41,7 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
     }
 
     override fun setNameUser(nameUser: String?) {
-        SessionManager.setEmailUser(nameUser)
+        SessionManager.setNameUser(nameUser)
     }
 
     override fun setPhotoUrl(photoUrl: String?) {
