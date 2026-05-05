@@ -1,23 +1,30 @@
 package com.mevi.lasheslam.ui.home.cursos.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
@@ -53,23 +59,43 @@ fun CursesItem(
             onClick()
         }
     ) {
-        Row(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = service.imagen,
-                contentDescription = service.titulo,
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Box(
                 modifier = Modifier
-                    .width(140.dp)
+                    .weight(0.4f)
                     .fillMaxHeight()
-                    .clip(RoundedCornerShape(24.dp)),
-                contentScale = ContentScale.Crop
-            )
+            ) {
+                AsyncImage(
+                    model = service.imagen,
+                    contentDescription = service.titulo,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(24.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
+                IconButton(
+                    onClick = {
+
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .background(Color.White.copy(alpha = 0.7f), shape = RoundedCornerShape(50))
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.FavoriteBorder, //if (isFavorite) Icons.Filled.Favorite else
+                        contentDescription = "Favorito",
+                        tint = Color.Red
+                    )
+                }
+            }
             Column(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(0.6f)
                     .padding(16.dp)
                     .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
                     text = service.titulo.uppercase(),
@@ -77,21 +103,26 @@ fun CursesItem(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = true
                 )
 
                 Text(
                     text = "$${service.costo}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black,
-                    fontWeight = FontWeight.ExtraBold
+                    fontWeight = FontWeight.ExtraBold,
+                    softWrap = true,
+                    maxLines = 1
                 )
 
                 Text(
                     text = "Fecha: ${service.date.toUiFormat()} - ${service.horaIncio}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Black,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    softWrap = true,
+                    maxLines = 1
                 )
 
                 Button(
@@ -101,7 +132,7 @@ fun CursesItem(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp),
+                        .defaultMinSize(minHeight = 40.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFE96E89)
@@ -111,7 +142,7 @@ fun CursesItem(
                     Text(
                         text = stringResource(R.string.reservation),
                         color = Color.White,
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
                     )
                 }

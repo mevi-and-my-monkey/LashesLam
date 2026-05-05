@@ -1,14 +1,18 @@
 package com.mevi.lasheslam.ui.home.products.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,13 +54,34 @@ fun ProductItemView(
         }
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            AsyncImage(
-                model = product.images.firstOrNull(),
-                contentDescription = product.title,
+            Box(
                 modifier = Modifier
                     .height(100.dp)
                     .fillMaxWidth()
-            )
+            ) {
+                AsyncImage(
+                    model = product.images.firstOrNull(),
+                    contentDescription = product.title,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                IconButton(
+                    onClick = { /* toggle favorito */ },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(6.dp)
+                        .background(
+                            Color.White.copy(alpha = 0.7f),
+                            shape = RoundedCornerShape(50)
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.FavoriteBorder,
+                        contentDescription = "Favorito",
+                        tint = Color.Red
+                    )
+                }
+            }
 
             Text(
                 text = product.title,

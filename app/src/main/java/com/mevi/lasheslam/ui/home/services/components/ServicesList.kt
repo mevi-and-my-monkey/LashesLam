@@ -1,9 +1,10 @@
 package com.mevi.lasheslam.ui.home.services.components
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,9 +19,9 @@ fun ServicesList(
     isLoading: Boolean,
     onClick: (ServiceItem) -> Unit
 ) {
-    Column {
+    LazyColumn {
         if (isLoading) {
-            repeat(6) {
+            items(6) {
                 ShimmerBox(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -29,12 +30,13 @@ fun ServicesList(
                 )
             }
         } else {
-            services.forEachIndexed { index, services ->
+
+            itemsIndexed(services) { index, service ->
                 AnimatedMarketplaceServiceItem(
                     trackEvent = trackEvent,
-                    services = services,
+                    services = service,
                     index = index,
-                    onClick = { onClick(services) }
+                    onClick = { onClick(service) }
                 )
             }
         }
