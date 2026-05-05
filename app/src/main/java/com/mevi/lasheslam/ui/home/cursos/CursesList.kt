@@ -1,9 +1,10 @@
 package com.mevi.lasheslam.ui.home.cursos
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,9 +20,9 @@ fun CursesList(
     isLoading: Boolean,
     onClick: (CoursesItem) -> Unit,
 ) {
-    Column {
+    LazyColumn {
         if (isLoading) {
-            repeat(6) {
+            items(6) {
                 ShimmerBox(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -30,8 +31,15 @@ fun CursesList(
                 )
             }
         } else {
-            services.forEachIndexed { index, service ->
-                AnimatedMarketplaceItem(trackEvent = trackEvent, service = service, index = index) {
+            itemsIndexed(
+                items = services,
+                key = { _, service -> service.id }
+            ) { index, service ->
+                AnimatedMarketplaceItem(
+                    trackEvent = trackEvent,
+                    service = service,
+                    index = index
+                ) {
                     onClick(service)
                 }
             }

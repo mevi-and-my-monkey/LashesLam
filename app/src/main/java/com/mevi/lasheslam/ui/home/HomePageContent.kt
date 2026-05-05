@@ -142,14 +142,16 @@ fun HomePageContent(
                         label = stringResource(R.string.uploaded_new_product),
                         icon = Icons.Default.AddBusiness
                     ) {
-
+                        trackEvent(AnalyticsEvent.HomeOptionBottomHide)
+                        trackEvent(AnalyticsEvent.AddServiceShow)
+                        showOptionsBottomSheet = false
                     },
                     BottomSheetOption(
                         label = stringResource(R.string.uploaded_new_product),
                         icon = Icons.Default.PostAdd
                     ) {
                         trackEvent(AnalyticsEvent.HomeOptionBottomHide)
-                        trackEvent(AnalyticsEvent.AddServiceShow)
+                        trackEvent(AnalyticsEvent.AddProductShow)
                         showOptionsBottomSheet = false
                         showAddView = true
                     }

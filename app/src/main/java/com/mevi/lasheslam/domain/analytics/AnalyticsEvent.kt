@@ -37,6 +37,10 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object AddServiceHide : AnalyticsEvent("add_service_hide")
 
+    data object AddProductShow : AnalyticsEvent("add_product_show")
+
+    data object AddProductHide : AnalyticsEvent("add_product_hide")
+
     data object IconHeaderClick : AnalyticsEvent("icon_header_click")
 
     data object IconSearchClick : AnalyticsEvent("icon_search_click")
