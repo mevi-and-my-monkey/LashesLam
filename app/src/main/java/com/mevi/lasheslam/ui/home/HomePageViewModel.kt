@@ -15,6 +15,7 @@ import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
 import com.mevi.lasheslam.domain.usecase.GetCategoriesServices
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
+import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
@@ -23,12 +24,17 @@ import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
+import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
 import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.network.FavoriteItem
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -49,7 +55,9 @@ class HomePageViewModel @Inject constructor(
     private val getCategoriesProducts: GetCategoriesProducts,
     private val getProductsUseCase: GetProductsUseCase,
     private val getCategoriesServices: GetCategoriesServices,
-    private val getServicesUseCase: GetServicesUseCase
+    private val getServicesUseCase: GetServicesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -59,6 +67,9 @@ class HomePageViewModel @Inject constructor(
 
     var selectedServiceCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
         private set
+
+    private val _favorites = MutableStateFlow<List<FavoriteItem>>(emptyList())
+    val favorites = _favorites.asStateFlow()
 
     init {
         loadCourses()
@@ -134,6 +145,9 @@ class HomePageViewModel @Inject constructor(
                         isUserInvited = isInvited,
                         currentUserId = userId
                     )
+                }
+                if (userId.isNotEmpty()) {
+                    loadFavorites(userId)
                 }
                 if (isAdmin) {
                     loadAdminPendingRequests()
@@ -358,6 +372,49 @@ class HomePageViewModel @Inject constructor(
 
         setState {
             copy(filteredServices = filtered)
+        }
+    }
+
+    fun loadFavorites(userId: String) {
+        viewModelScope.launch {
+            when (val result = getFavoritesUseCase(userId)) {
+                is Resource.Success -> {
+                    _favorites.value = result.data
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    fun toggleFavorite(itemId: String, type: FavoriteType) {
+        val userId = uiState.value.currentUserId ?: return
+
+        viewModelScope.launch {
+            val currentFavorites = _favorites.value
+            val isFavorite = currentFavorites.any {
+                it.itemId == itemId && it.type == type.name
+            }
+            when (
+                toggleFavoriteUseCase(
+                    userId = userId,
+                    itemId = itemId,
+                    type = type.name,
+                    isFavorite = isFavorite
+                )
+            ) {
+                is Resource.Success -> {
+                    _favorites.value =
+                        if (isFavorite) {
+                            currentFavorites.filterNot {
+                                it.itemId == itemId && it.type == type.name
+                            }
+                        } else {
+                            currentFavorites + FavoriteItem(itemId, type.name)
+                        }
+                }
+                else -> {}
+            }
         }
     }
 

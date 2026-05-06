@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,7 +44,9 @@ import com.mevi.lasheslam.utils.toUiFormat
 fun CursesItem(
     trackEvent: (AnalyticsEvent) -> Unit,
     modifier: Modifier = Modifier,
-    service: CoursesItem,
+    courses: CoursesItem,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     onClick: () -> Unit = {},
 ) {
     Card(
@@ -55,7 +58,7 @@ fun CursesItem(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
-            trackEvent(AnalyticsEvent.CourseClick(service.titulo))
+            trackEvent(AnalyticsEvent.CourseClick(courses.titulo))
             onClick()
         }
     ) {
@@ -66,8 +69,8 @@ fun CursesItem(
                     .fillMaxHeight()
             ) {
                 AsyncImage(
-                    model = service.imagen,
-                    contentDescription = service.titulo,
+                    model = courses.imagen,
+                    contentDescription = courses.titulo,
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(24.dp)),
@@ -75,18 +78,16 @@ fun CursesItem(
                 )
 
                 IconButton(
-                    onClick = {
-
-                    },
+                    onClick = onToggleFavorite,
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
                         .background(Color.White.copy(alpha = 0.7f), shape = RoundedCornerShape(50))
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.FavoriteBorder, //if (isFavorite) Icons.Filled.Favorite else
-                        contentDescription = "Favorito",
-                        tint = Color.Red
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = stringResource(R.string.favorites),
+                        tint = if (isFavorite) Color.Red else Color.White
                     )
                 }
             }
@@ -98,7 +99,7 @@ fun CursesItem(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = service.titulo.uppercase(),
+                    text = courses.titulo.uppercase(),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
@@ -108,7 +109,7 @@ fun CursesItem(
                 )
 
                 Text(
-                    text = "$${service.costo}",
+                    text = "$${courses.costo}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black,
                     fontWeight = FontWeight.ExtraBold,
@@ -117,7 +118,7 @@ fun CursesItem(
                 )
 
                 Text(
-                    text = "Fecha: ${service.date.toUiFormat()} - ${service.horaIncio}",
+                    text = "Fecha: ${courses.date.toUiFormat()} - ${courses.horaIncio}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Black,
                     fontWeight = FontWeight.Medium,
@@ -127,7 +128,7 @@ fun CursesItem(
 
                 Button(
                     onClick = {
-                        trackEvent(AnalyticsEvent.CourseClick(service.titulo))
+                        trackEvent(AnalyticsEvent.CourseClick(courses.titulo))
                         onClick()
                     },
                     modifier = Modifier

@@ -16,6 +16,7 @@ import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
 import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -133,34 +134,33 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-    fun toggleFavorite(userId: String, serviceId: String) {
+    fun toggleFavorite(userId: String, itemId: String, type: FavoriteType) {
         viewModelScope.launch {
             val current = _isFavorite.value
 
             when (
                 toggleFavoriteUseCase(
                     userId = userId,
-                    courseId = serviceId,
+                    itemId = itemId,
+                    type = type.name,
                     isFavorite = current
                 )
             ) {
                 is Resource.Success -> {
                     _isFavorite.value = !current
                 }
-
                 else -> {}
             }
         }
     }
 
 
-    fun checkIfFavorite(userId: String, serviceId: String) {
+    fun checkIfFavorite(userId: String, itemId: String, type: FavoriteType) {
         viewModelScope.launch {
             when (val result = getFavoritesUseCase(userId)) {
                 is Resource.Success -> {
-                    _isFavorite.value = result.data.contains(serviceId)
+                    _isFavorite.value = result.data.any { it.itemId == itemId }
                 }
-
                 else -> {}
             }
         }

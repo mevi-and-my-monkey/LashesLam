@@ -15,8 +15,10 @@ import com.mevi.lasheslam.network.CoursesItem
 @Composable
 fun AnimatedMarketplaceItem(
     trackEvent: (AnalyticsEvent) -> Unit,
-    service: CoursesItem,
+    courses: CoursesItem,
     index: Int,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
     onClick: () -> Unit = {},
 ) {
     val alpha by animateFloatAsState(
@@ -37,7 +39,9 @@ fun AnimatedMarketplaceItem(
                 this.alpha = alpha
                 translationY = offsetY.toPx()
             },
-        service = service,
+        courses = courses,
+        isFavorite = favorites.contains(courses.id),
+        onToggleFavorite = { onToggleFavorite(courses.id) },
         onClick = onClick
     )
 }

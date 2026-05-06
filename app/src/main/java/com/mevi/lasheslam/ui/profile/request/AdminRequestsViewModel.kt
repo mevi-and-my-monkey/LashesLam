@@ -18,6 +18,7 @@ import com.mevi.lasheslam.network.CourseRequest
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.courses.CourseUiState
 import com.mevi.lasheslam.ui.courses.CoursesUiEvent
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -89,7 +90,10 @@ class AdminRequestsViewModel @Inject constructor(
 
             when (val favResult = getFavoritesUseCase(user.uid)) {
                 is Resource.Success -> {
+
                     val ids = favResult.data
+                        .filter { it.type == FavoriteType.COURSE.name || it.type == null }
+                        .map { it.itemId }
 
                     if (ids.isEmpty()) {
                         favoriteCourses = emptyList()
@@ -98,12 +102,10 @@ class AdminRequestsViewModel @Inject constructor(
                             is Resource.Success -> {
                                 favoriteCourses = courseResult.data
                             }
-
                             else -> {}
                         }
                     }
                 }
-
                 else -> {}
             }
 

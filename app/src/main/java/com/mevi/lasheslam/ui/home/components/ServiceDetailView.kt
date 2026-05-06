@@ -78,6 +78,7 @@ import com.mevi.lasheslam.ui.home.HomeViewModel
 import com.mevi.lasheslam.utils.Utilities
 import androidx.core.net.toUri
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -123,7 +124,7 @@ fun ServiceDetailView(
     }
     LaunchedEffect(serviceId, userId) {
         if (userId != null) {
-            viewModel.checkIfFavorite(userId, serviceId)
+            viewModel.checkIfFavorite(userId, serviceId, FavoriteType.COURSE)
         }
     }
 
@@ -378,7 +379,7 @@ fun ServiceDetailView(
 
             IconButton(
                 onClick = {
-                    userId?.let { viewModel.toggleFavorite(it, serviceId) }
+                    userId?.let { viewModel.toggleFavorite(it, serviceId, FavoriteType.COURSE) }
                 },
                 modifier = Modifier
                     .size(44.dp)

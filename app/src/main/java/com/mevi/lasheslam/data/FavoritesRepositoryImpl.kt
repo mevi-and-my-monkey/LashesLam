@@ -5,6 +5,7 @@ import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
+import com.mevi.lasheslam.network.FavoriteItem
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -20,17 +21,20 @@ class FavoritesRepositoryImpl @Inject constructor(
 
     override suspend fun addToFavorites(
         userId: String,
-        courseId: String
+        itemId: String,
+        type: String
     ): Resource<Boolean> {
         return try {
-
             favoritesRef(userId)
-                .document(courseId)
-                .set(mapOf("courseId" to courseId))
+                .document(itemId)
+                .set(
+                    mapOf(
+                        "itemId" to itemId,
+                        "type" to type
+                    )
+                )
                 .await()
-
             Resource.Success(true)
-
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))
         }
@@ -38,12 +42,12 @@ class FavoritesRepositoryImpl @Inject constructor(
 
     override suspend fun removeFromFavorites(
         userId: String,
-        courseId: String
+        itemId: String
     ): Resource<Boolean> {
         return try {
 
             favoritesRef(userId)
-                .document(courseId)
+                .document(itemId)
                 .delete()
                 .await()
 
@@ -56,18 +60,17 @@ class FavoritesRepositoryImpl @Inject constructor(
 
     override suspend fun getFavorites(
         userId: String
-    ): Resource<List<String>> {
+    ): Resource<List<FavoriteItem>> {
         return try {
-
             val snapshot = favoritesRef(userId)
                 .get()
                 .await()
-
-            val ids = snapshot.documents
-                .mapNotNull { it.getString("courseId") }
-
-            Resource.Success(ids)
-
+            val items = snapshot.documents.mapNotNull { doc ->
+                val itemId = doc.getString("itemId") ?: return@mapNotNull null
+                val type = doc.getString("type") ?: return@mapNotNull null
+                FavoriteItem(itemId, type)
+            }
+            Resource.Success(items)
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))
         }

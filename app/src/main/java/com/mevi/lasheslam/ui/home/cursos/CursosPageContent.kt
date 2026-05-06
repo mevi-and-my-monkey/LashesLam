@@ -27,9 +27,11 @@ import com.mevi.lasheslam.ui.home.components.BannerView
 fun CursosPageContent(
     onNavigateToSearch: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
-    services: List<CoursesItem>,
+    courses: List<CoursesItem>,
     isLoading: Boolean,
     trackEvent: (AnalyticsEvent) -> Unit,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -68,11 +70,13 @@ fun CursosPageContent(
         }
 
         CursesList(
-            services = services,
+            courses = courses,
             isLoading = isLoading,
-            trackEvent = trackEvent
-        ) { service ->
-            onNavigateToServiceDetails(service.id)
+            trackEvent = trackEvent,
+            favorites = favorites,
+            onToggleFavorite = onToggleFavorite
+        ) { courseId ->
+            onNavigateToServiceDetails(courseId.id)
         }
     }
 }

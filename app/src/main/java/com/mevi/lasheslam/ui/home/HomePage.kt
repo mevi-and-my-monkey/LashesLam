@@ -15,7 +15,9 @@ import com.mevi.lasheslam.R
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.components.RequestNotificationPermission
 import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.components.Section
+import kotlin.collections.toSet
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -28,6 +30,15 @@ fun HomePage(
     RequestNotificationPermission()
     val uiState by viewModel.uiState.collectAsState()
     var dialogState by remember { mutableStateOf<HomeUiEvent?>(null) }
+
+    val favoritesList = viewModel.favorites.collectAsState().value
+
+    val favoriteCourseIds = remember(favoritesList) {
+        favoritesList
+            .filter { it.type == FavoriteType.COURSE.name }
+            .map { it.itemId }
+            .toSet()
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { events ->
@@ -56,7 +67,11 @@ fun HomePage(
         selectedCategoryId = viewModel.selectedCategoryId,
         onCategorySelected = { viewModel.onCategorySelected(it) },
         selectedServiceCategoryId = viewModel.selectedServiceCategoryId,
-        onCategoryServiceSelected = { viewModel.onCategoryServiceSelected(it) }
+        onCategoryServiceSelected = { viewModel.onCategoryServiceSelected(it) },
+        favorites = favoriteCourseIds,
+        onToggleFavorite = { courseId ->
+            viewModel.toggleFavorite(courseId, FavoriteType.COURSE)
+        }
     )
 
     if (dialogState is HomeUiEvent.ShowComingSoon) {

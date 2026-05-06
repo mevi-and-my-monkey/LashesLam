@@ -60,6 +60,7 @@
     <string name="courses">Cursos</string>
     <string name="products">Productos</string>
     <string name="services">Servicios</string>
+    <string name="favorites">Favoritos</string>
 
     <!-- CURSOS CONTENT - HOME PAGE-->
     <string name="courses_available">Cursos disponibles</string>

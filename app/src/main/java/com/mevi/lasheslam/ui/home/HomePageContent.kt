@@ -48,7 +48,9 @@ fun HomePageContent(
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit,
     selectedServiceCategoryId: String?,
-    onCategoryServiceSelected: (CategoryModel) -> Unit
+    onCategoryServiceSelected: (CategoryModel) -> Unit,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
 ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
@@ -75,9 +77,11 @@ fun HomePageContent(
                     CursosPageContent(
                         onNavigateToSearch = onNavigateToSearch,
                         onNavigateToServiceDetails = onNavigateToServiceDetails,
-                        services = state.courses,
+                        courses = state.courses,
                         isLoading = state.isLoading,
                         trackEvent = trackEvent,
+                        favorites = favorites,
+                        onToggleFavorite = onToggleFavorite
                     )
                 }
 

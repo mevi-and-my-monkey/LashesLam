@@ -9,8 +9,9 @@ class AddFavoriteUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         userId: String,
-        courseId: String
-    ) = repo.addToFavorites(userId, courseId)
+        itemId: String,
+        type: String,
+    ) = repo.addToFavorites(userId = userId, itemId = itemId, type = type)
 }
 
 class RemoveFavoriteUseCase @Inject constructor(
@@ -35,13 +36,14 @@ class ToggleFavoriteUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         userId: String,
-        courseId: String,
+        itemId: String,
+        type: String,
         isFavorite: Boolean
     ): Resource<Boolean> {
         return if (isFavorite) {
-            repo.removeFromFavorites(userId, courseId)
+            repo.removeFromFavorites(userId, itemId)
         } else {
-            repo.addToFavorites(userId, courseId)
+            repo.addToFavorites(userId, itemId, type)
         }
     }
 }

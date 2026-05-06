@@ -16,8 +16,10 @@ import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox
 @Composable
 fun CursesList(
     trackEvent: (AnalyticsEvent) -> Unit,
-    services: List<CoursesItem>,
+    courses: List<CoursesItem>,
     isLoading: Boolean,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
     onClick: (CoursesItem) -> Unit,
 ) {
     LazyColumn {
@@ -32,15 +34,17 @@ fun CursesList(
             }
         } else {
             itemsIndexed(
-                items = services,
-                key = { _, service -> service.id }
-            ) { index, service ->
+                items = courses,
+                key = { _, courses -> courses.id }
+            ) { index, courses ->
                 AnimatedMarketplaceItem(
                     trackEvent = trackEvent,
-                    service = service,
-                    index = index
+                    courses = courses,
+                    index = index,
+                    favorites = favorites,
+                    onToggleFavorite = onToggleFavorite
                 ) {
-                    onClick(service)
+                    onClick(courses)
                 }
             }
         }
