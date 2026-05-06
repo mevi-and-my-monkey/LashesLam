@@ -20,7 +20,9 @@ fun ProductsList(
     trackEvent: (AnalyticsEvent) -> Unit,
     products: List<ProductItem>,
     isLoading: Boolean,
-    onClick: (ProductItem) -> Unit
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
+    onClick: (ProductItem) -> Unit,
 ) {
     Column {
         if (isLoading) {
@@ -43,6 +45,8 @@ fun ProductsList(
                         trackEvent = trackEvent,
                         products = product,
                         index = index,
+                        favorites = favorites,
+                        onToggleFavorite = onToggleFavorite,
                         onClick = { onClick(product) }
                     )
                 }

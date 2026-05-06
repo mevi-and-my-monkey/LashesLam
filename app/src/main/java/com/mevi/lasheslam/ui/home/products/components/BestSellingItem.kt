@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,14 +21,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.ProductItem
 
 @Composable
 fun BestSellingItem(
-    product: ProductItem, trackEvent: (AnalyticsEvent) -> Unit
+    product: ProductItem, trackEvent: (AnalyticsEvent) -> Unit,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -48,7 +53,7 @@ fun BestSellingItem(
             )
 
             IconButton(
-                onClick = { /* toggle favorito */ },
+                onClick = onToggleFavorite,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(4.dp)
@@ -58,9 +63,9 @@ fun BestSellingItem(
                     )
             ) {
                 Icon(
-                    imageVector = Icons.Filled.FavoriteBorder,
-                    contentDescription = "Favorito",
-                    tint = Color.White
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = stringResource(R.string.favorites),
+                    tint = if (isFavorite) Color.Red else Color.White
                 )
             }
         }

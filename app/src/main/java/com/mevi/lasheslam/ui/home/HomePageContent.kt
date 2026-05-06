@@ -50,7 +50,9 @@ fun HomePageContent(
     selectedServiceCategoryId: String?,
     onCategoryServiceSelected: (CategoryModel) -> Unit,
     favorites: Set<String>,
+    favoritesProducts: Set<String>,
     onToggleFavorite: (String) -> Unit,
+    onToggleFavoriteProducts: (String) -> Unit,
 ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddView by remember { mutableStateOf(false) }
@@ -93,7 +95,9 @@ fun HomePageContent(
                         products = state.filteredProducts,
                         isLoading = state.isLoading,
                         bestSellingProducts = state.bestSellingProducts,
-                        trackEvent = trackEvent
+                        trackEvent = trackEvent,
+                        favorites = favoritesProducts,
+                        onToggleFavorite = onToggleFavoriteProducts
                     )
                 }
 

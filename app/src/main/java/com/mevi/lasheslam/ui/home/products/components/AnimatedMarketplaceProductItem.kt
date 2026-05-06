@@ -16,6 +16,8 @@ import com.mevi.lasheslam.network.ProductItem
 fun AnimatedMarketplaceProductItem(
     products: ProductItem,
     index: Int,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
     onClick: () -> Unit = {},
     trackEvent: (AnalyticsEvent) -> Unit
 ) {
@@ -38,7 +40,9 @@ fun AnimatedMarketplaceProductItem(
                 this.alpha = alpha
                 translationY = offsetY.toPx()
             },
-        products,
+        product = products,
+        isFavorite = favorites.contains(products.id),
+        onToggleFavorite = { onToggleFavorite(products.id) },
         onClick
     )
 

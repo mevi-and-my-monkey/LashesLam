@@ -31,7 +31,9 @@ fun ProductsHPContent(
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit,
     bestSellingProducts: List<ProductItem>,
-    trackEvent: (AnalyticsEvent) -> Unit
+    trackEvent: (AnalyticsEvent) -> Unit,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -47,7 +49,11 @@ fun ProductsHPContent(
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 16.dp),
                 style = MaterialTheme.typography.titleMedium
             )
-            BestSellingRow(products = bestSellingProducts, trackEvent = trackEvent)
+            BestSellingRow(
+                products = bestSellingProducts, trackEvent = trackEvent,
+                favorites = favorites,
+                onToggleFavorite = onToggleFavorite
+            )
         }
 
         Row(
@@ -75,7 +81,9 @@ fun ProductsHPContent(
         ProductsList(
             trackEvent = trackEvent,
             products = products,
-            isLoading = isLoading
+            isLoading = isLoading,
+            favorites = favorites,
+            onToggleFavorite = onToggleFavorite
         ) { products ->
             //onNavigateToServiceDetails(service.id)
         }

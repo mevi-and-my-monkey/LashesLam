@@ -40,6 +40,13 @@ fun HomePage(
             .toSet()
     }
 
+    val favoriteProductsIds = remember(favoritesList) {
+        favoritesList
+            .filter { it.type == FavoriteType.PRODUCT.name }
+            .map { it.itemId }
+            .toSet()
+    }
+
     LaunchedEffect(viewModel) {
         viewModel.events.collect { events ->
             dialogState = events
@@ -71,6 +78,10 @@ fun HomePage(
         favorites = favoriteCourseIds,
         onToggleFavorite = { courseId ->
             viewModel.toggleFavorite(courseId, FavoriteType.COURSE)
+        },
+        favoritesProducts = favoriteProductsIds,
+        onToggleFavoriteProducts = { productId ->
+            viewModel.toggleFavorite(productId, FavoriteType.PRODUCT)
         }
     )
 

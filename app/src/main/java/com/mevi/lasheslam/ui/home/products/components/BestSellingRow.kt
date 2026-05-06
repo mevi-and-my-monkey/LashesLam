@@ -11,14 +11,18 @@ import com.mevi.lasheslam.network.ProductItem
 
 @Composable
 fun BestSellingRow(
-    products: List<ProductItem>, trackEvent: (AnalyticsEvent) -> Unit
+    products: List<ProductItem>, trackEvent: (AnalyticsEvent) -> Unit,
+    favorites: Set<String>,
+    onToggleFavorite: (String) -> Unit,
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(products) { product ->
-            BestSellingItem(product = product, trackEvent = trackEvent)
+            BestSellingItem(product = product, trackEvent = trackEvent,
+                isFavorite = favorites.contains(product.id),
+                onToggleFavorite = { onToggleFavorite(product.id) },)
         }
     }
 }
