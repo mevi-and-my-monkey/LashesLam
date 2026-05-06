@@ -389,6 +389,7 @@ class HomePageViewModel @Inject constructor(
 
     fun toggleFavorite(itemId: String, type: FavoriteType) {
         val userId = uiState.value.currentUserId ?: return
+        trackEvent(AnalyticsEvent.FavoriteClick(type.name))
 
         viewModelScope.launch {
             val currentFavorites = _favorites.value

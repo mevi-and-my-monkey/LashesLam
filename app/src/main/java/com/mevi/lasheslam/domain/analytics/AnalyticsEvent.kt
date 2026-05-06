@@ -53,7 +53,7 @@ sealed class AnalyticsEvent(val name: String) {
 
     data class AddToCartClick(val product: String) : AnalyticsEvent("add_to_cart_click")
 
-    data class AddToFavoriteClick(val product: String) : AnalyticsEvent("add_to_favorite_click")
+    data class FavoriteClick(val type: String) : AnalyticsEvent("add_to_favorite_click")
 
     // GENERAL
 
