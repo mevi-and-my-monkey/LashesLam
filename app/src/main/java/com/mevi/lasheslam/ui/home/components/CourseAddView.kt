@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.ui.home.components
 
-import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -49,19 +48,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.network.LocationItem
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
 import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
+import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
+import com.mevi.lasheslam.utils.Constants
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.UUID
@@ -73,40 +77,35 @@ fun CourseAddView(
     onDismiss: () -> Unit,
     linkedBannerIndex: Int,
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    storage: FirebaseStorage = FirebaseStorage.getInstance()
+    storage: FirebaseStorage = FirebaseStorage.getInstance(),
+    viewModel: CourseViewModel = hiltViewModel()
 ) {
 
-    // --- Estados
-    var titulo by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var horaInicio by remember { mutableStateOf("") }
-    var horaFin by remember { mutableStateOf("") }
-    var fecha by remember { mutableStateOf("") }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var imageUriInstr by remember { mutableStateOf<Uri?>(null) }
-    var costo by remember { mutableStateOf("") }
-    var apartado by remember { mutableStateOf("") }
-    var nombreInstructora by remember { mutableStateOf("") }
-    var descrInstructora by remember { mutableStateOf("") }
-    var temarioDiaUno by remember { mutableStateOf("") }
-    var temarioDiaDos by remember { mutableStateOf("") }
-    var temarioDiaTres by remember { mutableStateOf("") }
-    var temarioDiaCuatro by remember { mutableStateOf("") }
-    var temarioDiaCinco by remember { mutableStateOf("") }
+    val state by viewModel.uiState.collectAsState()
 
     val locations by SessionManager.locations.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<LocationItem?>(null) }
 
-    val costoFormateado = remember(costo) {
-        costo.toDoubleOrNull()?.let {
-            NumberFormat.getCurrencyInstance(Locale("es", "MX")).format(it)
+    val costoFormateado = remember(state.form.costo) {
+        state.form.costo.toDoubleOrNull()?.let {
+            NumberFormat.getCurrencyInstance(
+                Locale(
+                    Constants.Project.LANGUAGE,
+                    Constants.Project.COUNTRY
+                )
+            ).format(it)
         } ?: ""
     }
 
-    val apartadpFormateado = remember(apartado) {
-        apartado.toDoubleOrNull()?.let {
-            NumberFormat.getCurrencyInstance(Locale("es", "MX")).format(it)
+    val apartadpFormateado = remember(state.form.apartado) {
+        state.form.apartado.toDoubleOrNull()?.let {
+            NumberFormat.getCurrencyInstance(
+                Locale(
+                    Constants.Project.LANGUAGE,
+                    Constants.Project.COUNTRY
+                )
+            ).format(it)
         } ?: ""
     }
 
@@ -114,20 +113,18 @@ fun CourseAddView(
     var showSuccess by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf("") }
 
-    // Picker modales
     var showTimePickerInicio by remember { mutableStateOf(false) }
     var showTimePickerFin by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri -> imageUri = uri }
+    ) { uri -> viewModel.onImageChange(uri) }
 
     val pickImageLauncherInstr = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri -> imageUriInstr = uri }
+    ) { uri -> viewModel.onInstructorImageChange(uri) }
 
-    // --- Scroll adaptado al teclado ---
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -137,10 +134,12 @@ fun CourseAddView(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Nuevo curso", style = MaterialTheme.typography.titleLarge)
+            Text(
+                stringResource(R.string.course_add_title),
+                style = MaterialTheme.typography.titleLarge
+            )
             Spacer(Modifier.height(16.dp))
 
-            // Imagen
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -150,7 +149,7 @@ fun CourseAddView(
                     .clickable { pickImageLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
-                if (imageUri == null) {
+                if (state.form.imageUri == null) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -158,7 +157,7 @@ fun CourseAddView(
 
                         Icon(
                             imageVector = Icons.Outlined.CameraAlt,
-                            contentDescription = "Cámara",
+                            contentDescription = stringResource(R.string.camera),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(32.dp)
                         )
@@ -166,7 +165,7 @@ fun CourseAddView(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Añadir imagen de portada",
+                            text = stringResource(R.string.add_image_placeholder),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
@@ -175,7 +174,7 @@ fun CourseAddView(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "(JPG, PNG, Rec: 1200x600px)",
+                            text = stringResource(R.string.image_details),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
@@ -183,7 +182,7 @@ fun CourseAddView(
 
                 } else {
                     SubcomposeAsyncImage(
-                        model = imageUri,
+                        model = state.form.imageUri,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -193,11 +192,10 @@ fun CourseAddView(
 
             Spacer(Modifier.height(16.dp))
 
-            // Título (sin mayúscula automática)
             OutlinedTextField(
-                value = titulo,
-                onValueChange = { titulo = it },
-                label = { Text("Título") },
+                value = state.form.titulo,
+                onValueChange = { viewModel.onTitleChange(it) },
+                label = { Text(stringResource(R.string.title)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -208,11 +206,10 @@ fun CourseAddView(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Descripción (multilínea con mayúsculas al inicio)
             OutlinedTextField(
-                value = descripcion,
-                onValueChange = { descripcion = it },
-                label = { Text("Descripción") },
+                value = state.form.descripcion,
+                onValueChange = { viewModel.onDescriptionChange(it) },
+                label = { Text(stringResource(R.string.description)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
@@ -225,16 +222,15 @@ fun CourseAddView(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Horario (inicio y fin con picker)
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
-                    value = horaInicio,
-                    onValueChange = { horaInicio = it },
+                    value = state.form.horaInicio,
+                    onValueChange = { viewModel.onHourInitialChange(it) },
                     readOnly = true,
-                    label = { Text("Hora inicio") },
+                    label = { Text(stringResource(R.string.hora_inicio)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = {
@@ -244,10 +240,10 @@ fun CourseAddView(
                     }
                 )
                 OutlinedTextField(
-                    value = horaFin,
-                    onValueChange = { horaFin = it },
+                    value = state.form.horaFin,
+                    onValueChange = { viewModel.onHourFinalChange(it) },
                     readOnly = true,
-                    label = { Text("Hora fin") },
+                    label = { Text(stringResource(R.string.hora_fin)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = {
@@ -259,12 +255,11 @@ fun CourseAddView(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Fecha (picker con formato dd/MM/yyyy)
             OutlinedTextField(
-                value = fecha,
+                value = state.form.fecha,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Fecha") },
+                label = { Text(stringResource(R.string.fecha)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 trailingIcon = {
@@ -275,16 +270,12 @@ fun CourseAddView(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Costo (solo números y formato moneda)
             OutlinedTextField(
-                value = costo,
-                onValueChange = { newValue ->
-                    // Solo números y punto decimal opcional
-                    if (newValue.matches(Regex("""\d*\.?\d*"""))) {
-                        costo = newValue
-                    }
+                value = state.form.costo,
+                onValueChange = { cost ->
+                    viewModel.onCostChange(cost)
                 },
-                label = { Text("Costo") },
+                label = { Text(stringResource(R.string.costo)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
@@ -293,23 +284,19 @@ fun CourseAddView(
 
             if (costoFormateado.isNotEmpty()) {
                 Text(
-                    text = "MXM: $costoFormateado",
+                    text = "${stringResource(R.string.moneda)} $costoFormateado",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Apartar (solo números y formato moneda)
             OutlinedTextField(
-                value = apartado,
+                value = state.form.apartado,
                 onValueChange = { newValue ->
-                    // Solo números y punto decimal opcional
-                    if (newValue.matches(Regex("""\d*\.?\d*"""))) {
-                        apartado = newValue
-                    }
+                    viewModel.onApartaChange(newValue)
                 },
-                label = { Text("Apartar con") },
+                label = { Text(stringResource(R.string.apartado)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
@@ -318,18 +305,17 @@ fun CourseAddView(
 
             if (apartadpFormateado.isNotEmpty()) {
                 Text(
-                    text = "MXM: $apartadpFormateado",
+                    text = "${stringResource(R.string.moneda)} $apartadpFormateado",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Nombre de la instrcutrora (sin mayúscula automática)
             OutlinedTextField(
-                value = nombreInstructora,
-                onValueChange = { nombreInstructora = it },
-                label = { Text("Nombre de la instructora") },
+                value = state.form.instructora,
+                onValueChange = { viewModel.onInstructorChange(it) },
+                label = { Text(stringResource(R.string.instructora)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -340,11 +326,10 @@ fun CourseAddView(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Nombre de la instrcutrora (sin mayúscula automática)
             OutlinedTextField(
-                value = descrInstructora,
-                onValueChange = { descrInstructora = it },
-                label = { Text("Descripcion de la instructora") },
+                value = state.form.instructoraDesc,
+                onValueChange = { viewModel.onInstructorDescChange(it) },
+                label = { Text(stringResource(R.string.instructoraDesc)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -355,7 +340,6 @@ fun CourseAddView(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Imagen instructora
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -365,7 +349,7 @@ fun CourseAddView(
                     .clickable { pickImageLauncherInstr.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
-                if (imageUriInstr == null) {
+                if (state.form.instructorImageUri == null) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -373,7 +357,7 @@ fun CourseAddView(
 
                         Icon(
                             imageVector = Icons.Outlined.CameraAlt,
-                            contentDescription = "Cámara",
+                            contentDescription = stringResource(R.string.camera),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(32.dp)
                         )
@@ -381,7 +365,7 @@ fun CourseAddView(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Añadir imagen de portada",
+                            text = stringResource(R.string.add_image_placeholder),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
@@ -390,7 +374,7 @@ fun CourseAddView(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "(JPG, PNG, Rec: 1200x600px)",
+                            text = stringResource(R.string.image_details),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
@@ -398,7 +382,7 @@ fun CourseAddView(
 
                 } else {
                     SubcomposeAsyncImage(
-                        model = imageUriInstr,
+                        model = state.form.instructorImageUri,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -407,16 +391,15 @@ fun CourseAddView(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Ubicación (primera letra mayúscula)
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
             ) {
                 OutlinedTextField(
-                    value = selectedLocation?.name ?: "Seleccionar ubicación",
+                    value = selectedLocation?.name ?: stringResource(R.string.select_location),
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Ubicación") },
+                    label = { Text(stringResource(R.string.location)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                     },
@@ -441,110 +424,64 @@ fun CourseAddView(
                 }
             }
 
-            OutlinedTextField(
-                value = temarioDiaUno,
-                onValueChange = { temarioDiaUno = it },
-                label = { Text("Temario, dia 1") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = temarioDiaDos,
-                onValueChange = { temarioDiaDos = it },
-                label = { Text("Temario, dia 2") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = temarioDiaTres,
-                onValueChange = { temarioDiaTres = it },
-                label = { Text("Temario, dia 3") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = temarioDiaCuatro,
-                onValueChange = { temarioDiaCuatro = it },
-                label = { Text("Temario, dia 4") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = temarioDiaCinco,
-                onValueChange = { temarioDiaCinco = it },
-                label = { Text("Temario, dia 5") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    imeAction = ImeAction.Next
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
+            state.form.temarios.forEachIndexed { index, temario ->
+                OutlinedTextField(
+                    value = temario,
+                    onValueChange = {
+                        viewModel.onTemarioChange(index, it)
+                    },
+                    label = {
+                        Text("${stringResource(R.string.temario)} ${index + 1}")
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.None,
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
 
             Spacer(Modifier.height(24.dp))
             Button(
                 modifier = Modifier
                     .fillMaxWidth(),
                 onClick = {
-                    if (imageUri == null || imageUriInstr == null) return@Button
+                    if (state.form.imageUri == null || state.form.instructorImageUri == null) return@Button
                     isLoading = true
 
                     val id = UUID.randomUUID().toString()
                     val courseImageRef = storage.reference.child("services/$id/course.jpg")
                     val instructorImageRef = storage.reference.child("services/$id/instructor.jpg")
 
-                    courseImageRef.putFile(imageUri!!)
+                    courseImageRef.putFile(state.form.imageUri!!)
                         .continueWithTask { courseImageRef.downloadUrl }
                         .addOnSuccessListener { courseImageUrl ->
 
-                            instructorImageRef.putFile(imageUriInstr!!)
+                            instructorImageRef.putFile(state.form.instructorImageUri!!)
                                 .continueWithTask { instructorImageRef.downloadUrl }
                                 .addOnSuccessListener { instructorImageUrl ->
 
                                     val serviceData = mapOf(
                                         "id" to id,
-                                        "titulo" to titulo,
-                                        "descripcion" to descripcion,
-                                        "horaIncio" to horaInicio,
-                                        "horaFin" to horaFin,
-                                        "fecha" to fecha,
-                                        "costo" to costo,
-                                        "apartar" to apartado,
+                                        "titulo" to state.form.titulo,
+                                        "descripcion" to state.form.descripcion,
+                                        "horaIncio" to state.form.horaInicio,
+                                        "horaFin" to state.form.horaFin,
+                                        "fecha" to state.form.fecha,
+                                        "costo" to state.form.costo,
+                                        "apartar" to state.form.apartado,
                                         "ubicacionNombre" to selectedLocation?.name,
                                         "lat" to selectedLocation?.lat,
                                         "lng" to selectedLocation?.lng,
-                                        "instructora" to nombreInstructora,
-                                        "instructoraDesc" to descrInstructora,
-                                        "diaUno" to temarioDiaUno,
-                                        "diaDos" to temarioDiaDos,
-                                        "diaTres" to temarioDiaTres,
-                                        "diaCuatro" to temarioDiaCuatro,
-                                        "diaCinco" to temarioDiaCinco,
+                                        "instructora" to state.form.instructora,
+                                        "instructoraDesc" to state.form.instructoraDesc,
+                                        "diaUno" to state.form.temarios[0],
+                                        "diaDos" to state.form.temarios[1],
+                                        "diaTres" to state.form.temarios[2],
+                                        "diaCuatro" to state.form.temarios[3],
+                                        "diaCinco" to state.form.temarios[4],
                                         "imagen" to courseImageUrl.toString(),
                                         "instructoraImage" to instructorImageUrl.toString(),
                                         "banner" to linkedBannerIndex
@@ -569,12 +506,12 @@ fun CourseAddView(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text(if (isLoading) "Guardando..." else "Guardar")
+                Text(if (isLoading) stringResource(R.string.saving) else stringResource(R.string.save))
             }
 
             if (showSuccess) {
                 SuccessDialog(
-                    title = "Curso agregado",
+                    title = stringResource(R.string.curso_agregado),
                     message = successMessage,
                     onDismiss = {
                         successMessage = ""
@@ -587,22 +524,21 @@ fun CourseAddView(
         }
     }
 
-    // --- Pickers de hora ---
     if (showTimePickerInicio) {
         TimePickerDialog(
-            onTimeSelected = { horaInicio = it },
+            onTimeSelected = { viewModel.onHourInitialChange(it) },
             onDismiss = { showTimePickerInicio = false }
         )
     }
     if (showTimePickerFin) {
         TimePickerDialog(
-            onTimeSelected = { horaFin = it },
+            onTimeSelected = { viewModel.onHourFinalChange(it) },
             onDismiss = { showTimePickerFin = false }
         )
     }
     if (showDatePicker) {
         DatePickerDialogCustom(
-            onDateSelected = { fecha = it },
+            onDateSelected = { viewModel.onDateChange(it) },
             onDismiss = { showDatePicker = false }
         )
     }

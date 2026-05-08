@@ -5,6 +5,10 @@
     <!-- GENERAL -->
     <string name="loading_generic">Procesando, por favor espera…</string>
     <string name="search_placeholder">Buscar…</string>
+    <string name="save">Guardar</string>
+    <string name="saving">Guardando…</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
 
     <!-- LOGIN -->
     <string name="welcome">¡Bienvenida!</string>
@@ -75,5 +79,27 @@
 
     <string name="service_subtitle">Reserva tu cita</string>
     <string name="available_services">Servicios disponibles</string>
+
+    <!-- COURSE ADD VIEW-->
+    <string name="course_add_title">Nuevo curso</string>">
+    <string name="camera">Cámara</string>">
+    <string name="add_image_placeholder">Añadir imagen de portada</string>">
+    <string name="image_details">(JPG, PNG, Rec: 1200x600px)</string>">
+    <string name="title">Titulo</string>">
+    <string name="description">Descripción</string>">
+    <string name="hora_inicio">Hora inicio</string>">
+    <string name="hora_fin">Hora fin</string>">
+    <string name="fecha">Fecha</string>">
+    <string name="costo">Costo</string>">
+    <string name="apartado">Apartar con</string>">
+    <string name="instructora">Nombre de la instructora</string>">
+    <string name="instructoraDesc">Descripcion de la instructora</string>">
+    <string name="temarios">Temarios</string>">
+    <string name="moneda">MXN: </string>">
+    <string name="apartar">Apartar con</string>">
+    <string name="select_location">Seleccionar ubicación</string>">
+    <string name="location">Ubicación</string>">
+    <string name="temario">Temario día</string>">
+    <string name="curso_agregado">Curso agregado</string>
 
 </resources>
