@@ -69,7 +69,7 @@ import java.util.UUID
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServiceAddView(
+fun CourseAddView(
     onDismiss: () -> Unit,
     linkedBannerIndex: Int,
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),

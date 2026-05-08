@@ -28,9 +28,9 @@ import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
+import com.mevi.lasheslam.ui.home.components.CourseAddView
 import com.mevi.lasheslam.ui.home.components.HeaderView
 import com.mevi.lasheslam.ui.home.components.Section
-import com.mevi.lasheslam.ui.home.components.ServiceAddView
 import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
 import com.mevi.lasheslam.ui.home.products.ProductsHPContent
 import com.mevi.lasheslam.ui.home.services.ServicesHPContent
@@ -55,7 +55,9 @@ fun HomePageContent(
     onToggleFavoriteProducts: (String) -> Unit,
 ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
-    var showAddView by remember { mutableStateOf(false) }
+    var showAddCourseView by remember { mutableStateOf(false) }
+    var showAddProductView by remember { mutableStateOf(false) }
+    var showAddServiceView by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -147,32 +149,42 @@ fun HomePageContent(
                 },
                 options = listOf(
                     BottomSheetOption(
+                        label = stringResource(R.string.uploaded_new_course),
+                        icon = Icons.Default.PostAdd
+                    ) {
+                        trackEvent(AnalyticsEvent.HomeOptionBottomHide)
+                        trackEvent(AnalyticsEvent.AddCourseShow)
+                        showOptionsBottomSheet = false
+                        showAddCourseView = true
+                    },
+                    BottomSheetOption(
                         label = stringResource(R.string.uploaded_new_product),
                         icon = Icons.Default.AddBusiness
                     ) {
                         trackEvent(AnalyticsEvent.HomeOptionBottomHide)
-                        trackEvent(AnalyticsEvent.AddServiceShow)
+                        trackEvent(AnalyticsEvent.AddProductShow)
                         showOptionsBottomSheet = false
+                        showAddProductView = true
                     },
                     BottomSheetOption(
-                        label = stringResource(R.string.uploaded_new_product),
+                        label = stringResource(R.string.uploaded_new_service),
                         icon = Icons.Default.PostAdd
                     ) {
                         trackEvent(AnalyticsEvent.HomeOptionBottomHide)
-                        trackEvent(AnalyticsEvent.AddProductShow)
+                        trackEvent(AnalyticsEvent.AddServiceShow)
                         showOptionsBottomSheet = false
-                        showAddView = true
+                        showAddServiceView = true
                     }
                 )
             )
         }
 
-        if (showAddView) {
-            ServiceAddView(
+        if (showAddCourseView) {
+            CourseAddView(
                 linkedBannerIndex = 99,
                 onDismiss = {
-                    trackEvent(AnalyticsEvent.AddServiceHide)
-                    showAddView = false
+                    trackEvent(AnalyticsEvent.AddCourseHide)
+                    showAddCourseView = false
                 })
         }
     }

@@ -240,7 +240,7 @@ fun BannerView(
         }
 
         if (showAddView) {
-            ServiceAddView(
+            CourseAddView(
                 linkedBannerIndex = pagerState.currentPage,
                 onDismiss = { showAddView = false })
         }

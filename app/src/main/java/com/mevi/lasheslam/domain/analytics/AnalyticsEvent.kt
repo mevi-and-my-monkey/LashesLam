@@ -33,13 +33,17 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object HomeOptionBottomHide : AnalyticsEvent("home_option_bottom_hide")
 
-    data object AddServiceShow : AnalyticsEvent("add_service_show")
+    data object AddCourseShow : AnalyticsEvent("add_course_show")
 
-    data object AddServiceHide : AnalyticsEvent("add_service_hide")
+    data object AddCourseHide : AnalyticsEvent("add_course_hide")
 
     data object AddProductShow : AnalyticsEvent("add_product_show")
 
     data object AddProductHide : AnalyticsEvent("add_product_hide")
+
+    data object AddServiceShow : AnalyticsEvent("add_service_show")
+
+    data object AddServiceHide : AnalyticsEvent("add_service_hide")
 
     data object IconHeaderClick : AnalyticsEvent("icon_header_click")
 
