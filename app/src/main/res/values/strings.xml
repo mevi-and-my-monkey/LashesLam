@@ -9,6 +9,8 @@
     <string name="saving">Guardando…</string>
     <string name="cancel">Cancelar</string>
     <string name="delete">Eliminar</string>
+    <string name="error">¡Error!</string>
+    <string name="error_generic_content">Ha ocurrido un error inesperado</string>
 
     <!-- LOGIN -->
     <string name="welcome">¡Bienvenida!</string>

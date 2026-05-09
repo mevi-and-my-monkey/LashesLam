@@ -59,6 +59,13 @@ sealed class AnalyticsEvent(val name: String) {
 
     data class FavoriteClick(val type: String) : AnalyticsEvent("add_to_favorite_click")
 
+    data object SaveCourseClick : AnalyticsEvent("save_course_click")
+
+    data object SaveCourseSuccess : AnalyticsEvent("save_course_success")
+
+    data object SaveCourseError : AnalyticsEvent("save_course_error")
+
+
     // GENERAL
 
     data class SectionSelected(val section: String) : AnalyticsEvent("section_selected")

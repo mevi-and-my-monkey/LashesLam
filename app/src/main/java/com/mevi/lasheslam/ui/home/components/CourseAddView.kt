@@ -39,6 +39,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,19 +57,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.LocationItem
 import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.ui.common.toUserMessage
+import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
 import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
+import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
 import com.mevi.lasheslam.utils.Constants
 import java.text.NumberFormat
 import java.util.Locale
-import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,12 +79,39 @@ import java.util.UUID
 fun CourseAddView(
     onDismiss: () -> Unit,
     linkedBannerIndex: Int,
-    firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    storage: FirebaseStorage = FirebaseStorage.getInstance(),
     viewModel: CourseViewModel = hiltViewModel()
 ) {
 
     val state by viewModel.uiState.collectAsState()
+    var showError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showSuccess by remember { mutableStateOf(false) }
+    var successMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.trackScreen(Screen.Courses.route)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+
+                is CourseUiEvent.CourseSaved -> {
+                    viewModel.trackEvent(AnalyticsEvent.SaveCourseSuccess)
+                    successMessage = "Curso guardado correctamente"
+                    showSuccess = true
+
+                }
+
+                is CourseUiEvent.ShowError -> {
+                    viewModel.trackEvent(AnalyticsEvent.SaveCourseError)
+                    errorMessage = event.error.toUserMessage()
+                    showError = true
+                }
+
+            }
+        }
+    }
 
     val locations by SessionManager.locations.collectAsState()
     var expanded by remember { mutableStateOf(false) }
@@ -108,10 +138,6 @@ fun CourseAddView(
             ).format(it)
         } ?: ""
     }
-
-    var isLoading by remember { mutableStateOf(false) }
-    var showSuccess by remember { mutableStateOf(false) }
-    var successMessage by remember { mutableStateOf("") }
 
     var showTimePickerInicio by remember { mutableStateOf(false) }
     var showTimePickerFin by remember { mutableStateOf(false) }
@@ -199,7 +225,7 @@ fun CourseAddView(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
+                    capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Next
                 ),
                 shape = RoundedCornerShape(12.dp)
@@ -319,7 +345,7 @@ fun CourseAddView(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
+                    capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Next
                 ),
                 shape = RoundedCornerShape(12.dp)
@@ -333,7 +359,7 @@ fun CourseAddView(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
+                    capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Next
                 ),
                 shape = RoundedCornerShape(12.dp)
@@ -436,7 +462,7 @@ fun CourseAddView(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.None,
+                        capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Next
                     ),
                     shape = RoundedCornerShape(12.dp)
@@ -448,65 +474,18 @@ fun CourseAddView(
                 modifier = Modifier
                     .fillMaxWidth(),
                 onClick = {
-                    if (state.form.imageUri == null || state.form.instructorImageUri == null) return@Button
-                    isLoading = true
-
-                    val id = UUID.randomUUID().toString()
-                    val courseImageRef = storage.reference.child("services/$id/course.jpg")
-                    val instructorImageRef = storage.reference.child("services/$id/instructor.jpg")
-
-                    courseImageRef.putFile(state.form.imageUri!!)
-                        .continueWithTask { courseImageRef.downloadUrl }
-                        .addOnSuccessListener { courseImageUrl ->
-
-                            instructorImageRef.putFile(state.form.instructorImageUri!!)
-                                .continueWithTask { instructorImageRef.downloadUrl }
-                                .addOnSuccessListener { instructorImageUrl ->
-
-                                    val serviceData = mapOf(
-                                        "id" to id,
-                                        "titulo" to state.form.titulo,
-                                        "descripcion" to state.form.descripcion,
-                                        "horaIncio" to state.form.horaInicio,
-                                        "horaFin" to state.form.horaFin,
-                                        "fecha" to state.form.fecha,
-                                        "costo" to state.form.costo,
-                                        "apartar" to state.form.apartado,
-                                        "ubicacionNombre" to selectedLocation?.name,
-                                        "lat" to selectedLocation?.lat,
-                                        "lng" to selectedLocation?.lng,
-                                        "instructora" to state.form.instructora,
-                                        "instructoraDesc" to state.form.instructoraDesc,
-                                        "diaUno" to state.form.temarios[0],
-                                        "diaDos" to state.form.temarios[1],
-                                        "diaTres" to state.form.temarios[2],
-                                        "diaCuatro" to state.form.temarios[3],
-                                        "diaCinco" to state.form.temarios[4],
-                                        "imagen" to courseImageUrl.toString(),
-                                        "instructoraImage" to instructorImageUrl.toString(),
-                                        "banner" to linkedBannerIndex
-                                    )
-
-                                    firestore.collection("data")
-                                        .document("curse")
-                                        .collection("items")
-                                        .document(id)
-                                        .set(serviceData)
-                                        .addOnSuccessListener {
-                                            isLoading = false
-                                            showSuccess = true
-                                            successMessage = "El curso se guardó correctamente."
-                                        }
-                                }
-                        }
+                    viewModel.saveCourse(
+                        selectedLocation = selectedLocation,
+                        linkedBannerIndex = linkedBannerIndex
+                    )
                 },
-                enabled = !isLoading,
+                enabled = !state.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text(if (isLoading) stringResource(R.string.saving) else stringResource(R.string.save))
+                Text(if (state.isLoading) stringResource(R.string.saving) else stringResource(R.string.save))
             }
 
             if (showSuccess) {
@@ -521,6 +500,18 @@ fun CourseAddView(
                     onCancel = {}
                 )
             }
+            if (showError) {
+                ErrorDialog(
+                    title = stringResource(R.string.error),
+                    message = errorMessage ?: "",
+                    onDismiss = {
+                        errorMessage = null
+                        showError = false
+                    },
+                    onCancel = {}
+                )
+            }
+
         }
     }
 

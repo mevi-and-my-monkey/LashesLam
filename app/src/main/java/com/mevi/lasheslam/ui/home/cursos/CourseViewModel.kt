@@ -2,13 +2,20 @@ package com.mevi.lasheslam.ui.home.cursos
 
 import android.net.Uri
 import com.mevi.lasheslam.BaseViewModel
+import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
+import com.mevi.lasheslam.domain.usecase.CreateCourseUseCase
+import com.mevi.lasheslam.network.LocationItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class CourseViewModel @Inject constructor(private val analytics: AnalyticsTracker) :
+class CourseViewModel @Inject constructor(
+    private val createCourseUseCase: CreateCourseUseCase,
+    private val analytics: AnalyticsTracker
+) :
     BaseViewModel<CourseUiState, CourseUiEvent>() {
 
     override fun createInitialState() = CourseUiState()
@@ -65,6 +72,40 @@ class CourseViewModel @Inject constructor(private val analytics: AnalyticsTracke
 
     fun onInstructorImageChange(image: Uri?) {
         setState { copy(form = form.copy(instructorImageUri = image)) }
+    }
+
+    fun saveCourse(selectedLocation: LocationItem?, linkedBannerIndex: Int) = launchWithLoading {
+        trackEvent(AnalyticsEvent.SaveCourseClick)
+        val form = uiState.value.form
+
+        val course = CreateCourseModel(
+            titulo = form.titulo,
+            descripcion = form.descripcion,
+            horaInicio = form.horaInicio,
+            horaFin = form.horaFin,
+            fecha = form.fecha,
+            costo = form.costo,
+            apartado = form.apartado,
+            instructora = form.instructora,
+            instructoraDesc = form.instructoraDesc,
+            temarios = form.temarios,
+            imageUri = form.imageUri,
+            instructorImageUri = form.instructorImageUri,
+            ubicacionNombre = selectedLocation?.name,
+            lat = selectedLocation?.lat,
+            lng = selectedLocation?.lng,
+            banner = linkedBannerIndex
+        )
+        when (val result = createCourseUseCase(course)) {
+            is Resource.Success -> {
+                sendEvent(CourseUiEvent.CourseSaved)
+            }
+
+            is Resource.Error -> {
+                sendEvent(CourseUiEvent.ShowError(result.error))
+            }
+        }
+
     }
 
     fun trackEvent(event: AnalyticsEvent) {

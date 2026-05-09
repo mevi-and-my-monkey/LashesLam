@@ -21,6 +21,7 @@ object FirestorePaths {
         const val COURSE_ID = "courseId"
         const val REQUEST = "solicitar"
         fun document() = "$COLLECTION/$DOCUMENT"
+        fun collectionPath() = "$COLLECTION/$DOCUMENT/$COLLECTION_ITEMS"
 
         // COURSE MODEL
         const val COURSE_NAME = "courseName"

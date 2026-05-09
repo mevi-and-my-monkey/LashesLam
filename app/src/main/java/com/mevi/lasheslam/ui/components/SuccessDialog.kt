@@ -18,7 +18,7 @@ fun SuccessDialog(
         title = title,
         message = message,
         drawableRes = drawableRes,
-        backgroundColor = Color(0xFFB9FBC0), // verde pastel
-        buttonColor = Color(0xFF4CAF50)      // verde más vivo para el botón
+        backgroundColor = Color(0xFFB9FBC0),
+        buttonColor = Color(0xFF4CAF50)
     )
 }

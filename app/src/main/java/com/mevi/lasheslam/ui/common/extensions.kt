@@ -12,7 +12,9 @@ fun AppError.toUserMessage(): String {
 
         AppError.UserNotFound -> "Usuario no encontrado"
 
-        is AppError.Unknown -> "Ocurrió un error, intenta nuevamente"
+        is AppError.Unknown -> {
+            message ?: "Ocurrió un error, intenta nuevamente"
+        }
 
     }
 

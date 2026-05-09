@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.domain.usecase
 
-
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import javax.inject.Inject
 
