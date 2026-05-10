@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.domain.repository
 
+import com.mevi.lasheslam.network.LocationItem
 import kotlinx.coroutines.flow.Flow
 
 interface SessionDataSource {
@@ -8,6 +9,7 @@ interface SessionDataSource {
     val currentUserId: Flow<String?>
     val nameUser: Flow<String?>
     val photoUrl: Flow<String?>
+    val locations: Flow<List<LocationItem>>
 
     suspend fun refreshAdmins()
     fun isAdmin(email: String): Boolean

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
+import com.mevi.lasheslam.network.LocationItem
 import com.mevi.lasheslam.session.SessionManager
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -67,6 +68,10 @@ class SessionRepositoryImpl @Inject constructor(
 
     override fun getCurrentUserId(): Flow<String?> {
         return sessionDataSource.currentUserId
+    }
+
+    override fun getLocations(): Flow<List<LocationItem>> {
+        return sessionDataSource.locations
     }
 
 

@@ -59,7 +59,6 @@ fun CourseAddView(
         }
     }
 
-    val locations by SessionManager.locations.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<LocationItem?>(null) }
 
@@ -97,7 +96,7 @@ fun CourseAddView(
         },
         onTemarioChange = { index, value -> viewModel.onTemarioChange(index, value) },
         saveCourse = { viewModel.saveCourse(selectedLocation, linkedBannerIndex) },
-        locations = locations,
+        locations = state.locations,
         expanded = expanded,
         selectedLocation = selectedLocation,
         onExpandedChange = { expanded = it },

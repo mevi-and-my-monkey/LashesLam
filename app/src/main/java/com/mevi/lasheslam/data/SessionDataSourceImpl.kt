@@ -16,6 +16,8 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
 
     override val photoUrl = SessionManager.photoUrl
 
+    override val locations = SessionManager.locations
+
     override suspend fun refreshAdmins() {
         SessionManager.refreshAdmins()
     }

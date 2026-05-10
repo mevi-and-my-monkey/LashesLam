@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.domain.repository
 
+import com.mevi.lasheslam.network.LocationItem
 import kotlinx.coroutines.flow.Flow
 
 interface SessionRepository {
@@ -16,4 +17,5 @@ interface SessionRepository {
     fun getIsAdmin(): Flow<Boolean>
     fun getIsUserInvited(): Flow<Boolean>
     fun getCurrentUserId(): Flow<String?>
+    fun getLocations(): Flow<List<LocationItem>>
 }
