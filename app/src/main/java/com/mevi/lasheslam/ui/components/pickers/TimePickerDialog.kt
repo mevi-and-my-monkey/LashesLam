@@ -15,8 +15,10 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.mevi.lasheslam.R
 import java.util.Calendar
 
 @SuppressLint("DefaultLocale")
@@ -46,7 +48,7 @@ fun TimePickerDialog(onTimeSelected: (String) -> Unit, onDismiss: () -> Unit) {
                     },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Aceptar")
+                    Text(stringResource(R.string.accept).uppercase())
                 }
             }
         }

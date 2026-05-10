@@ -11,6 +11,7 @@
     <string name="delete">Eliminar</string>
     <string name="error">¡Error!</string>
     <string name="error_generic_content">Ha ocurrido un error inesperado</string>
+    <string name="accept">Aceptar</string>
 
     <!-- LOGIN -->
     <string name="welcome">¡Bienvenida!</string>
