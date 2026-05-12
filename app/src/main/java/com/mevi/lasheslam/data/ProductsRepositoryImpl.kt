@@ -10,8 +10,6 @@ import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CourseItemDto
-import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.network.ProductItemDto
 import com.mevi.lasheslam.network.toDomain
@@ -106,7 +104,8 @@ class ProductsRepositoryImpl @Inject constructor(
     ): List<String> = coroutineScope {
         images.mapIndexed { index, imageUri ->
             async {
-                val reference = storage.reference.child("products/$productId/image_$index")
+                val reference =
+                    storage.reference.child("${StoragePaths.Products.productFolder(productId)}/image_$index.jpg")
                 reference.putFile(imageUri).await()
                 reference.downloadUrl.await().toString()
             }

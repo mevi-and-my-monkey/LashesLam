@@ -39,7 +39,7 @@
     <string name="without_address">Sin direccion registrada</string>
 
     <!-- HOME -->
-    <string name="exit_warning">¿Seguro que deseas salir de la aplicación?</string>">
+    <string name="exit_warning">¿Seguro que deseas salir de la aplicación?</string>
 
     <!-- LOGIN -->
     <string name="key_remote_config_list_admin">list_admin</string>
@@ -58,11 +58,11 @@
     <string name="error_generic">Procesando, por favor espera…</string>
 
     <!-- HOME PAGE-->
-    <string name="add">Agregar</string>">
+    <string name="add">Agregar</string>
     <string name="manege_products_and_services">Administrar productos y servicios</string>">
-    <string name="uploaded_new_product">Subir nuevo producto</string>">
-    <string name="uploaded_new_course">Subir nuevo curso</string>">
-    <string name="uploaded_new_service">Subir nuevo servicio</string>">
+    <string name="uploaded_new_product">Subir nuevo producto</string>
+    <string name="uploaded_new_course">Subir nuevo curso</string>
+    <string name="uploaded_new_service">Subir nuevo servicio</string>
     <string name="profile_picture">Foto de perfil</string>
     <string name="requests">Solicitudes</string>
     <string name="courses">Cursos</string>
@@ -72,48 +72,52 @@
 
     <!-- CURSOS CONTENT - HOME PAGE-->
     <string name="courses_available">Cursos disponibles</string>
-    <string name="see_all">Ver todos</string>">
-    <string name="reservation">Reservar</string>">
+    <string name="see_all">Ver todos</string>
+    <string name="reservation">Reservar</string>
 
     <!-- PRODUCTS CONTENT - HOME PAGE-->
     <string name="products_subtitle">Boutique LashesLam</string>
-    <string name="products_text">productos</string>">
+    <string name="products_text">productos</string>
     <string name="best_selling">Más vendidos</string>
 
     <string name="service_subtitle">Reserva tu cita</string>
     <string name="available_services">Servicios disponibles</string>
 
     <!-- COURSE ADD VIEW-->
-    <string name="course_add_title">Nuevo curso</string>">
-    <string name="camera">Cámara</string>">
-    <string name="add_image_placeholder">Añadir imagen de portada</string>">
-    <string name="image_details">(JPG, PNG, Rec: 1200x600px)</string>">
-    <string name="title">Titulo</string>">
-    <string name="description">Descripción</string>">
-    <string name="hora_inicio">Hora inicio</string>">
-    <string name="hora_fin">Hora fin</string>">
-    <string name="fecha">Fecha</string>">
-    <string name="costo">Costo</string>">
-    <string name="apartado">Apartar con</string>">
-    <string name="instructora">Nombre de la instructora</string>">
-    <string name="instructoraDesc">Descripcion de la instructora</string>">
-    <string name="temarios">Temarios</string>">
-    <string name="moneda">MXN: </string>">
-    <string name="apartar">Apartar con</string>">
-    <string name="select_location">Seleccionar ubicación</string>">
-    <string name="location">Ubicación</string>">
-    <string name="temario">Temario día</string>">
+    <string name="course_add_title">Nuevo curso</string>
+    <string name="camera">Cámara</string>
+    <string name="add_image_placeholder">Añadir imagen de portada</string>
+    <string name="image_details">(JPG, PNG, Rec: 1200x600px)</string>
+    <string name="title">Titulo</string>
+    <string name="description">Descripción</string>
+    <string name="hora_inicio">Hora inicio</string>
+    <string name="hora_fin">Hora fin</string>
+    <string name="fecha">Fecha</string>
+    <string name="costo">Costo</string>
+    <string name="apartado">Apartar con</string>
+    <string name="instructora">Nombre de la instructora</string>
+    <string name="instructoraDesc">Descripcion de la instructora</string>
+    <string name="temarios">Temarios</string>
+    <string name="moneda">MXN: </string>
+    <string name="apartar">Apartar con</string>
+    <string name="select_location">Seleccionar ubicación</string>
+    <string name="location">Ubicación</string>
+    <string name="temario">Temario día</string>
     <string name="curso_agregado">Curso agregado</string>
 
     <!-- PRODUCTS ADD VIEW-->
-    <string name="product_add_title">Nuevo Producto</string>">
-    <string name="actual_price">Precio actual</string>">
+    <string name="product_add_title">Nuevo Producto</string>
+    <string name="actual_price">Precio actual</string>
     <string name="category">Categoría</string>
     <string name="select_image">Seleccionar imagenes</string>
     <string name="five_images">5 imagenes</string>
 
 
     <!-- SERVICES ADD VIEW-->
-    <string name="service_add_title">Nuevo Servicio</string>">
+    <string name="service_add_title">Nuevo Servicio</string>
+    <string name="subtitulo">Subtitulo</string>
+    <string name="duration">Duración</string>
+    <string name="servicio_agregado">Servicio agregado</string>
+
 
 </resources>

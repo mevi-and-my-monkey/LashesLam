@@ -37,6 +37,11 @@ fun AddServicesScreen(
                     errorMessage = event.error.toUserMessage()
                     showError = true
                 }
+                ServiceUiEvent.ServiceSaved -> {
+                    viewModel.trackEvent(AnalyticsEvent.SaveServiceSuccess)
+                    successMessage = "Servicio guardado correctamente"
+                    showSuccess = true
+                }
             }
         }
     }
@@ -44,5 +49,23 @@ fun AddServicesScreen(
     AddServiceContent(
         state = state,
         onDismiss = onDismiss,
+        showSuccess = showSuccess,
+        successMessage = successMessage,
+        showError = showError,
+        errorMessage = errorMessage,
+        onDismissSuccess = {
+            showSuccess = false
+            onDismiss()
+        },
+        onDismissError = {
+            showError = false
+        },
+        saveService = viewModel::saveService,
+        onTitleChange = viewModel::onTitleChange,
+        onSubtitleChange = viewModel::onSubtitleChange,
+        onCostChange = viewModel::onCostChange,
+        onDurationChange = viewModel::onDurationChange,
+        onCategoryChange = viewModel::onCategoryChange,
+        onImageChange = viewModel::onImageChange
     )
 }

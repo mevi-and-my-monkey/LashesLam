@@ -1,10 +1,10 @@
 package com.mevi.lasheslam.domain.usecase
 
-import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.domain.validation.ProductValidationMessages
+import com.mevi.lasheslam.utils.Utilities.validateRequired
 import javax.inject.Inject
 
 class CreateProductUseCase @Inject constructor(private val repository: ProductsRepository) {
@@ -31,16 +31,5 @@ class CreateProductUseCase @Inject constructor(private val repository: ProductsR
             ProductValidationMessages.IMAGES_REQUIRED
         )?.let { return it }
         return repository.createProduct(product)
-    }
-    private fun validateRequired(
-        value: String,
-        message: String
-    ): Resource.Error? {
-
-        return if (value.isBlank()) {
-            Resource.Error(AppError.Unknown(message))
-        } else {
-            null
-        }
     }
 }

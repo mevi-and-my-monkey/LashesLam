@@ -1,23 +1,49 @@
 package com.mevi.lasheslam.data
 
+import android.net.Uri
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
+import com.mevi.lasheslam.data.constants.StoragePaths
+import com.mevi.lasheslam.domain.model.CreateServiceModel
 import com.mevi.lasheslam.domain.repository.ServicesRepository
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.network.ServiceItemDto
 import com.mevi.lasheslam.network.toDomain
+import com.mevi.lasheslam.network.toDto
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 class ServicesRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
     private val errorMapper: ErrorMapper
 ) : ServicesRepository {
+
+    override suspend fun createService(service: CreateServiceModel): Resource<Unit> {
+        return try {
+            val id = UUID.randomUUID().toString()
+            val serviceImg = uploadServiceImage(serviceId = id, imageUri = service.image!!)
+            val dto = service.toDto(imageUrl = serviceImg)
+
+            firestore.collection(FirestorePaths.Services.collectionPath())
+                .document(id)
+                .set(dto)
+                .await()
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+
+    }
 
     override fun getCategories(): Flow<Resource<List<CategoryModel>>> = callbackFlow {
         val listener = firestore
@@ -67,5 +93,13 @@ class ServicesRepositoryImpl @Inject constructor(
             }
 
         awaitClose { listener.remove() }
+    }
+
+    private suspend fun uploadServiceImage(serviceId: String, imageUri: Uri): String {
+        val reference = storage.reference.child(
+            StoragePaths.Services.serviceImage(serviceId)
+        )
+        reference.putFile(imageUri).await()
+        return reference.downloadUrl.await().toString()
     }
 }

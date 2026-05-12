@@ -16,9 +16,16 @@ object StoragePaths {
 
     object Products {
         private const val ROOT = "products"
-        private const val PRODUCT_IMAGE = "product.jpg"
-        fun productImage(productId: String): String {
-            return "$ROOT/$productId/$PRODUCT_IMAGE"
+        fun productFolder(productId: String): String {
+            return "$ROOT/$productId"
+        }
+    }
+
+    object Services {
+        private const val ROOT = "services"
+        private const val SERVICE_IMAGE = "service.jpg"
+        fun serviceImage(serviceId: String): String {
+            return "$ROOT/$serviceId/$SERVICE_IMAGE"
         }
     }
 }

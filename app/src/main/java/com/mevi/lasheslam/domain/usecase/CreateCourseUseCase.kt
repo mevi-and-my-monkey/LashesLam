@@ -1,10 +1,10 @@
 package com.mevi.lasheslam.domain.usecase
 
-import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.domain.validation.CourseValidationMessages
+import com.mevi.lasheslam.utils.Utilities.validateRequired
 import javax.inject.Inject
 
 class CreateCourseUseCase @Inject constructor(private val repository: CoursesRepository) {
@@ -61,17 +61,5 @@ class CreateCourseUseCase @Inject constructor(private val repository: CoursesRep
             CourseValidationMessages.INVALID_LOCATION
         )?.let { return it }
         return repository.createCourse(course)
-    }
-
-    private fun validateRequired(
-        value: String,
-        message: String
-    ): Resource.Error? {
-
-        return if (value.isBlank()) {
-            Resource.Error(AppError.Unknown(message))
-        } else {
-            null
-        }
     }
 }

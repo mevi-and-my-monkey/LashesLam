@@ -10,6 +10,8 @@ import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
+import com.mevi.lasheslam.core.error.AppError
+import com.mevi.lasheslam.core.results.Resource
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import java.text.SimpleDateFormat
@@ -86,5 +88,12 @@ object Utilities {
         context.startActivity(intent)
     }
 
+    fun validateRequired(value: String, message: String): Resource.Error? {
+        return if (value.isBlank()) {
+            Resource.Error(AppError.Unknown(message))
+        } else {
+            null
+        }
+    }
 
 }
