@@ -8,8 +8,17 @@ object StoragePaths {
         fun courseImage(courseId: String): String {
             return "$ROOT/$courseId/$COURSE_IMAGE"
         }
+
         fun instructorImage(courseId: String): String {
             return "$ROOT/$courseId/$INSTRUCTOR_IMAGE"
+        }
+    }
+
+    object Products {
+        private const val ROOT = "products"
+        private const val PRODUCT_IMAGE = "product.jpg"
+        fun productImage(productId: String): String {
+            return "$ROOT/$productId/$PRODUCT_IMAGE"
         }
     }
 }

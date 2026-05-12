@@ -34,6 +34,8 @@ import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.cursos.CursosPageContent
 import com.mevi.lasheslam.ui.home.products.ProductsHPContent
 import com.mevi.lasheslam.ui.home.services.ServicesHPContent
+import com.mevi.lasheslam.ui.products.add.ProductsAddScreen
+import com.mevi.lasheslam.ui.services.add.AddServicesScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -186,6 +188,22 @@ fun HomePageContent(
                     trackEvent(AnalyticsEvent.AddCourseHide)
                     showAddCourseView = false
                 })
+        }
+        if (showAddProductView) {
+            ProductsAddScreen(
+                onDismiss = {
+                    trackEvent(AnalyticsEvent.AddProductHide)
+                    showAddProductView = false
+                }
+            )
+        }
+        if (showAddServiceView) {
+            AddServicesScreen(
+                onDismiss = {
+                    trackEvent(AnalyticsEvent.AddServiceHide)
+                    showAddServiceView = false
+                }
+            )
         }
     }
 }

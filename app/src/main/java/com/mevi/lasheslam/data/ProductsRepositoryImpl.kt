@@ -1,9 +1,13 @@
 package com.mevi.lasheslam.data
 
+import android.net.Uri
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
+import com.mevi.lasheslam.data.constants.StoragePaths
+import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.CourseItemDto
@@ -11,15 +15,40 @@ import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.network.ProductItemDto
 import com.mevi.lasheslam.network.toDomain
+import com.mevi.lasheslam.network.toDto
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 class ProductsRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
     private val errorMapper: ErrorMapper
 ) : ProductsRepository {
+
+    override suspend fun createProduct(product: CreateProductModel): Resource<Unit> {
+        return try {
+            val id = UUID.randomUUID().toString()
+            val productsImageUrl = uploadProductsImages(productId = id, images = product.images)
+            val dto = product.toDto(images = productsImageUrl)
+
+            firestore.collection(FirestorePaths.Products.collectionPath())
+                .document(id)
+                .set(dto)
+                .await()
+
+            Resource.Success(Unit)
+
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
 
     override fun getCategories(): Flow<Resource<List<CategoryModel>>> = callbackFlow {
         val listener = firestore
@@ -69,5 +98,18 @@ class ProductsRepositoryImpl @Inject constructor(
             }
 
         awaitClose { listener.remove() }
+    }
+
+    private suspend fun uploadProductsImages(
+        productId: String,
+        images: List<Uri>
+    ): List<String> = coroutineScope {
+        images.mapIndexed { index, imageUri ->
+            async {
+                val reference = storage.reference.child("products/$productId/image_$index")
+                reference.putFile(imageUri).await()
+                reference.downloadUrl.await().toString()
+            }
+        }.awaitAll()
     }
 }

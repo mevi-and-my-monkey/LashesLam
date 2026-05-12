@@ -105,4 +105,15 @@
     <string name="temario">Temario día</string>">
     <string name="curso_agregado">Curso agregado</string>
 
+    <!-- PRODUCTS ADD VIEW-->
+    <string name="product_add_title">Nuevo Producto</string>">
+    <string name="actual_price">Precio actual</string>">
+    <string name="category">Categoría</string>
+    <string name="select_image">Seleccionar imagenes</string>
+    <string name="five_images">5 imagenes</string>
+
+
+    <!-- SERVICES ADD VIEW-->
+    <string name="service_add_title">Nuevo Servicio</string>">
+
 </resources>

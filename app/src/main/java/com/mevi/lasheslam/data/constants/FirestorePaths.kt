@@ -1,5 +1,8 @@
 package com.mevi.lasheslam.data.constants
 
+import com.mevi.lasheslam.data.constants.FirestorePaths.Courses.COLLECTION
+import com.mevi.lasheslam.data.constants.FirestorePaths.Courses.COLLECTION_ITEMS
+
 object FirestorePaths {
     object Users {
         const val COLLECTION = "users"
@@ -44,6 +47,7 @@ object FirestorePaths {
         const val DOCUMENT = "stock"
         const val COLLECTION_CATEGORIES = "categories"
         const val COLLECTION_PRODUCTS_ITEMS = "products"
+        fun collectionPath() = "$COLLECTION/${DOCUMENT}/$COLLECTION_PRODUCTS_ITEMS"
 
         // Products categories
         const val CATEGORY_ALL = "all"

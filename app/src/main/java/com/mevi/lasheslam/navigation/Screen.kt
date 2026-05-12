@@ -22,4 +22,6 @@ sealed class Screen(val route: String) {
             "course_inscritos/$courseId/$courseName"
     }
 
+    object Service : Screen("service")
+
 }
