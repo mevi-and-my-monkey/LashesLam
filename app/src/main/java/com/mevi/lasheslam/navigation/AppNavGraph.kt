@@ -1,5 +1,7 @@
 package com.mevi.lasheslam.navigation
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.expandVertically
@@ -9,9 +11,12 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.auth.LogIn
 import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.home.components.ServiceDetailView
@@ -25,6 +30,7 @@ import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
 import com.mevi.lasheslam.ui.splashscreen.SplashScreen
 import com.mevi.lasheslam.utils.NavTransitions
+import com.mevi.lasheslam.utils.Utilities
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -137,10 +143,32 @@ fun AppNavGraph(
             exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
             val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            val context = LocalContext.current
             ServiceDetailView(
-                navController = navController,
                 serviceId = serviceId,
                 onDismiss = { navController.popBackStack() },
+                onEditClick = { id -> navController.navigate(Screen.ServiceEdit.createRoute(id)) },
+                onOpenFacebook = {
+                    val url = SessionManager.facebook.value
+                    context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                },
+                onOpenInstagram = {
+                    val url = SessionManager.instagram.value
+                    context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                },
+                onOpenWhatsApp = { url ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                },
+                onAddToCalendar = { titulo, fecha, horaInicio, horaFin ->
+                    Utilities.agregarEventoCalendario(
+                        context = context,
+                        titulo = titulo,
+                        fecha = fecha,
+                        horaInicio = horaInicio,
+                        horaFin = horaFin
+                    )
+
+                },
                 modifier = modifier
             )
         }

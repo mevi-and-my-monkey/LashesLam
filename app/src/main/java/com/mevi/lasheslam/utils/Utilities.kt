@@ -38,14 +38,12 @@ object Utilities {
     }
 
     fun agregarEventoCalendario(
-        navController: NavHostController,
+        context: Context,
         titulo: String,
         fecha: String,
         horaInicio: String,
         horaFin: String
     ) {
-        val context = navController.context
-
         val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         val outputFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.getDefault())
         outputFormat.timeZone = TimeZone.getTimeZone("UTC")

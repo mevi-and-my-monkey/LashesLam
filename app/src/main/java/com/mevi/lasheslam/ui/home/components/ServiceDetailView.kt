@@ -1,7 +1,5 @@
 package com.mevi.lasheslam.ui.home.components
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -65,20 +63,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WarningDialog
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.HomeViewModel
 import com.mevi.lasheslam.utils.Utilities
-import androidx.core.net.toUri
-import com.mevi.lasheslam.R
-import com.mevi.lasheslam.ui.favorites.FavoriteType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -93,8 +88,17 @@ fun ServiceDetailView(
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
     storage: FirebaseStorage = FirebaseStorage.getInstance(),
     onDismiss: () -> Unit,
-    navController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier,
+    onEditClick: (String) -> Unit,
+    onOpenFacebook: () -> Unit,
+    onOpenInstagram: () -> Unit,
+    onOpenWhatsApp: (String) -> Unit,
+    onAddToCalendar: (
+        titulo: String,
+        fecha: String,
+        horaInicio: String,
+        horaFin: String
+    ) -> Unit,
 ) {
     val isAdmin by SessionManager.isUserAdmin.collectAsState()
     val nameUser by SessionManager.nameUser.collectAsState()
@@ -260,10 +264,7 @@ fun ServiceDetailView(
                         // FACEBOOK
                         IconButton(
                             onClick = {
-                                val url = SessionManager.facebook.value
-                                navController.context.startActivity(
-                                    Intent(Intent.ACTION_VIEW, url.toUri())
-                                )
+                                onOpenFacebook()
                             },
                             modifier = Modifier
                                 .size(50.dp)
@@ -280,10 +281,7 @@ fun ServiceDetailView(
                         // INSTAGRAM
                         IconButton(
                             onClick = {
-                                val url = SessionManager.instagram.value
-                                navController.context.startActivity(
-                                    Intent(Intent.ACTION_VIEW, url.toUri())
-                                )
+                                onOpenInstagram()
                             },
                             modifier = Modifier
                                 .size(50.dp)
@@ -311,12 +309,9 @@ fun ServiceDetailView(
                                     message,
                                     StandardCharsets.UTF_8.toString()
                                 )
-
                                 val url = "https://wa.me/${SessionManager.whatsApp.value}?text=$encodedMessage"
 
-                                navController.context.startActivity(
-                                    Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                )
+                                onOpenWhatsApp(url)
                             },
                             modifier = Modifier
                                 .size(50.dp)
@@ -344,7 +339,7 @@ fun ServiceDetailView(
             if (isAdmin) {
                 IconButton(
                     onClick = {
-                        navController.navigate(Screen.ServiceEdit.createRoute(serviceId))
+                        onEditClick(serviceId)
                     },
                     modifier = Modifier
                         .size(44.dp)
@@ -447,12 +442,11 @@ fun ServiceDetailView(
                         }
 
                         "aceptado" -> {
-                            Utilities.agregarEventoCalendario(
-                                navController = navController,
-                                titulo = titulo,
-                                fecha = fecha,
-                                horaInicio = horaInicio,
-                                horaFin = horaFin
+                            onAddToCalendar(
+                                titulo,
+                                fecha,
+                                horaInicio,
+                                horaFin
                             )
                         }
                     }

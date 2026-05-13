@@ -1,6 +1,5 @@
 package com.mevi.lasheslam.ui.home
 
-import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,16 +8,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
-import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -28,10 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
-    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var name by mutableStateOf("")
@@ -39,8 +33,6 @@ class HomeViewModel @Inject constructor(
 
     var photoUrl by mutableStateOf<String?>(null)
         private set
-
-    val isUserInvited = SessionManager.isUserInvited
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
