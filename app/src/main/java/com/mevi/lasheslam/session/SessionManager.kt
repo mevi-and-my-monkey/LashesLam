@@ -23,13 +23,13 @@ object SessionManager {
     private val _isUserInvited = MutableStateFlow(false)
     val isUserInvited = _isUserInvited.asStateFlow()
 
-    private val _whatsApp = MutableStateFlow("")
+    private val _whatsApp = MutableStateFlow<String?>(null)
     val whatsApp = _whatsApp.asStateFlow()
 
-    private val _instagram = MutableStateFlow("")
+    private val _instagram = MutableStateFlow<String?>(null)
     val instagram = _instagram.asStateFlow()
 
-    private val _facebook = MutableStateFlow("")
+    private val _facebook = MutableStateFlow<String?>(null)
     val facebook = _facebook.asStateFlow()
 
     private val _currentUserId = MutableStateFlow<String?>(null)

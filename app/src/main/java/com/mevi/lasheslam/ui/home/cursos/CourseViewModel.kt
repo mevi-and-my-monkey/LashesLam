@@ -6,16 +6,39 @@ import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.domain.model.CreateCourseModel
+import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.CreateCourseUseCase
+import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
+import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
+import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
+import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetLocationsUseCase
+import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
+import com.mevi.lasheslam.network.FavoriteItem
 import com.mevi.lasheslam.network.LocationItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CourseViewModel @Inject constructor(
+    private val getIsAdminUseCase: GetIsAdminUseCase,
+    private val getIsUserInvitedUseCase: GetIsUserInvitedUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
+    private val getNameUserUseCase: GetNameUserUseCase,
+    private val getEmailUserUseCase: GetEmailUserUseCase,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val getFacebookUseCase: GetFacebookUseCase,
+    private val getInstagramUseCase: GetInstagramUseCase,
+    private val getWhatsAppUseCase: GetWhatsAppUseCase,
     private val getLocationsUseCase: GetLocationsUseCase,
     private val createCourseUseCase: CreateCourseUseCase,
     private val analytics: AnalyticsTracker
@@ -24,7 +47,11 @@ class CourseViewModel @Inject constructor(
 
     override fun createInitialState() = CourseUiState()
 
+    private val _favorites = MutableStateFlow<List<FavoriteItem>>(emptyList())
+    val favorites = _favorites.asStateFlow()
+
     init {
+        observeSession()
         getLocations()
     }
 
@@ -82,12 +109,86 @@ class CourseViewModel @Inject constructor(
         setState { copy(form = form.copy(instructorImageUri = image)) }
     }
 
+    private fun observeSession() {
+        viewModelScope.launch {
+            combine(
+                getIsAdminUseCase(),
+                getIsUserInvitedUseCase(),
+                getCurrentUserIdUseCase()
+            ) { isAdmin, isInvited, userId ->
+                SessionData(isAdmin, isInvited, userId ?: "")
+            }.collect { (isAdmin, isInvited, userId) ->
+                setState {
+                    copy(
+                        isAdmin = isAdmin,
+                        isUserInvited = isInvited,
+                        currentUserId = userId
+                    )
+                }
+                if (userId.isNotEmpty()) {
+                    loadFavorites(userId)
+                }
+                if (isAdmin) {
+                    //loadAdminPendingRequests()
+                } else if (userId.isNotEmpty()) {
+                    //observeUserCourses(userId)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                getNameUserUseCase(),
+                getEmailUserUseCase()
+            ) { name, email ->
+                name to email
+            }.collect { (name, email) ->
+                setState {
+                    copy(
+                        nameUser = name,
+                        email = email,
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                getFacebookUseCase(),
+                getInstagramUseCase(),
+                getWhatsAppUseCase()
+            ) { facebook, instagram, whatsApp ->
+                Triple(facebook, instagram, whatsApp)
+            }.collect { (facebook, instagram, whatsApp) ->
+                setState {
+                    copy(
+                        facebook = facebook,
+                        instagram = instagram,
+                        whatsApp = whatsApp
+                    )
+                }
+            }
+        }
+    }
+
     private fun getLocations() {
         viewModelScope.launch {
             getLocationsUseCase().collect { locations ->
                 setState {
                     copy(locations = locations)
                 }
+            }
+        }
+    }
+
+    fun loadFavorites(userId: String) {
+        viewModelScope.launch {
+            when (val result = getFavoritesUseCase(userId)) {
+                is Resource.Success -> {
+                    _favorites.value = result.data
+                }
+
+                else -> {}
             }
         }
     }

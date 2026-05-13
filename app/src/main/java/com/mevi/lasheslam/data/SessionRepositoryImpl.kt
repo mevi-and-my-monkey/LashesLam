@@ -40,6 +40,23 @@ class SessionRepositoryImpl @Inject constructor(
         return sessionDataSource.photoUrl
     }
 
+    override fun getFlowEmail(): Flow<String?> {
+        return sessionDataSource.email
+    }
+
+    override fun getFacebook(): Flow<String?> {
+        return sessionDataSource.facebook
+    }
+
+    override fun getInstagram(): Flow<String?> {
+        return sessionDataSource.instagram
+    }
+
+    override fun getWhatsApp(): Flow<String?> {
+        return sessionDataSource.whatsApp
+    }
+
+
     override suspend fun refreshSession() {
         sessionDataSource.refreshAdmins()
     }

@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.home.components
+package com.mevi.lasheslam.ui.courses.details
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -73,25 +74,25 @@ import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WarningDialog
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.HomeViewModel
+import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
 import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServiceDetailView(
+fun CourseDetailView(
     serviceId: String,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModelHome: HomeViewModel = hiltViewModel(),
+    viewModel: CourseViewModel = hiltViewModel(),
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
     storage: FirebaseStorage = FirebaseStorage.getInstance(),
     onDismiss: () -> Unit,
     modifier: Modifier,
     onEditClick: (String) -> Unit,
-    onOpenFacebook: () -> Unit,
-    onOpenInstagram: () -> Unit,
+    onOpenFacebook: (String) -> Unit,
+    onOpenInstagram: (String) -> Unit,
     onOpenWhatsApp: (String) -> Unit,
     onAddToCalendar: (
         titulo: String,
@@ -100,35 +101,37 @@ fun ServiceDetailView(
         horaFin: String
     ) -> Unit,
 ) {
-    val isAdmin by SessionManager.isUserAdmin.collectAsState()
-    val nameUser by SessionManager.nameUser.collectAsState()
-    val emailUser by SessionManager.emailUser.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
     var showConfirmDelete by remember { mutableStateOf(false) }
     var showSuccess by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var warningMessage by remember { mutableStateOf("") }
-    val isFavorite by viewModel.isFavorite
+    val isFavorite by viewModelHome.isFavorite
     val context = LocalContext.current
 
-    val serviceData by viewModel.selectedService.collectAsState()
-    val userId = SessionManager.currentUserId.collectAsState().value
-    val courseStatus by viewModel.courseStatusCurse.collectAsState()
+    val serviceData by viewModelHome.selectedService.collectAsState()
+    val courseStatus by viewModelHome.courseStatusCurse.collectAsState()
 
     // 🔹 Cargar datos solo al entrar
     LaunchedEffect(serviceId) {
-        viewModel.loadServiceById(serviceId)
+        viewModelHome.loadServiceById(serviceId)
     }
 
     LaunchedEffect(serviceId) {
-        viewModel.loadServiceById(serviceId)
-        if (userId != null) {
-            viewModel.loadUserCourseStatus(userId, serviceId)
+        viewModelHome.loadServiceById(serviceId)
+        if (uiState.currentUserId != null) {
+            viewModelHome.loadUserCourseStatus(uiState.currentUserId ?: "", serviceId)
         }
     }
-    LaunchedEffect(serviceId, userId) {
-        if (userId != null) {
-            viewModel.checkIfFavorite(userId, serviceId, FavoriteType.COURSE)
+    LaunchedEffect(serviceId, uiState.currentUserId) {
+        if (uiState.currentUserId != null) {
+            viewModelHome.checkIfFavorite(
+                uiState.currentUserId ?: "",
+                serviceId,
+                FavoriteType.COURSE
+            )
         }
     }
 
@@ -169,7 +172,7 @@ fun ServiceDetailView(
     ) {
 
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
@@ -181,25 +184,28 @@ fun ServiceDetailView(
             SubcomposeAsyncImage(
                 model = imagen,
                 contentDescription = null,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .padding(top = 60.dp)
                     .fillMaxWidth()
                     .aspectRatio(4f / 3f)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Companion.Fit,
                 loading = {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier.Companion.fillMaxSize(),
+                        contentAlignment = Alignment.Companion.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 }
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.Companion.height(20.dp))
 
             // 🔥 TARJETA MODERNA
             Column(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxSize()
                     .padding(
                         start = 16.dp,
@@ -216,7 +222,7 @@ fun ServiceDetailView(
                     costoApartado = apartar.toDouble()
                 )
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
 
                 ServiceInfoRow(
                     fecha = fecha,
@@ -226,37 +232,37 @@ fun ServiceDetailView(
                     }
                 )
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.Companion.height(16.dp))
 
                 ExpandableSection(title = "Lo que aprenderás (Temario)") {
                     if (diaUno.isNotEmpty()) Text("• Día 1: $diaUno")
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.Companion.height(4.dp))
                     if (diaDos.isNotEmpty()) Text("• Día 2: $diaDos")
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.Companion.height(4.dp))
                     if (diaTres.isNotEmpty()) Text("• Día 3: $diaTres")
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.Companion.height(4.dp))
                     if (diaCuatro.isNotEmpty()) Text("• Día 4: $diaCuatro")
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.Companion.height(4.dp))
                     if (diaCinco.isNotEmpty()) Text("• Día 5: $diaCinco")
                 }
 
                 InstructorCard(instructora, instructoraDesc, instructoraImage)
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.Companion.height(24.dp))
 
 
                 // 🔹 Texto superior
                 Text(
                     text = "Solicitar más información",
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    modifier = Modifier.Companion.padding(bottom = 12.dp)
                 )
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.Companion.height(12.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.Companion.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Companion.CenterVertically
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
@@ -264,9 +270,9 @@ fun ServiceDetailView(
                         // FACEBOOK
                         IconButton(
                             onClick = {
-                                onOpenFacebook()
+                                onOpenFacebook(uiState.facebook ?: "")
                             },
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .size(50.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
@@ -274,16 +280,16 @@ fun ServiceDetailView(
                             Icon(
                                 painter = painterResource(R.drawable.ic_facebook),
                                 contentDescription = "Facebook",
-                                tint = Color.Unspecified
+                                tint = Color.Companion.Unspecified
                             )
                         }
 
                         // INSTAGRAM
                         IconButton(
                             onClick = {
-                                onOpenInstagram()
+                                onOpenInstagram(uiState.instagram ?: "")
                             },
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .size(50.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
@@ -298,22 +304,17 @@ fun ServiceDetailView(
                         // WHATSAPP
                         IconButton(
                             onClick = {
-                                val message = """
-                                    Hola, me gustaría recibir más información sobre el curso ${titulo}.
-                                    Horario: $horaInicio - ${horaFin}.
-                                    Fecha: ${fecha}.
-                                    ¡Gracias!
-                                    """.trimIndent()
-
-                                val encodedMessage = URLEncoder.encode(
-                                    message,
-                                    StandardCharsets.UTF_8.toString()
+                                onOpenWhatsApp(
+                                    Utilities.createMessageWhatsApp(
+                                        titulo = titulo,
+                                        fecha = fecha,
+                                        horaInicio = horaInicio,
+                                        horaFin = horaFin,
+                                        whatsapp = uiState.whatsApp ?: ""
+                                    )
                                 )
-                                val url = "https://wa.me/${SessionManager.whatsApp.value}?text=$encodedMessage"
-
-                                onOpenWhatsApp(url)
                             },
-                            modifier = Modifier
+                            modifier = Modifier.Companion
                                 .size(50.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
@@ -321,7 +322,7 @@ fun ServiceDetailView(
                             Icon(
                                 painter = painterResource(R.drawable.ic_whatsapp),
                                 contentDescription = "WhatsApp",
-                                tint = Color.Unspecified
+                                tint = Color.Companion.Unspecified
                             )
                         }
                     }
@@ -331,17 +332,17 @@ fun ServiceDetailView(
 
         // 🔹 TUS BOTONES SUPERIORES – SE RESPETAN COMPLETAMENTE
         Row(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
+            modifier = Modifier.Companion
+                .align(Alignment.Companion.TopEnd)
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (isAdmin) {
+            if (uiState.isAdmin) {
                 IconButton(
                     onClick = {
                         onEditClick(serviceId)
                     },
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .size(44.dp)
                         .shadow(4.dp, CircleShape)
                         .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
@@ -359,7 +360,7 @@ fun ServiceDetailView(
                             "¿Seguro que deseas eliminar este curso? Esta acción no se puede deshacer."
                         showConfirmDelete = true
                     },
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .size(44.dp)
                         .shadow(4.dp, CircleShape)
                         .background(MaterialTheme.colorScheme.errorContainer, CircleShape)
@@ -374,9 +375,15 @@ fun ServiceDetailView(
 
             IconButton(
                 onClick = {
-                    userId?.let { viewModel.toggleFavorite(it, serviceId, FavoriteType.COURSE) }
+                    uiState.currentUserId?.let {
+                        viewModelHome.toggleFavorite(
+                            it,
+                            serviceId,
+                            FavoriteType.COURSE
+                        )
+                    }
                 },
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(44.dp)
                     .shadow(4.dp, CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
@@ -390,7 +397,7 @@ fun ServiceDetailView(
 
             IconButton(
                 onClick = onDismiss,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(44.dp)
                     .shadow(4.dp, CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
@@ -401,11 +408,11 @@ fun ServiceDetailView(
 
         // 🔻 BOTÓN INFERIOR DEPENDIENDO DEL STATUS
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
+            modifier = Modifier.Companion
+                .align(Alignment.Companion.BottomCenter)
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
             // 🔥 BOTÓN PRINCIPAL SEGÚN STATUS
             val buttonText = when (status) {
@@ -429,14 +436,14 @@ fun ServiceDetailView(
                     when (status) {
                         "solicitar" -> {
                             CoroutineScope(Dispatchers.IO).launch {
-                                viewModel.createCourseRequest(
+                                viewModelHome.createCourseRequest(
                                     uid.value ?: "",
                                     serviceId,
                                     titulo.uppercase(),
                                     fecha,
                                     "$horaInicio - $horaFin",
-                                    nameUser ?: "",
-                                    emailUser ?: ""
+                                    uiState.nameUser ?: "",
+                                    uiState.email ?: ""
                                 )
                             }
                         }
@@ -452,7 +459,7 @@ fun ServiceDetailView(
                     }
                 },
                 enabled = isEnabled,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .height(55.dp)
@@ -461,9 +468,9 @@ fun ServiceDetailView(
                     Icon(
                         imageVector = calendarIcon,
                         contentDescription = "Agregar al calendario",
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.Companion.size(22.dp)
                     )
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.Companion.width(10.dp))
                 }
                 Text(buttonText)
             }
@@ -532,20 +539,20 @@ fun ServiceContent(
         Text(
             text = titulo.uppercase(),
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Companion.Bold
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.Companion.height(8.dp))
 
         Text(
             buildAnnotatedString {
                 append("Costo Total: ")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Companion.Bold)) {
                     append("$${costoTotal} MXN")
                 }
                 if (costoApartado != 0.0) {
                     append(" / Aparta con: ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Companion.Bold)) {
                         append("$${costoApartado} MXN")
                     }
                 }
@@ -553,7 +560,7 @@ fun ServiceContent(
             style = MaterialTheme.typography.bodyLarge
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.Companion.height(16.dp))
 
         Text(
             text = descripcion,
@@ -569,26 +576,26 @@ fun ServiceInfoRow(
     onLocationClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.Companion.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Companion.CenterVertically,
     ) {
         InfoIcon(icon = Icons.Default.CalendarToday, text = fecha)
         InfoIcon(icon = Icons.Default.Schedule, text = horario)
 
         TextButton(onClick = onLocationClick) {
             Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFD9869A))
-            Spacer(Modifier.width(4.dp))
-            Text("Ver ubicación", color = Color(0xFFD9869A), fontWeight = FontWeight.Bold)
+            Spacer(Modifier.Companion.width(4.dp))
+            Text("Ver ubicación", color = Color(0xFFD9869A), fontWeight = FontWeight.Companion.Bold)
         }
     }
 }
 
 @Composable
-private fun InfoIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-        Spacer(modifier = Modifier.width(8.dp))
+private fun InfoIcon(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+        Icon(icon, contentDescription = null, modifier = Modifier.Companion.size(20.dp))
+        Spacer(modifier = Modifier.Companion.width(8.dp))
         Text(text, style = MaterialTheme.typography.bodyMedium)
     }
 }
@@ -597,24 +604,28 @@ private fun InfoIcon(icon: androidx.compose.ui.graphics.vector.ImageVector, text
 fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Column(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(1.dp, Color(0xFFF0F0F0), RoundedCornerShape(12.dp))
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+            .background(Color.Companion.White)
+            .border(
+                1.dp,
+                Color(0xFFF0F0F0),
+                androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+            )
             .animateContentSize()
             .clickable { expanded = !expanded }
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.Companion.padding(16.dp),
+            verticalAlignment = Alignment.Companion.CenterVertically
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f)
+                fontWeight = FontWeight.Companion.Bold,
+                modifier = Modifier.Companion.weight(1f)
             )
             Icon(
                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -623,7 +634,7 @@ fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit
         }
         if (expanded) {
             Column(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
             ) {
                 content()
@@ -634,29 +645,29 @@ fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit
 
 @Composable
 fun InstructorCard(name: String, description: String = "", image: String) {
-    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+    Column(modifier = Modifier.Companion.padding(vertical = 16.dp)) {
         Text(
             "Instructor(a)",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Companion.Bold
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Spacer(modifier = Modifier.Companion.height(16.dp))
+        Row(verticalAlignment = Alignment.Companion.CenterVertically) {
             SubcomposeAsyncImage(
                 model = image,
                 contentDescription = name,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(80.dp)
                     .clip(CircleShape),
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Companion.Crop,
                 loading = { CircularProgressIndicator() }
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.Companion.width(16.dp))
             Column {
                 Text(
                     name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Companion.Bold
                 )
                 Text(
                     description,
@@ -667,6 +678,3 @@ fun InstructorCard(name: String, description: String = "", image: String) {
         }
     }
 }
-
-
-

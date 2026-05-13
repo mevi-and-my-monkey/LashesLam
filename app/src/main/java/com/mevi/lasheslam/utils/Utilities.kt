@@ -7,13 +7,14 @@ import android.net.Uri
 import android.provider.CalendarContract
 import android.widget.Toast
 import androidx.core.net.toUri
-import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -74,7 +75,8 @@ object Utilities {
             try {
                 context.startActivity(webIntent)
             } catch (e: Exception) {
-                Toast.makeText(context, "No se puede abrir el calendario", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "No se puede abrir el calendario", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -92,6 +94,21 @@ object Utilities {
         } else {
             null
         }
+    }
+
+    fun createMessageWhatsApp(titulo: String, fecha: String, horaInicio: String, horaFin: String, whatsapp: String) : String {
+        val message = """
+        Hola, me gustaría recibir más información sobre el curso ${titulo}.
+        Horario: $horaInicio - ${horaFin}.
+        Fecha: ${fecha}.
+        ¡Gracias!
+        """.trimIndent()
+
+        val encodedMessage = URLEncoder.encode(
+            message,
+            StandardCharsets.UTF_8.toString()
+        )
+        return "https://wa.me/${whatsapp}?text=$encodedMessage"
     }
 
 }

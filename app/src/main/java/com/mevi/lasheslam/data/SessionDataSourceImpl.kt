@@ -2,6 +2,7 @@ package com.mevi.lasheslam.data
 
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.session.SessionManager
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
@@ -17,6 +18,14 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
     override val photoUrl = SessionManager.photoUrl
 
     override val locations = SessionManager.locations
+
+    override val email = SessionManager.emailUser
+
+    override val facebook = SessionManager.facebook
+
+    override val instagram = SessionManager.instagram
+
+    override val whatsApp = SessionManager.whatsApp
 
     override suspend fun refreshAdmins() {
         SessionManager.refreshAdmins()

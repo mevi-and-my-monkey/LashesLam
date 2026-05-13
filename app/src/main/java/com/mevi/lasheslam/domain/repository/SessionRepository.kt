@@ -7,6 +7,10 @@ interface SessionRepository {
     suspend fun refreshSession()
     fun isLoggedIn(): Boolean
     fun getEmail(): String?
+    fun getFlowEmail(): Flow<String?>
+    fun getFacebook(): Flow<String?>
+    fun getInstagram(): Flow<String?>
+    fun getWhatsApp(): Flow<String?>
     fun getUid(): String?
     fun getPhotoUrl(): Flow<String?>
     fun setName()

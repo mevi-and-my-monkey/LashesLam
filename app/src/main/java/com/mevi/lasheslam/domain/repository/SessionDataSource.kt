@@ -9,6 +9,10 @@ interface SessionDataSource {
     val currentUserId: Flow<String?>
     val nameUser: Flow<String?>
     val photoUrl: Flow<String?>
+    val email: Flow<String?>
+    val facebook: Flow<String?>
+    val instagram: Flow<String?>
+    val whatsApp: Flow<String?>
     val locations: Flow<List<LocationItem>>
 
     suspend fun refreshAdmins()
