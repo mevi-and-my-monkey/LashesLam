@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.ui.home.cursos
 
+import com.mevi.lasheslam.network.CreateCourseDto
 import com.mevi.lasheslam.network.LocationItem
 import com.mevi.lasheslam.ui.courses.CourseFormState
 import com.mevi.lasheslam.ui.common.UiState
@@ -15,6 +16,7 @@ data class CourseUiState(
     val instagram: String? = null,
     val whatsApp: String? = null,
     val form: CourseFormState = CourseFormState(),
+    val courseDetail: CreateCourseDto = CreateCourseDto(),
     val showSuccess: Boolean = false,
     val successMessage: String = "",
     val locations: List<LocationItem> = emptyList()

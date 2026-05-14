@@ -2,6 +2,7 @@ package com.mevi.lasheslam.ui.home.cursos
 
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
@@ -15,6 +16,7 @@ import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetLocationsUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
+import com.mevi.lasheslam.domain.usecase.courses.GetACourseDetailUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
@@ -41,6 +43,7 @@ class CourseViewModel @Inject constructor(
     private val getWhatsAppUseCase: GetWhatsAppUseCase,
     private val getLocationsUseCase: GetLocationsUseCase,
     private val createCourseUseCase: CreateCourseUseCase,
+    private val getACourseDetailUseCase: GetACourseDetailUseCase,
     private val analytics: AnalyticsTracker
 ) :
     BaseViewModel<CourseUiState, CourseUiEvent>() {
@@ -225,6 +228,41 @@ class CourseViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun loadCourseById(courseId: String) = launchWithLoading {
+        when (val result = getACourseDetailUseCase(courseId)) {
+            is Resource.Success -> {
+                val course = result.data
+                setState {
+                    copy(
+                        courseDetail = courseDetail.copy(
+                            titulo = course.titulo,
+                            descripcion = course.descripcion,
+                            horaIncio = course.horaIncio,
+                            horaFin = course.horaFin,
+                            fecha = course.fecha,
+                            costo = course.costo,
+                            apartado = course.apartado,
+                            instructora = course.instructora,
+                            instructoraDesc = course.instructoraDesc,
+                            temarios = course.temarios,
+                            imagen = course.imagen,
+                            instructoraImage = course.instructoraImage,
+                            ubicacionNombre = course.ubicacionNombre,
+                            lat = course.lat,
+                            lng = course.lng,
+                            banner = course.banner,
+                            id = course.id
+                        )
+                    )
+                }
+            }
+
+            is Resource.Error -> {
+                sendEvent(CourseUiEvent.ShowError(result.error))
+            }
+        }
     }
 
     fun trackEvent(event: AnalyticsEvent) {

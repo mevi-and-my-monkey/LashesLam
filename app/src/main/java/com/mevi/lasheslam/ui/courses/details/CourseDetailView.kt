@@ -68,6 +68,7 @@ import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
@@ -111,16 +112,12 @@ fun CourseDetailView(
     val isFavorite by viewModelHome.isFavorite
     val context = LocalContext.current
 
-    val serviceData by viewModelHome.selectedService.collectAsState()
     val courseStatus by viewModelHome.courseStatusCurse.collectAsState()
 
-    // 🔹 Cargar datos solo al entrar
-    LaunchedEffect(serviceId) {
-        viewModelHome.loadServiceById(serviceId)
-    }
 
     LaunchedEffect(serviceId) {
-        viewModelHome.loadServiceById(serviceId)
+        viewModel.trackScreen(Screen.ServiceDetails.route)
+        viewModel.loadCourseById(serviceId)
         if (uiState.currentUserId != null) {
             viewModelHome.loadUserCourseStatus(uiState.currentUserId ?: "", serviceId)
         }
@@ -135,33 +132,12 @@ fun CourseDetailView(
         }
     }
 
-    // 🔸 Mostrar cargando mientras llega el snapshot
-    if (serviceData == null) {
+    if (uiState.isLoading) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
         return
     }
-
-    val titulo = serviceData?.get("titulo") as? String ?: ""
-    val descripcion = serviceData?.get("descripcion") as? String ?: ""
-    val horaInicio = serviceData?.get("horaIncio") as? String ?: ""
-    val horaFin = serviceData?.get("horaFin") as? String ?: ""
-    val fecha = serviceData?.get("fecha") as? String ?: ""
-    val costo = (serviceData?.get("costo") as? String)?.toInt() ?: 0
-    val apartar = (serviceData?.get("apartar") as? String)?.toInt() ?: 0
-    val lat = serviceData?.get("lat") as? Double ?: 0.0
-    val lng = serviceData?.get("lng") as? Double ?: 0.0
-    val ubicacionNombre = serviceData?.get("ubicacionNombre") as? String ?: ""
-    val imagen = serviceData?.get("imagen") as? String ?: ""
-    val instructoraDesc = serviceData?.get("instructoraDesc") as? String ?: ""
-    val instructora = serviceData?.get("instructora") as? String ?: ""
-    val instructoraImage = serviceData?.get("instructoraImage") as? String ?: ""
-    val diaUno = serviceData?.get("diaUno") as? String ?: ""
-    val diaDos = serviceData?.get("diaDos") as? String ?: ""
-    val diaTres = serviceData?.get("diaTres") as? String ?: ""
-    val diaCuatro = serviceData?.get("diaCuatro") as? String ?: ""
-    val diaCinco = serviceData?.get("diaCinco") as? String ?: ""
     val status = courseStatus ?: "solicitar"
 
     Box(
@@ -172,7 +148,7 @@ fun CourseDetailView(
     ) {
 
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
@@ -182,30 +158,30 @@ fun CourseDetailView(
 
             // 🔥 Imagen principal (respeta tu diseño)
             SubcomposeAsyncImage(
-                model = imagen,
+                model = uiState.courseDetail.imagen,
                 contentDescription = null,
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .padding(top = 60.dp)
                     .fillMaxWidth()
                     .aspectRatio(4f / 3f)
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Companion.Fit,
+                contentScale = ContentScale.Fit,
                 loading = {
                     Box(
-                        Modifier.Companion.fillMaxSize(),
-                        contentAlignment = Alignment.Companion.Center
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }
                 }
             )
 
-            Spacer(Modifier.Companion.height(20.dp))
+            Spacer(Modifier.height(20.dp))
 
             // 🔥 TARJETA MODERNA
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxSize()
                     .padding(
                         start = 16.dp,
@@ -216,53 +192,61 @@ fun CourseDetailView(
             ) {
 
                 ServiceContent(
-                    titulo = titulo,
-                    descripcion = descripcion,
-                    costoTotal = costo.toDouble(),
-                    costoApartado = apartar.toDouble()
+                    titulo = uiState.courseDetail.titulo,
+                    descripcion = uiState.courseDetail.descripcion,
+                    costoTotal = uiState.courseDetail.costo,
+                    costoApartado = uiState.courseDetail.apartado
                 )
 
-                Spacer(Modifier.Companion.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
                 ServiceInfoRow(
-                    fecha = fecha,
-                    horario = "$horaInicio - $horaFin",
+                    fecha = uiState.courseDetail.fecha,
+                    horario = "${uiState.courseDetail.horaIncio} - ${uiState.courseDetail.horaFin}",
                     onLocationClick = {
-                        Utilities.openGoogleMaps(context, lat, lng)
+                        Utilities.openGoogleMaps(
+                            context,
+                            uiState.courseDetail.lat ?: 0.0,
+                            uiState.courseDetail.lng ?: 0.0
+                        )
                     }
                 )
 
-                Spacer(Modifier.Companion.height(16.dp))
+                Spacer(Modifier.height(16.dp))
 
                 ExpandableSection(title = "Lo que aprenderás (Temario)") {
-                    if (diaUno.isNotEmpty()) Text("• Día 1: $diaUno")
-                    Spacer(Modifier.Companion.height(4.dp))
-                    if (diaDos.isNotEmpty()) Text("• Día 2: $diaDos")
-                    Spacer(Modifier.Companion.height(4.dp))
-                    if (diaTres.isNotEmpty()) Text("• Día 3: $diaTres")
-                    Spacer(Modifier.Companion.height(4.dp))
-                    if (diaCuatro.isNotEmpty()) Text("• Día 4: $diaCuatro")
-                    Spacer(Modifier.Companion.height(4.dp))
-                    if (diaCinco.isNotEmpty()) Text("• Día 5: $diaCinco")
+                    uiState.courseDetail.temarios.forEachIndexed { index, temario ->
+                        if (temario.isNotBlank()) {
+                            Text(
+                                text = "• Día ${index + 1}: $temario",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Spacer(Modifier.height(4.dp))
+                        }
+                    }
                 }
 
-                InstructorCard(instructora, instructoraDesc, instructoraImage)
+                InstructorCard(
+                    uiState.courseDetail.instructora,
+                    uiState.courseDetail.instructoraDesc,
+                    uiState.courseDetail.instructoraImage
+                )
 
-                Spacer(Modifier.Companion.height(24.dp))
+                Spacer(Modifier.height(24.dp))
 
 
                 // 🔹 Texto superior
                 Text(
                     text = "Solicitar más información",
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.Companion.padding(bottom = 12.dp)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-                Spacer(Modifier.Companion.height(12.dp))
+                Spacer(Modifier.height(12.dp))
 
                 Row(
-                    modifier = Modifier.Companion.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Companion.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
@@ -272,7 +256,7 @@ fun CourseDetailView(
                             onClick = {
                                 onOpenFacebook(uiState.facebook ?: "")
                             },
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
@@ -280,7 +264,7 @@ fun CourseDetailView(
                             Icon(
                                 painter = painterResource(R.drawable.ic_facebook),
                                 contentDescription = "Facebook",
-                                tint = Color.Companion.Unspecified
+                                tint = Color.Unspecified
                             )
                         }
 
@@ -289,7 +273,7 @@ fun CourseDetailView(
                             onClick = {
                                 onOpenInstagram(uiState.instagram ?: "")
                             },
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
@@ -306,15 +290,15 @@ fun CourseDetailView(
                             onClick = {
                                 onOpenWhatsApp(
                                     Utilities.createMessageWhatsApp(
-                                        titulo = titulo,
-                                        fecha = fecha,
-                                        horaInicio = horaInicio,
-                                        horaFin = horaFin,
+                                        titulo = uiState.courseDetail.titulo,
+                                        fecha = uiState.courseDetail.fecha,
+                                        horaInicio = uiState.courseDetail.horaIncio,
+                                        horaFin = uiState.courseDetail.horaFin,
                                         whatsapp = uiState.whatsApp ?: ""
                                     )
                                 )
                             },
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
@@ -322,7 +306,7 @@ fun CourseDetailView(
                             Icon(
                                 painter = painterResource(R.drawable.ic_whatsapp),
                                 contentDescription = "WhatsApp",
-                                tint = Color.Companion.Unspecified
+                                tint = Color.Unspecified
                             )
                         }
                     }
@@ -332,8 +316,8 @@ fun CourseDetailView(
 
         // 🔹 TUS BOTONES SUPERIORES – SE RESPETAN COMPLETAMENTE
         Row(
-            modifier = Modifier.Companion
-                .align(Alignment.Companion.TopEnd)
+            modifier = Modifier
+                .align(Alignment.TopEnd)
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -342,7 +326,7 @@ fun CourseDetailView(
                     onClick = {
                         onEditClick(serviceId)
                     },
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .size(44.dp)
                         .shadow(4.dp, CircleShape)
                         .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
@@ -360,7 +344,7 @@ fun CourseDetailView(
                             "¿Seguro que deseas eliminar este curso? Esta acción no se puede deshacer."
                         showConfirmDelete = true
                     },
-                    modifier = Modifier.Companion
+                    modifier = Modifier
                         .size(44.dp)
                         .shadow(4.dp, CircleShape)
                         .background(MaterialTheme.colorScheme.errorContainer, CircleShape)
@@ -383,7 +367,7 @@ fun CourseDetailView(
                         )
                     }
                 },
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .size(44.dp)
                     .shadow(4.dp, CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
@@ -397,7 +381,7 @@ fun CourseDetailView(
 
             IconButton(
                 onClick = onDismiss,
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .size(44.dp)
                     .shadow(4.dp, CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
@@ -408,11 +392,11 @@ fun CourseDetailView(
 
         // 🔻 BOTÓN INFERIOR DEPENDIENDO DEL STATUS
         Column(
-            modifier = Modifier.Companion
-                .align(Alignment.Companion.BottomCenter)
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.Companion.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 🔥 BOTÓN PRINCIPAL SEGÚN STATUS
             val buttonText = when (status) {
@@ -439,9 +423,9 @@ fun CourseDetailView(
                                 viewModelHome.createCourseRequest(
                                     uid.value ?: "",
                                     serviceId,
-                                    titulo.uppercase(),
-                                    fecha,
-                                    "$horaInicio - $horaFin",
+                                    uiState.courseDetail.titulo.uppercase(),
+                                    uiState.courseDetail.fecha,
+                                    "${uiState.courseDetail.horaIncio} - ${uiState.courseDetail.horaFin}",
                                     uiState.nameUser ?: "",
                                     uiState.email ?: ""
                                 )
@@ -450,16 +434,16 @@ fun CourseDetailView(
 
                         "aceptado" -> {
                             onAddToCalendar(
-                                titulo,
-                                fecha,
-                                horaInicio,
-                                horaFin
+                                uiState.courseDetail.titulo,
+                                uiState.courseDetail.fecha,
+                                uiState.courseDetail.horaIncio,
+                                uiState.courseDetail.horaFin
                             )
                         }
                     }
                 },
                 enabled = isEnabled,
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .height(55.dp)
@@ -468,9 +452,9 @@ fun CourseDetailView(
                     Icon(
                         imageVector = calendarIcon,
                         contentDescription = "Agregar al calendario",
-                        modifier = Modifier.Companion.size(22.dp)
+                        modifier = Modifier.size(22.dp)
                     )
-                    Spacer(Modifier.Companion.width(10.dp))
+                    Spacer(Modifier.width(10.dp))
                 }
                 Text(buttonText)
             }
@@ -483,7 +467,7 @@ fun CourseDetailView(
             onDismiss = {
                 showConfirmDelete = false
                 warningMessage = ""
-                val imageRef = storage.getReferenceFromUrl(imagen)
+                val imageRef = storage.getReferenceFromUrl(uiState.courseDetail.imagen)
                 imageRef.delete()
                     .addOnSuccessListener {
                         firestore.collection("data").document("curse")
@@ -532,27 +516,27 @@ fun CourseDetailView(
 fun ServiceContent(
     titulo: String,
     descripcion: String,
-    costoTotal: Double,
-    costoApartado: Double
+    costoTotal: String?,
+    costoApartado: String?
 ) {
     Column {
         Text(
             text = titulo.uppercase(),
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Companion.Bold
+            fontWeight = FontWeight.Bold
         )
 
-        Spacer(Modifier.Companion.height(8.dp))
+        Spacer(Modifier.height(8.dp))
 
         Text(
             buildAnnotatedString {
                 append("Costo Total: ")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Companion.Bold)) {
-                    append("$${costoTotal} MXN")
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("$${costoTotal ?: "0.0"} MXN")
                 }
-                if (costoApartado != 0.0) {
+                if (!costoApartado.isNullOrEmpty()) {
                     append(" / Aparta con: ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Companion.Bold)) {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                         append("$${costoApartado} MXN")
                     }
                 }
@@ -560,7 +544,7 @@ fun ServiceContent(
             style = MaterialTheme.typography.bodyLarge
         )
 
-        Spacer(Modifier.Companion.height(16.dp))
+        Spacer(Modifier.height(16.dp))
 
         Text(
             text = descripcion,
@@ -576,26 +560,26 @@ fun ServiceInfoRow(
     onLocationClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.Companion.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.Companion.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         InfoIcon(icon = Icons.Default.CalendarToday, text = fecha)
         InfoIcon(icon = Icons.Default.Schedule, text = horario)
 
         TextButton(onClick = onLocationClick) {
             Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFD9869A))
-            Spacer(Modifier.Companion.width(4.dp))
-            Text("Ver ubicación", color = Color(0xFFD9869A), fontWeight = FontWeight.Companion.Bold)
+            Spacer(Modifier.width(4.dp))
+            Text("Ver ubicación", color = Color(0xFFD9869A), fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
 private fun InfoIcon(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.Companion.CenterVertically) {
-        Icon(icon, contentDescription = null, modifier = Modifier.Companion.size(20.dp))
-        Spacer(modifier = Modifier.Companion.width(8.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.width(8.dp))
         Text(text, style = MaterialTheme.typography.bodyMedium)
     }
 }
@@ -604,11 +588,11 @@ private fun InfoIcon(icon: ImageVector, text: String) {
 fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Column(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-            .background(Color.Companion.White)
+            .background(Color.White)
             .border(
                 1.dp,
                 Color(0xFFF0F0F0),
@@ -618,14 +602,14 @@ fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit
             .clickable { expanded = !expanded }
     ) {
         Row(
-            modifier = Modifier.Companion.padding(16.dp),
-            verticalAlignment = Alignment.Companion.CenterVertically
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Companion.Bold,
-                modifier = Modifier.Companion.weight(1f)
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
             )
             Icon(
                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -634,7 +618,7 @@ fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit
         }
         if (expanded) {
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
             ) {
                 content()
@@ -645,29 +629,29 @@ fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit
 
 @Composable
 fun InstructorCard(name: String, description: String = "", image: String) {
-    Column(modifier = Modifier.Companion.padding(vertical = 16.dp)) {
+    Column(modifier = Modifier.padding(vertical = 16.dp)) {
         Text(
             "Instructor(a)",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Companion.Bold
+            fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.Companion.height(16.dp))
-        Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
             SubcomposeAsyncImage(
                 model = image,
                 contentDescription = name,
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape),
-                contentScale = ContentScale.Companion.Crop,
+                contentScale = ContentScale.Crop,
                 loading = { CircularProgressIndicator() }
             )
-            Spacer(modifier = Modifier.Companion.width(16.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
                     name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Companion.Bold
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     description,

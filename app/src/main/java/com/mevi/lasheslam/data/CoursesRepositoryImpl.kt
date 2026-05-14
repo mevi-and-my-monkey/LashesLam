@@ -12,6 +12,7 @@ import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.network.CourseItemDto
 import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.network.CreateCourseDto
 import com.mevi.lasheslam.network.toDomain
 import com.mevi.lasheslam.network.toDto
 import kotlinx.coroutines.channels.awaitClose
@@ -75,6 +76,36 @@ class CoursesRepositoryImpl @Inject constructor(
             }
 
         awaitClose { listener.remove() }
+    }
+
+    override suspend fun getCourseById(
+        courseId: String
+    ): Resource<CreateCourseDto> {
+        return try {
+            val snapshot = firestore
+                .collection(FirestorePaths.Courses.collectionPath())
+                .document(courseId)
+                .get()
+                .await()
+            if (!snapshot.exists()) {
+                return Resource.Error(
+                    errorMapper.map(Exception("Curso no encontrado"))
+                )
+            }
+            val course = snapshot
+                .toObject(CreateCourseDto::class.java)
+                ?.copy(id = snapshot.id)
+            if (course != null) {
+                Resource.Success(course)
+            } else {
+                Resource.Error(
+                    errorMapper.map(Exception("Error al convertir curso"))
+                )
+            }
+
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
     }
 
     override suspend fun createCourse(

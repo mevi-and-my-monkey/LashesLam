@@ -37,31 +37,11 @@ class HomeViewModel @Inject constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _selectedService = MutableStateFlow<Map<String, Any>?>(null)
-    val selectedService: StateFlow<Map<String, Any>?> = _selectedService
-
     private val _courseStatusCurse = MutableStateFlow<String?>(null)
     val courseStatusCurse: StateFlow<String?> = _courseStatusCurse
 
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
-
-    fun loadServiceById(serviceId: String) {
-        showLoading()
-        FirebaseFirestore.getInstance()
-            .collection("data")
-            .document("curse")
-            .collection("items")
-            .document(serviceId)
-            .addSnapshotListener { snapshot, e ->
-                if (snapshot != null && snapshot.exists()) {
-                    _selectedService.value = snapshot.data
-                } else {
-                    _selectedService.value = null
-                }
-            }
-        hideLoading()
-    }
 
     fun showLoading() {
         _isLoading.value = true
