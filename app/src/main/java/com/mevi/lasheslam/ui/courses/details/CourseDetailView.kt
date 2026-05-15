@@ -1,13 +1,9 @@
 package com.mevi.lasheslam.ui.courses.details
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -22,16 +18,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -40,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,17 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import com.google.firebase.firestore.FirebaseFirestore
@@ -191,7 +175,7 @@ fun CourseDetailView(
                     )
             ) {
 
-                ServiceContent(
+                CourseContent(
                     titulo = uiState.courseDetail.titulo,
                     descripcion = uiState.courseDetail.descripcion,
                     costoTotal = uiState.courseDetail.costo,
@@ -200,7 +184,7 @@ fun CourseDetailView(
 
                 Spacer(Modifier.height(16.dp))
 
-                ServiceInfoRow(
+                CourseInfoRow(
                     fecha = uiState.courseDetail.fecha,
                     horario = "${uiState.courseDetail.horaIncio} - ${uiState.courseDetail.horaFin}",
                     onLocationClick = {
@@ -506,156 +490,5 @@ fun CourseDetailView(
             onDismiss = { showError = false },
             onCancel = {}
         )
-    }
-}
-
-@Composable
-fun ServiceContent(
-    titulo: String,
-    descripcion: String,
-    costoTotal: String?,
-    costoApartado: String?
-) {
-    Column {
-        Text(
-            text = titulo.uppercase(),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            buildAnnotatedString {
-                append("Costo Total: ")
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append("$${costoTotal ?: "0.0"} MXN")
-                }
-                if (!costoApartado.isNullOrEmpty()) {
-                    append(" / Aparta con: ")
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append("$${costoApartado} MXN")
-                    }
-                }
-            },
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Text(
-            text = descripcion,
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
-
-@Composable
-fun ServiceInfoRow(
-    fecha: String,
-    horario: String,
-    onLocationClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        InfoIcon(icon = Icons.Default.CalendarToday, text = fecha)
-        InfoIcon(icon = Icons.Default.Schedule, text = horario)
-
-        TextButton(onClick = onLocationClick) {
-            Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color(0xFFD9869A))
-            Spacer(Modifier.width(4.dp))
-            Text("Ver ubicación", color = Color(0xFFD9869A), fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-private fun InfoIcon(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text, style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
-@Composable
-fun ExpandableSection(title: String, content: @Composable ColumnScope.() -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-            .background(Color.White)
-            .border(
-                1.dp,
-                Color(0xFFF0F0F0),
-                androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
-            )
-            .animateContentSize()
-            .clickable { expanded = !expanded }
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (expanded) "Colapsar" else "Expandir"
-            )
-        }
-        if (expanded) {
-            Column(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-            ) {
-                content()
-            }
-        }
-    }
-}
-
-@Composable
-fun InstructorCard(name: String, description: String = "", image: String) {
-    Column(modifier = Modifier.padding(vertical = 16.dp)) {
-        Text(
-            "Instructor(a)",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            SubcomposeAsyncImage(
-                model = image,
-                contentDescription = name,
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                loading = { CircularProgressIndicator() }
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = 18.sp
-                )
-            }
-        }
     }
 }

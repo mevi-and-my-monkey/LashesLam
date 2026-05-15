@@ -132,8 +132,11 @@
     <string name="request_pending">Solicitud pendiente</string>
     <string name="course_deleted">Curso eliminado</string>
     <string name="course_deleted_message">El curso se eliminó correctamente.</string>
-
-
-
+    <string name="instructor">Instructor(a)</string>
+    <string name="collapse">Colapsar</string>
+    <string name="expand">Expandir</string>
+    <string name="ubicacion">Ver ubicación</string>
+    <string name="total_cost">Costo Total: </string>
+    <string name="seat_aside_with">Aparta con: </string>
 
 </resources>
