@@ -12,6 +12,11 @@
     <string name="error">¡Error!</string>
     <string name="error_generic_content">Ha ocurrido un error inesperado</string>
     <string name="accept">Aceptar</string>
+    <string name="request_info">Solicita más información</string>
+    <string name="facebook">Facebook</string>
+    <string name="instragram">Instagram</string>
+    <string name="whatsApp">WhatsApp</string>
+    <string name="edit">Editar</string>
 
     <!-- LOGIN -->
     <string name="welcome">¡Bienvenida!</string>
@@ -118,6 +123,17 @@
     <string name="subtitulo">Subtitulo</string>
     <string name="duration">Duración</string>
     <string name="servicio_agregado">Servicio agregado</string>
+
+    <!-- COURSE DETAIL VIEW-->
+    <string name="temarios_title">Lo que aprenderás (Temario)</string>
+    <string name="warning_detele_course">¿Seguro que deseas eliminar este curso? Esta acción no se puede deshacer.</string>
+    <string name="register_course">Registrar</string>
+    <string name="add_to_calendar">Agregar al calendario</string>
+    <string name="request_pending">Solicitud pendiente</string>
+    <string name="course_deleted">Curso eliminado</string>
+    <string name="course_deleted_message">El curso se eliminó correctamente.</string>
+
+
 
 
 </resources>

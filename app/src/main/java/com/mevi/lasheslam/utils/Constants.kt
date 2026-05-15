@@ -6,4 +6,11 @@ class Constants{
         const val COUNTRY = "MX"
         const val DATE_FORMAT = "dd/MM/yyyy"
     }
+
+    object Course{
+        const val STATUS_PANDING = "pendiente"
+        const val STATUS_ACCEPTED = "aceptado"
+        const val STATUS_REJECTED = "rechazado"
+        const val STATUS_REQUESTED = "solicitar"
+    }
 }

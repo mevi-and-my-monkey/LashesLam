@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +77,7 @@ import com.mevi.lasheslam.ui.components.WarningDialog
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.HomeViewModel
 import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
+import com.mevi.lasheslam.utils.Constants
 import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -138,7 +140,7 @@ fun CourseDetailView(
         }
         return
     }
-    val status = courseStatus ?: "solicitar"
+    val status = courseStatus ?: Constants.Course.STATUS_REQUESTED
 
     Box(
         modifier = modifier
@@ -156,7 +158,6 @@ fun CourseDetailView(
                 .padding(bottom = 180.dp)
         ) {
 
-            // 🔥 Imagen principal (respeta tu diseño)
             SubcomposeAsyncImage(
                 model = uiState.courseDetail.imagen,
                 contentDescription = null,
@@ -179,7 +180,6 @@ fun CourseDetailView(
 
             Spacer(Modifier.height(20.dp))
 
-            // 🔥 TARJETA MODERNA
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -214,7 +214,7 @@ fun CourseDetailView(
 
                 Spacer(Modifier.height(16.dp))
 
-                ExpandableSection(title = "Lo que aprenderás (Temario)") {
+                ExpandableSection(title = stringResource(R.string.temarios_title)) {
                     uiState.courseDetail.temarios.forEachIndexed { index, temario ->
                         if (temario.isNotBlank()) {
                             Text(
@@ -235,9 +235,8 @@ fun CourseDetailView(
                 Spacer(Modifier.height(24.dp))
 
 
-                // 🔹 Texto superior
                 Text(
-                    text = "Solicitar más información",
+                    text = stringResource(R.string.request_info),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
@@ -251,7 +250,6 @@ fun CourseDetailView(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        // FACEBOOK
                         IconButton(
                             onClick = {
                                 onOpenFacebook(uiState.facebook ?: "")
@@ -263,12 +261,11 @@ fun CourseDetailView(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_facebook),
-                                contentDescription = "Facebook",
+                                contentDescription = stringResource(R.string.facebook),
                                 tint = Color.Unspecified
                             )
                         }
 
-                        // INSTAGRAM
                         IconButton(
                             onClick = {
                                 onOpenInstagram(uiState.instagram ?: "")
@@ -280,7 +277,7 @@ fun CourseDetailView(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_instagram),
-                                contentDescription = "Instagram",
+                                contentDescription = stringResource(R.string.instragram),
                                 tint = Color.Unspecified
                             )
                         }
@@ -305,7 +302,7 @@ fun CourseDetailView(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_whatsapp),
-                                contentDescription = "WhatsApp",
+                                contentDescription = stringResource(R.string.whatsApp),
                                 tint = Color.Unspecified
                             )
                         }
@@ -333,7 +330,7 @@ fun CourseDetailView(
                 ) {
                     Icon(
                         Icons.Default.Edit,
-                        contentDescription = "Editar",
+                        contentDescription = stringResource(R.string.edit),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
@@ -351,7 +348,7 @@ fun CourseDetailView(
                 ) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Eliminar",
+                        contentDescription = stringResource(R.string.delete),
                         tint = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
@@ -400,25 +397,25 @@ fun CourseDetailView(
         ) {
             // 🔥 BOTÓN PRINCIPAL SEGÚN STATUS
             val buttonText = when (status) {
-                "solicitar" -> "Registrar"
-                "pendiente" -> "Solicitud pendiente"
-                "aceptado" -> "Agregar al calendario"
-                else -> "Registrar"
+                Constants.Course.STATUS_REQUESTED -> stringResource(R.string.register_course)
+                Constants.Course.STATUS_PANDING -> stringResource(R.string.request_pending)
+                Constants.Course.STATUS_ACCEPTED -> stringResource(R.string.add_to_calendar)
+                else -> stringResource(R.string.register_course)
             }
 
             val calendarIcon = when (status) {
-                "aceptado" -> Icons.Outlined.EventAvailable
+                Constants.Course.STATUS_ACCEPTED -> Icons.Outlined.EventAvailable
                 else -> null
             }
 
-            val isEnabled = status != "pendiente"
+            val isEnabled = status != Constants.Course.STATUS_PANDING
 
             ElevatedButton(
                 onClick = {
                     val uid = SessionManager.currentUserId
 
                     when (status) {
-                        "solicitar" -> {
+                        Constants.Course.STATUS_REQUESTED -> {
                             CoroutineScope(Dispatchers.IO).launch {
                                 viewModelHome.createCourseRequest(
                                     uid.value ?: "",
@@ -432,7 +429,7 @@ fun CourseDetailView(
                             }
                         }
 
-                        "aceptado" -> {
+                        Constants.Course.STATUS_ACCEPTED -> {
                             onAddToCalendar(
                                 uiState.courseDetail.titulo,
                                 uiState.courseDetail.fecha,
@@ -451,7 +448,7 @@ fun CourseDetailView(
                 if (calendarIcon != null) {
                     Icon(
                         imageVector = calendarIcon,
-                        contentDescription = "Agregar al calendario",
+                        contentDescription =  stringResource(R.string.add_to_calendar),
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(Modifier.width(10.dp))
@@ -493,8 +490,8 @@ fun CourseDetailView(
 
     if (showSuccess) {
         SuccessDialog(
-            title = "Curso eliminado",
-            message = "El curso se eliminó correctamente.",
+            title = stringResource(R.string.course_deleted),
+            message =stringResource(R.string.course_deleted_message),
             onDismiss = {
                 showSuccess = false
                 onDismiss()
