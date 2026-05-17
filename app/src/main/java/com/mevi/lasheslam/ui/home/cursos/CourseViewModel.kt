@@ -2,7 +2,6 @@ package com.mevi.lasheslam.ui.home.cursos
 
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
@@ -16,13 +15,16 @@ import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetLocationsUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
+import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
 import com.mevi.lasheslam.domain.usecase.courses.GetACourseDetailUseCase
+import com.mevi.lasheslam.domain.usecase.courses.GetCourseStatusUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
 import com.mevi.lasheslam.network.FavoriteItem
 import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,12 +40,14 @@ class CourseViewModel @Inject constructor(
     private val getNameUserUseCase: GetNameUserUseCase,
     private val getEmailUserUseCase: GetEmailUserUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFacebookUseCase: GetFacebookUseCase,
     private val getInstagramUseCase: GetInstagramUseCase,
     private val getWhatsAppUseCase: GetWhatsAppUseCase,
     private val getLocationsUseCase: GetLocationsUseCase,
     private val createCourseUseCase: CreateCourseUseCase,
     private val getACourseDetailUseCase: GetACourseDetailUseCase,
+    private val observeUserCourseStatusUseCase: GetCourseStatusUseCase,
     private val analytics: AnalyticsTracker
 ) :
     BaseViewModel<CourseUiState, CourseUiEvent>() {
@@ -196,6 +200,39 @@ class CourseViewModel @Inject constructor(
         }
     }
 
+    fun toggleFavorite(itemId: String, type: FavoriteType) {
+        val userId = uiState.value.currentUserId ?: return
+        trackEvent(AnalyticsEvent.FavoriteClick(type.name))
+
+        viewModelScope.launch {
+            val currentFavorites = _favorites.value
+            val isFavorite = currentFavorites.any {
+                it.itemId == itemId && it.type == type.name
+            }
+            when (
+                toggleFavoriteUseCase(
+                    userId = userId,
+                    itemId = itemId,
+                    type = type.name,
+                    isFavorite = isFavorite
+                )
+            ) {
+                is Resource.Success -> {
+                    _favorites.value =
+                        if (isFavorite) {
+                            currentFavorites.filterNot {
+                                it.itemId == itemId && it.type == type.name
+                            }
+                        } else {
+                            currentFavorites + FavoriteItem(itemId, type.name)
+                        }
+                }
+
+                else -> {}
+            }
+        }
+    }
+
     fun saveCourse(selectedLocation: LocationItem?, linkedBannerIndex: Int) = launchWithLoading {
         trackEvent(AnalyticsEvent.SaveCourseClick)
         val form = uiState.value.form
@@ -262,6 +299,20 @@ class CourseViewModel @Inject constructor(
             is Resource.Error -> {
                 sendEvent(CourseUiEvent.ShowError(result.error))
             }
+        }
+    }
+
+    fun loadUserCourseStatus(
+        courseId: String
+    ) {
+        viewModelScope.launch {
+            observeUserCourseStatusUseCase(uiState.value.currentUserId ?: "", courseId)
+                .collect { status ->
+
+                    setState {
+                        copy(courseStatus = status)
+                    }
+                }
         }
     }
 

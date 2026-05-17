@@ -15,6 +15,7 @@ import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.network.CreateCourseDto
 import com.mevi.lasheslam.network.toDomain
 import com.mevi.lasheslam.network.toDto
+import com.mevi.lasheslam.utils.Constants
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -133,6 +134,28 @@ class CoursesRepositoryImpl @Inject constructor(
             Resource.Error(errorMapper.map(e))
         }
     }
+
+    override fun observeUserCourseStatus(userId: String, courseId: String): Flow<String> =
+        callbackFlow {
+            val listener = firestore
+                .collection(FirestorePaths.Users.COLLECTION)
+                .document(userId)
+                .collection(FirestorePaths.Users.COURSE)
+                .document(courseId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        trySend(Constants.Course.STATUS_REQUESTED)
+                        return@addSnapshotListener
+                    }
+                    val status = snapshot?.getString(Constants.Course.STATUS)
+                        ?: Constants.Course.STATUS_REQUESTED
+                    trySend(status)
+                }
+            awaitClose {
+                listener.remove()
+            }
+
+        }
 
     private suspend fun uploadCourseImage(courseId: String, imageUri: Uri): String {
         val reference = storage.reference.child(

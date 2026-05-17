@@ -7,24 +7,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
-import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
-import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
-import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
 ) : ViewModel() {
 
@@ -36,9 +28,6 @@ class HomeViewModel @Inject constructor(
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _courseStatusCurse = MutableStateFlow<String?>(null)
-    val courseStatusCurse: StateFlow<String?> = _courseStatusCurse
 
     private val _isFavorite = mutableStateOf(false)
     val isFavorite: State<Boolean> get() = _isFavorite
@@ -93,48 +82,6 @@ class HomeViewModel @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             println("ERROR creando solicitud: ${e.message}")
-        }
-    }
-
-    fun loadUserCourseStatus(userId: String, courseId: String) {
-        firestore.collection(FirestorePaths.Users.COLLECTION)
-            .document(userId)
-            .collection("cursos")
-            .document(courseId)
-            .addSnapshotListener { snapshot, _ ->
-                _courseStatusCurse.value = snapshot?.getString("status") ?: "solicitar"
-            }
-    }
-
-    fun toggleFavorite(userId: String, itemId: String, type: FavoriteType) {
-        viewModelScope.launch {
-            val current = _isFavorite.value
-
-            when (
-                toggleFavoriteUseCase(
-                    userId = userId,
-                    itemId = itemId,
-                    type = type.name,
-                    isFavorite = current
-                )
-            ) {
-                is Resource.Success -> {
-                    _isFavorite.value = !current
-                }
-                else -> {}
-            }
-        }
-    }
-
-
-    fun checkIfFavorite(userId: String, itemId: String, type: FavoriteType) {
-        viewModelScope.launch {
-            when (val result = getFavoritesUseCase(userId)) {
-                is Resource.Success -> {
-                    _isFavorite.value = result.data.any { it.itemId == itemId }
-                }
-                else -> {}
-            }
         }
     }
 }

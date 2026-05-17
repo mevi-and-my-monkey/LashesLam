@@ -8,6 +8,7 @@ class Constants{
     }
 
     object Course{
+        const val STATUS = "status"
         const val STATUS_PANDING = "pendiente"
         const val STATUS_ACCEPTED = "aceptado"
         const val STATUS_REJECTED = "rechazado"

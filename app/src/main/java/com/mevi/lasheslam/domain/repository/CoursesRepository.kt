@@ -11,4 +11,5 @@ interface CoursesRepository {
     suspend fun getCoursesByIds(ids: List<String>): Resource<List<CoursesItem>>
     fun getAllCourses(): Flow<Resource<List<CoursesItem>>>
     suspend fun getCourseById(courseId: String): Resource<CreateCourseDto>
+    fun observeUserCourseStatus(userId: String, courseId: String): Flow<String>
 }

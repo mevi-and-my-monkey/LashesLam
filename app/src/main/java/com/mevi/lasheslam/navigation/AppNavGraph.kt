@@ -140,10 +140,10 @@ fun AppNavGraph(
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
-            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            val courseId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
             val context = LocalContext.current
             CourseDetailView(
-                serviceId = serviceId,
+                courseId = courseId,
                 onDismiss = { navController.popBackStack() },
                 onEditClick = { id -> navController.navigate(Screen.ServiceEdit.createRoute(id)) },
                 onOpenFacebook = { facebook ->
