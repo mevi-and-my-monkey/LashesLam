@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.ui.courses.details.components.DetailBotonStatusView
+import com.mevi.lasheslam.ui.courses.details.components.DetailCostView
+import com.mevi.lasheslam.ui.courses.details.components.DetailDescriptionView
+import com.mevi.lasheslam.ui.courses.details.components.DetailUbicationView
 import com.mevi.lasheslam.ui.courses.details.components.DetailsImageView
 import com.mevi.lasheslam.ui.courses.details.components.DetailsOptionsTop
 import com.mevi.lasheslam.ui.courses.details.components.DetailsSocialMediaView
@@ -92,18 +95,18 @@ fun CourseDetailContent(
                     )
             ) {
 
-                CourseContent(
-                    titulo = uiState.courseDetail.titulo,
-                    descripcion = uiState.courseDetail.descripcion,
+                CourseContent(titulo = uiState.courseDetail.titulo)
+
+                DetailCostView(
                     costoTotal = uiState.courseDetail.costo,
-                    costoApartado = uiState.courseDetail.apartado
+                    costoApartado = uiState.courseDetail.apartado,
+                    horaInicio = uiState.courseDetail.horaIncio,
+                    horaFin = uiState.courseDetail.horaFin
                 )
 
-                Spacer(Modifier.height(16.dp))
-
-                CourseInfoRow(
+                DetailUbicationView(
                     fecha = uiState.courseDetail.fecha,
-                    horario = "${uiState.courseDetail.horaIncio} - ${uiState.courseDetail.horaFin}",
+                    location = uiState.courseDetail.ubicacionNombre,
                     onLocationClick = {
                         Utilities.openGoogleMaps(
                             context,
@@ -112,6 +115,10 @@ fun CourseDetailContent(
                         )
                     }
                 )
+
+                Spacer(Modifier.height(8.dp))
+
+                DetailDescriptionView(descripcion = uiState.courseDetail.descripcion)
 
                 Spacer(Modifier.height(16.dp))
 

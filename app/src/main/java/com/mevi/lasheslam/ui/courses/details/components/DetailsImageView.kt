@@ -39,6 +39,4 @@ fun DetailsImageView(image: String){
             }
         }
     )
-
-    Spacer(Modifier.height(20.dp))
 }
