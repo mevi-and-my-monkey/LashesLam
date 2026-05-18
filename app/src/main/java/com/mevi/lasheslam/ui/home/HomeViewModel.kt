@@ -7,30 +7,17 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import com.mevi.lasheslam.data.constants.FirestorePaths
-import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val getFavoritesUseCase: GetFavoritesUseCase,
-) : ViewModel() {
-
-    var name by mutableStateOf("")
-        private set
+class HomeViewModel @Inject constructor() : ViewModel() {
 
     var photoUrl by mutableStateOf<String?>(null)
         private set
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _isFavorite = mutableStateOf(false)
-    val isFavorite: State<Boolean> get() = _isFavorite
 
     fun showLoading() {
         _isLoading.value = true
@@ -40,48 +27,4 @@ class HomeViewModel @Inject constructor(
         _isLoading.value = false
     }
 
-    suspend fun createCourseRequest(
-        userId: String,
-        courseId: String,
-        courseName: String,
-        date: String,
-        schedule: String,
-        nameUser: String,
-        emailUser: String
-    ) {
-        try {
-            val requestRef = firestore.collection("course_requests").document()
-            val requestId = requestRef.id
-
-            val requestData = mapOf(
-                "requestId" to requestId,
-                "userId" to userId,
-                "nameUser" to nameUser,
-                "emailUser" to emailUser,
-                "courseId" to courseId,
-                "courseName" to courseName,
-                "status" to "pendiente",
-                "date" to date,
-                "schedule" to schedule,
-                "timestamp" to System.currentTimeMillis()
-            )
-
-            println("DEBUG: Intentando crear solicitud $requestId")
-
-            requestRef.set(requestData).await()
-
-            println("DEBUG: Solicitud creada en course_requests")
-
-            firestore.collection(FirestorePaths.Users.COLLECTION)
-                .document(userId)
-                .collection("cursos")
-                .document(courseId)
-                .set(mapOf("status" to "pendiente"))
-                .await()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            println("ERROR creando solicitud: ${e.message}")
-        }
-    }
 }

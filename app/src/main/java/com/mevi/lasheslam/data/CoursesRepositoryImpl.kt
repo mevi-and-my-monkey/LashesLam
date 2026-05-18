@@ -13,6 +13,7 @@ import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.network.CourseItemDto
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.network.CreateCourseDto
+import com.mevi.lasheslam.domain.model.CreateCourseRequestModel
 import com.mevi.lasheslam.network.toDomain
 import com.mevi.lasheslam.network.toDto
 import com.mevi.lasheslam.utils.Constants
@@ -156,6 +157,43 @@ class CoursesRepositoryImpl @Inject constructor(
             }
 
         }
+
+    override suspend fun deleteCourse(courseId: String, imageUrl: String): Resource<Unit> {
+        return try {
+            val imageRef = storage.getReferenceFromUrl(imageUrl)
+            imageRef.delete().await()
+            firestore.collection(FirestorePaths.Courses.collectionPath())
+                .document(courseId)
+                .delete()
+                .await()
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun createCourseRequest(request: CreateCourseRequestModel): Resource<Unit> {
+        return try {
+            val requestRef = firestore
+                .collection(FirestorePaths.Courses.COURSES_REQUESTS)
+                .document()
+
+            val requestId = requestRef.id
+            val dto = request.toDto(requestId)
+            requestRef.set(dto).await()
+
+            firestore.collection(FirestorePaths.Users.COLLECTION)
+                .document(request.userId)
+                .collection(FirestorePaths.Users.COURSE)
+                .document(request.courseId)
+                .set(mapOf(FirestorePaths.Courses.STATUS to FirestorePaths.Courses.STATUS_PANDING))
+                .await()
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
 
     private suspend fun uploadCourseImage(courseId: String, imageUri: Uri): String {
         val reference = storage.reference.child(

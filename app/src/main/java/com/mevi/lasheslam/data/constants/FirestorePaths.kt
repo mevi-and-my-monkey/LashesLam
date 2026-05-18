@@ -1,8 +1,6 @@
 package com.mevi.lasheslam.data.constants
 
 import com.mevi.lasheslam.data.constants.FirestorePaths.Courses.COLLECTION
-import com.mevi.lasheslam.data.constants.FirestorePaths.Courses.COLLECTION_ITEMS
-import com.mevi.lasheslam.data.constants.FirestorePaths.Products.COLLECTION_PRODUCTS_ITEMS
 
 object FirestorePaths {
     object Users {

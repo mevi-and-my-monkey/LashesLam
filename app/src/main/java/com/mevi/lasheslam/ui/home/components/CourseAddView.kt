@@ -54,6 +54,8 @@ fun CourseAddView(
                     errorMessage = event.error.toUserMessage()
                     showError = true
                 }
+
+                else -> {}
             }
         }
     }

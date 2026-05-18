@@ -42,9 +42,6 @@ class AdminRequestsViewModel @Inject constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    var favoriteIds by mutableStateOf<List<String>>(emptyList())
-        private set
-
     var favoriteCourses by mutableStateOf<List<CoursesItem>>(emptyList())
         private set
 

@@ -4,6 +4,7 @@ import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.network.CreateCourseDto
+import com.mevi.lasheslam.domain.model.CreateCourseRequestModel
 import kotlinx.coroutines.flow.Flow
 
 interface CoursesRepository {
@@ -12,4 +13,6 @@ interface CoursesRepository {
     fun getAllCourses(): Flow<Resource<List<CoursesItem>>>
     suspend fun getCourseById(courseId: String): Resource<CreateCourseDto>
     fun observeUserCourseStatus(userId: String, courseId: String): Flow<String>
+    suspend fun deleteCourse(courseId: String, imageUrl: String): Resource<Unit>
+    suspend fun createCourseRequest(request: CreateCourseRequestModel): Resource<Unit>
 }

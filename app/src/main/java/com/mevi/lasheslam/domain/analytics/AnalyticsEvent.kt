@@ -65,6 +65,12 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object SaveCourseError : AnalyticsEvent("save_course_error")
 
+    data object DetailCourseSuccess : AnalyticsEvent("detail_course_success")
+
+    data object DetailCourseError : AnalyticsEvent("detail_course_error")
+
+    data object RequestCourse : AnalyticsEvent("request_course")
+
     data object SaveProductClick : AnalyticsEvent("save_product_click")
 
     data object SaveProductSuccess : AnalyticsEvent("save_product_success")
@@ -83,4 +89,9 @@ sealed class AnalyticsEvent(val name: String) {
     data class SectionSelected(val section: String) : AnalyticsEvent("section_selected")
 
     data class ScreenView(val screen: String) : AnalyticsEvent("screen_view")
+
+    data object ShowDialog : AnalyticsEvent("show_dialog")
+
+    data object HideDialog : AnalyticsEvent("hide_dialog")
+
 }

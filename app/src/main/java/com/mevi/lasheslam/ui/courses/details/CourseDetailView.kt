@@ -15,14 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WarningDialog
 import com.mevi.lasheslam.ui.home.HomeViewModel
+import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +35,6 @@ fun CourseDetailView(
     courseId: String,
     viewModelHome: HomeViewModel = hiltViewModel(),
     viewModel: CourseViewModel = hiltViewModel(),
-    firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    storage: FirebaseStorage = FirebaseStorage.getInstance(),
     onDismiss: () -> Unit,
     modifier: Modifier,
     onEditClick: (String) -> Unit,
@@ -56,6 +55,8 @@ fun CourseDetailView(
     var showSuccess by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var successTitle by remember { mutableStateOf("") }
+    var successMessage by remember { mutableStateOf("") }
     var warningMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(courseId) {
@@ -75,6 +76,35 @@ fun CourseDetailView(
         return
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+
+                is CourseUiEvent.ShowError -> {
+                    viewModel.trackEvent(AnalyticsEvent.DetailCourseError)
+                    errorMessage = event.error.toUserMessage()
+                    showError = true
+                }
+
+                CourseUiEvent.CourseDeleted -> {
+                    viewModel.trackEvent(AnalyticsEvent.DetailCourseSuccess)
+                    successTitle = "Curso eliminado"
+                    successMessage = "El curso se eliminó correctamente."
+                    showSuccess = true
+                }
+
+                CourseUiEvent.RequestCourse -> {
+                    viewModel.trackEvent(AnalyticsEvent.RequestCourse)
+                    successTitle = "Solicitud enviada"
+                    successMessage = "La solicitud se envió correctamente."
+                    showSuccess = true
+                }
+
+                else -> {}
+            }
+        }
+    }
+
     CourseDetailContent(
         uiState = uiState,
         courseId = courseId,
@@ -86,49 +116,29 @@ fun CourseDetailView(
         onOpenInstagram = onOpenInstagram,
         onOpenWhatsApp = onOpenWhatsApp,
         onAddToCalendar = onAddToCalendar,
-        onCreateCourseRequest ={
-            CoroutineScope(Dispatchers.IO).launch {
-                viewModelHome.createCourseRequest(
-                    uiState.currentUserId ?: "",
-                    courseId,
-                    uiState.courseDetail.titulo.uppercase(),
-                    uiState.courseDetail.fecha,
-                    "${uiState.courseDetail.horaIncio} - ${uiState.courseDetail.horaFin}",
-                    uiState.nameUser ?: "",
-                    uiState.email ?: ""
-                )
-            }
+        onCreateCourseRequest = {
+            viewModel.createRequest(courseId = courseId)
         },
         showConfirmDelete = {
-            warningMessage = "¿Seguro que deseas eliminar este curso? Esta acción no se puede deshacer."
+            viewModel.trackEvent(AnalyticsEvent.ShowDialog)
+            warningMessage =
+                "¿Seguro que deseas eliminar este curso? Esta acción no se puede deshacer."
             showConfirmDelete = true
         }
     )
 
     if (showConfirmDelete) {
+        viewModel.trackEvent(AnalyticsEvent.ShowDialog)
         WarningDialog(
             message = warningMessage,
             onDismiss = {
+                viewModel.trackEvent(AnalyticsEvent.HideDialog)
                 showConfirmDelete = false
                 warningMessage = ""
-                val imageRef = storage.getReferenceFromUrl(uiState.courseDetail.imagen)
-                imageRef.delete()
-                    .addOnSuccessListener {
-                        firestore.collection("data").document("curse")
-                            .collection("items").document(courseId)
-                            .delete()
-                            .addOnSuccessListener { showSuccess = true }
-                            .addOnFailureListener {
-                                errorMessage = "Error al eliminar datos de Firestore"
-                                showError = true
-                            }
-                    }
-                    .addOnFailureListener {
-                        errorMessage = "Error al eliminar la imagen del almacenamiento"
-                        showError = true
-                    }
+                viewModel.deleteCourse(courseId = courseId, imageUrl = uiState.courseDetail.imagen)
             },
             onCancel = {
+                viewModel.trackEvent(AnalyticsEvent.HideDialog)
                 showConfirmDelete = false
                 warningMessage = ""
             }
@@ -136,10 +146,12 @@ fun CourseDetailView(
     }
 
     if (showSuccess) {
+        viewModel.trackEvent(AnalyticsEvent.ShowDialog)
         SuccessDialog(
-            title = stringResource(R.string.course_deleted),
-            message = stringResource(R.string.course_deleted_message),
+            title = successTitle,
+            message = successMessage,
             onDismiss = {
+                viewModel.trackEvent(AnalyticsEvent.HideDialog)
                 showSuccess = false
                 onDismiss()
             },
@@ -148,9 +160,13 @@ fun CourseDetailView(
     }
 
     if (showError) {
+        viewModel.trackEvent(AnalyticsEvent.ShowDialog)
         ErrorDialog(
             message = errorMessage,
-            onDismiss = { showError = false },
+            onDismiss = {
+                viewModel.trackEvent(AnalyticsEvent.HideDialog)
+                showError = false
+            },
             onCancel = {}
         )
     }

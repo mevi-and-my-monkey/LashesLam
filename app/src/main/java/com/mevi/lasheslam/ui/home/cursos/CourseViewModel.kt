@@ -6,6 +6,7 @@ import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.domain.model.CreateCourseModel
+import com.mevi.lasheslam.domain.model.CreateCourseRequestModel
 import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.CreateCourseUseCase
@@ -16,6 +17,8 @@ import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetLocationsUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.courses.CreateCourseRequestUseCase
+import com.mevi.lasheslam.domain.usecase.courses.DeleteCourseUseCase
 import com.mevi.lasheslam.domain.usecase.courses.GetACourseDetailUseCase
 import com.mevi.lasheslam.domain.usecase.courses.GetCourseStatusUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
@@ -47,6 +50,8 @@ class CourseViewModel @Inject constructor(
     private val getLocationsUseCase: GetLocationsUseCase,
     private val createCourseUseCase: CreateCourseUseCase,
     private val getACourseDetailUseCase: GetACourseDetailUseCase,
+    private val deleteCourseUseCase: DeleteCourseUseCase,
+    private val createCourseRequestUseCase: CreateCourseRequestUseCase,
     private val observeUserCourseStatusUseCase: GetCourseStatusUseCase,
     private val analytics: AnalyticsTracker
 ) :
@@ -298,6 +303,48 @@ class CourseViewModel @Inject constructor(
 
             is Resource.Error -> {
                 sendEvent(CourseUiEvent.ShowError(result.error))
+            }
+        }
+    }
+
+    fun deleteCourse(
+        courseId: String,
+        imageUrl: String
+    ) {
+        viewModelScope.launch {
+            when (val result = deleteCourseUseCase(courseId, imageUrl)) {
+                is Resource.Success -> {
+                    sendEvent(CourseUiEvent.CourseDeleted)
+                }
+
+                is Resource.Error -> {
+                    sendEvent(CourseUiEvent.ShowError(result.error))
+                }
+            }
+        }
+    }
+
+    fun createRequest(courseId: String) {
+        viewModelScope.launch {
+
+            val request = CreateCourseRequestModel(
+                userId = uiState.value.currentUserId ?: "",
+                userName = uiState.value.nameUser ?: "",
+                userEmail = uiState.value.email ?: "",
+                courseId = courseId,
+                courseName = uiState.value.courseDetail.titulo.uppercase(),
+                date = uiState.value.courseDetail.fecha,
+                schedule = "${uiState.value.courseDetail.horaIncio} - ${uiState.value.courseDetail.horaFin}"
+            )
+
+            when (val result = createCourseRequestUseCase(request)) {
+                is Resource.Success -> {
+                    sendEvent(CourseUiEvent.RequestCourse)
+                }
+
+                is Resource.Error -> {
+                    sendEvent(CourseUiEvent.ShowError(result.error))
+                }
             }
         }
     }
