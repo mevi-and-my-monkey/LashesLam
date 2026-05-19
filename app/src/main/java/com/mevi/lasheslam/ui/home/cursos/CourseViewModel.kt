@@ -272,6 +272,23 @@ class CourseViewModel @Inject constructor(
 
     }
 
+    fun deleteCourse(
+        courseId: String,
+        imageUrl: String
+    ) {
+        viewModelScope.launch {
+            when (val result = deleteCourseUseCase(courseId, imageUrl)) {
+                is Resource.Success -> {
+                    sendEvent(CourseUiEvent.CourseDeleted)
+                }
+
+                is Resource.Error -> {
+                    sendEvent(CourseUiEvent.ShowError(result.error))
+                }
+            }
+        }
+    }
+
     fun loadCourseById(courseId: String) = launchWithLoading {
         when (val result = getACourseDetailUseCase(courseId)) {
             is Resource.Success -> {
@@ -307,20 +324,17 @@ class CourseViewModel @Inject constructor(
         }
     }
 
-    fun deleteCourse(
-        courseId: String,
-        imageUrl: String
+    fun loadUserCourseStatus(
+        courseId: String
     ) {
         viewModelScope.launch {
-            when (val result = deleteCourseUseCase(courseId, imageUrl)) {
-                is Resource.Success -> {
-                    sendEvent(CourseUiEvent.CourseDeleted)
-                }
+            observeUserCourseStatusUseCase(uiState.value.currentUserId ?: "", courseId)
+                .collect { status ->
 
-                is Resource.Error -> {
-                    sendEvent(CourseUiEvent.ShowError(result.error))
+                    setState {
+                        copy(courseStatus = status)
+                    }
                 }
-            }
         }
     }
 
@@ -349,19 +363,6 @@ class CourseViewModel @Inject constructor(
         }
     }
 
-    fun loadUserCourseStatus(
-        courseId: String
-    ) {
-        viewModelScope.launch {
-            observeUserCourseStatusUseCase(uiState.value.currentUserId ?: "", courseId)
-                .collect { status ->
-
-                    setState {
-                        copy(courseStatus = status)
-                    }
-                }
-        }
-    }
 
     fun trackEvent(event: AnalyticsEvent) {
         analytics.track(event)

@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.home.components
+package com.mevi.lasheslam.ui.courses.edit
 
 import android.net.Uri
 import android.os.Build
@@ -69,8 +69,8 @@ import kotlinx.coroutines.tasks.await
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServiceEditView(
-    serviceId: String,
+fun CourseEditView(
+    courseId: String,
     onDismiss: () -> Unit,
     onfinish: () -> Unit,
     firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
@@ -115,7 +115,7 @@ fun ServiceEditView(
 
     LaunchedEffect(Unit) {
         val doc = firestore.collection("data").document("curse")
-            .collection("items").document(serviceId).get().await()
+            .collection("items").document(courseId).get().await()
 
         val data = doc.data
         if (data != null) {
@@ -237,7 +237,7 @@ fun ServiceEditView(
                     label = { Text("Título") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -248,11 +248,14 @@ fun ServiceEditView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 100.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     OutlinedTextField(
                         value = horaInicio,
                         onValueChange = {},
@@ -307,7 +310,7 @@ fun ServiceEditView(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -324,7 +327,7 @@ fun ServiceEditView(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -340,7 +343,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -355,7 +358,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -364,7 +367,7 @@ fun ServiceEditView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .clickable { pickImageLauncherInst.launch("image/*") },
                     contentAlignment = Alignment.Center
@@ -457,7 +460,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
 
                 OutlinedTextField(
@@ -470,7 +473,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
 
                 OutlinedTextField(
@@ -483,7 +486,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
 
                 OutlinedTextField(
@@ -496,7 +499,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
 
                 OutlinedTextField(
@@ -509,7 +512,7 @@ fun ServiceEditView(
                         capitalization = KeyboardCapitalization.None,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -522,7 +525,7 @@ fun ServiceEditView(
                         // Función final para guardar en Firestore
                         fun save(courseImage: String?, instructorImage: String?) {
                             saveToFirestore(
-                                id = serviceId,
+                                id = courseId,
                                 imageUrl = courseImage,
                                 instructorImageUrl = instructorImage,
                                 firestore = firestore,
@@ -552,9 +555,9 @@ fun ServiceEditView(
                         when {
                             imageUri != null && imageUriInstr != null -> {
                                 val courseRef =
-                                    storage.reference.child("services/$serviceId/course.jpg")
+                                    storage.reference.child("services/$courseId/course.jpg")
                                 val instrRef =
-                                    storage.reference.child("services/$serviceId/instructor.jpg")
+                                    storage.reference.child("services/$courseId/instructor.jpg")
 
                                 courseRef.putFile(imageUri!!)
                                     .continueWithTask { courseRef.downloadUrl }
@@ -569,7 +572,7 @@ fun ServiceEditView(
 
                             imageUri != null -> {
                                 val courseRef =
-                                    storage.reference.child("services/$serviceId/course.jpg")
+                                    storage.reference.child("services/$courseId/course.jpg")
                                 courseRef.putFile(imageUri!!)
                                     .continueWithTask { courseRef.downloadUrl }
                                     .addOnSuccessListener { courseUrl ->
@@ -579,7 +582,7 @@ fun ServiceEditView(
 
                             imageUriInstr != null -> {
                                 val instrRef =
-                                    storage.reference.child("services/$serviceId/instructor.jpg")
+                                    storage.reference.child("services/$courseId/instructor.jpg")
                                 instrRef.putFile(imageUriInstr!!)
                                     .continueWithTask { instrRef.downloadUrl }
                                     .addOnSuccessListener { instrUrl ->

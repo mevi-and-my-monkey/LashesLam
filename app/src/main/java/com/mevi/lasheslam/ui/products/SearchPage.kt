@@ -146,7 +146,7 @@ fun SearchPage(
                     isLoading = isLoading
                 ) { item ->
                     navController.navigate(
-                        Screen.ServiceDetails.createRoute(item.id)
+                        Screen.CourseDetails.createRoute(item.id)
                     )
                 }
             }

@@ -68,7 +68,7 @@ fun FavoriteCoursesScreen(
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(courses) { course ->
                         FavoriteCourseCard(course = course) {
-                            navController.navigate(Screen.ServiceDetails.createRoute(course.id))
+                            navController.navigate(Screen.CourseDetails.createRoute(course.id))
                         }
                     }
                 }

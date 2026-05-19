@@ -18,7 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mevi.lasheslam.ui.auth.LogIn
 import com.mevi.lasheslam.ui.home.HomeScreen
 import com.mevi.lasheslam.ui.courses.details.CourseDetailView
-import com.mevi.lasheslam.ui.home.components.ServiceEditView
+import com.mevi.lasheslam.ui.courses.edit.CourseEditView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.profile.ProfilePage
@@ -91,8 +91,8 @@ fun AppNavGraph(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToServiceDetails = { Id ->
-                    navController.navigate(Screen.ServiceDetails.createRoute(Id))
+                onNavigateToCourseDetails = { Id ->
+                    navController.navigate(Screen.CourseDetails.createRoute(Id))
                 },
                 modifier
             )
@@ -136,16 +136,16 @@ fun AppNavGraph(
         }
 
         composable(
-            route = Screen.ServiceDetails.route,
+            route = Screen.CourseDetails.route,
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            val courseId = backStackEntry.arguments?.getString("courseId") ?: return@composable
             val context = LocalContext.current
             CourseDetailView(
                 courseId = courseId,
                 onDismiss = { navController.popBackStack() },
-                onEditClick = { id -> navController.navigate(Screen.ServiceEdit.createRoute(id)) },
+                onEditClick = { id -> navController.navigate(Screen.CourseEdit.createRoute(id)) },
                 onOpenFacebook = { facebook ->
                     context.startActivity(Intent(Intent.ACTION_VIEW, facebook.toUri()))
                 },
@@ -170,23 +170,19 @@ fun AppNavGraph(
         }
 
         composable(
-            route = Screen.ServiceEdit.route,
+            route = Screen.CourseEdit.route,
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
-            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
-            ServiceEditView(
-                serviceId = serviceId,
+            val courseId = backStackEntry.arguments?.getString("courseId") ?: return@composable
+            CourseEditView(
+                courseId = courseId,
                 onDismiss = { navController.popBackStack() },
                 onfinish = {
                     navController.popBackStack(
                         route = Screen.Home.route,
                         inclusive = false
                     )
-
-                    navController.navigate(Screen.Home.route) {
-                        launchSingleTop = true
-                    }
                 }
             )
         }
@@ -232,6 +228,40 @@ fun AppNavGraph(
             exitTransition = NavTransitions.slideOut
         ) {
             FavoriteScreen(navController)
+        }
+
+        composable(
+            route = Screen.ServiceDetails.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            val context = LocalContext.current
+            CourseDetailView(
+                courseId = courseId,
+                onDismiss = { navController.popBackStack() },
+                onEditClick = { id -> navController.navigate(Screen.ServiceEdit.createRoute(id)) },
+                onOpenFacebook = { facebook ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, facebook.toUri()))
+                },
+                onOpenInstagram = { instagram ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, instagram.toUri()))
+                },
+                onOpenWhatsApp = { whatsapp ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
+                },
+                onAddToCalendar = { titulo, fecha, horaInicio, horaFin ->
+                    Utilities.agregarEventoCalendario(
+                        context = context,
+                        titulo = titulo,
+                        fecha = fecha,
+                        horaInicio = horaInicio,
+                        horaFin = horaFin
+                    )
+
+                },
+                modifier = modifier
+            )
         }
     }
 }

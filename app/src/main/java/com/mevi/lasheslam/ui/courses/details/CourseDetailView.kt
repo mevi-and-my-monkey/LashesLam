@@ -13,27 +13,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WarningDialog
-import com.mevi.lasheslam.ui.home.HomeViewModel
 import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CourseDetailView(
     courseId: String,
-    viewModelHome: HomeViewModel = hiltViewModel(),
     viewModel: CourseViewModel = hiltViewModel(),
     onDismiss: () -> Unit,
     modifier: Modifier,
