@@ -9,7 +9,7 @@ data class CourseFormState(
     val horaFin: String = "",
     val fecha: String = "",
     val costo: String = "",
-    val apartado: String = "",
+    val apartar: String = "",
     val instructora: String = "",
     val instructoraDesc: String = "",
     val temarios: List<String> = List(5) { "" },

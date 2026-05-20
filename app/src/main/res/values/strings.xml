@@ -93,7 +93,7 @@
     <string name="camera">Cámara</string>
     <string name="add_image_placeholder">Añadir imagen de portada</string>
     <string name="image_details">(JPG, PNG, Rec: 1200x600px)</string>
-    <string name="title">Titulo</string>
+    <string name="title">Título</string>
     <string name="description">Descripción</string>
     <string name="hora_inicio">Hora inicio</string>
     <string name="hora_fin">Hora fin</string>
@@ -141,5 +141,9 @@
     <string name="about_course">Acerca del curso</string>
     <string name="apartado_det">Apartado</string>
     <string name="horario">Horario</string>
+
+    <!-- COURSE EDIT VIEW-->
+    <string name="edit_course_title">Editar curso</string>
+
 
 </resources>

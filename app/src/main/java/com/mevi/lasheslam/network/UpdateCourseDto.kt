@@ -1,8 +1,8 @@
 package com.mevi.lasheslam.network
 
-import com.mevi.lasheslam.domain.model.CreateCourseModel
+import com.mevi.lasheslam.domain.model.UpdateCourseModel
 
-data class CreateCourseDto(
+data class UpdateCourseDto(
     val id: String = "",
     val titulo: String = "",
     val descripcion: String = "",
@@ -22,12 +22,12 @@ data class CreateCourseDto(
     val banner: Int = 0
 )
 
-fun CreateCourseModel.toDto(
+fun UpdateCourseModel.toDto(
     imageUrl: String,
     instructorImageUrl: String,
     id: String
-): CreateCourseDto {
-    return CreateCourseDto(
+): UpdateCourseDto {
+    return UpdateCourseDto(
         id = id,
         titulo = titulo,
         descripcion = descripcion,

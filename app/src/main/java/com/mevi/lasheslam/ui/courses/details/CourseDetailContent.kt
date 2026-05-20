@@ -99,7 +99,7 @@ fun CourseDetailContent(
 
                 DetailCostView(
                     costoTotal = uiState.courseDetail.costo,
-                    costoApartado = uiState.courseDetail.apartado,
+                    costoApartado = uiState.courseDetail.apartar,
                     horaInicio = uiState.courseDetail.horaIncio,
                     horaFin = uiState.courseDetail.horaFin
                 )

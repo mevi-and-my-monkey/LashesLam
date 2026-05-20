@@ -2,7 +2,8 @@ package com.mevi.lasheslam.domain.model
 
 import android.net.Uri
 
-data class CreateCourseModel(
+data class UpdateCourseModel(
+    val id: String,
     val titulo: String,
     val descripcion: String,
     val horaInicio: String,
@@ -13,8 +14,10 @@ data class CreateCourseModel(
     val instructora: String,
     val instructoraDesc: String,
     val temarios: List<String>,
-    val imageUri: Uri?,
-    val instructorImageUri: Uri?,
+    val currentImageUrl: String,
+    val newImageUri: Uri?,
+    val currentInstructorImageUrl: String,
+    val newInstructorImageUri: Uri?,
     val ubicacionNombre: String?,
     val lat: Double?,
     val lng: Double?,

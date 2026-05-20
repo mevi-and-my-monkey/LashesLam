@@ -38,8 +38,8 @@ fun AddCostFormView(
         } ?: ""
     }
 
-    val apartadpFormateado = remember(state.form.apartado) {
-        state.form.apartado.toDoubleOrNull()?.let {
+    val apartadpFormateado = remember(state.form.apartar) {
+        state.form.apartar.toDoubleOrNull()?.let {
             NumberFormat.getCurrencyInstance(
                 Locale(
                     Constants.Project.LANGUAGE,
@@ -71,7 +71,7 @@ fun AddCostFormView(
     Spacer(modifier = Modifier.height(8.dp))
 
     OutlinedTextField(
-        value = state.form.apartado,
+        value = state.form.apartar,
         onValueChange = { newValue ->
             onApartaChange(newValue)
         },

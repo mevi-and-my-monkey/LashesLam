@@ -8,6 +8,7 @@ import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.domain.model.CreateCourseRequestModel
 import com.mevi.lasheslam.domain.model.SessionData
+import com.mevi.lasheslam.domain.model.UpdateCourseModel
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.CreateCourseUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
@@ -21,6 +22,7 @@ import com.mevi.lasheslam.domain.usecase.courses.CreateCourseRequestUseCase
 import com.mevi.lasheslam.domain.usecase.courses.DeleteCourseUseCase
 import com.mevi.lasheslam.domain.usecase.courses.GetACourseDetailUseCase
 import com.mevi.lasheslam.domain.usecase.courses.GetCourseStatusUseCase
+import com.mevi.lasheslam.domain.usecase.courses.UpdateCourseUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
@@ -53,6 +55,7 @@ class CourseViewModel @Inject constructor(
     private val deleteCourseUseCase: DeleteCourseUseCase,
     private val createCourseRequestUseCase: CreateCourseRequestUseCase,
     private val observeUserCourseStatusUseCase: GetCourseStatusUseCase,
+    private val updateCourseUseCase: UpdateCourseUseCase,
     private val analytics: AnalyticsTracker
 ) :
     BaseViewModel<CourseUiState, CourseUiEvent>() {
@@ -69,48 +72,58 @@ class CourseViewModel @Inject constructor(
 
     fun onTitleChange(title: String) {
         setState { copy(form = form.copy(titulo = title)) }
+        setState { copy(courseUpdate = courseUpdate.copy(titulo = title)) }
     }
 
     fun onDescriptionChange(description: String) {
         setState { copy(form = form.copy(descripcion = description)) }
+        setState { copy(courseUpdate = courseUpdate.copy(descripcion = description)) }
     }
 
     fun onHourInitialChange(hour: String) {
         setState { copy(form = form.copy(horaInicio = hour)) }
+        setState { copy(courseUpdate = courseUpdate.copy(horaIncio = hour)) }
     }
 
     fun onHourFinalChange(hour: String) {
         setState { copy(form = form.copy(horaFin = hour)) }
+        setState { copy(courseUpdate = courseUpdate.copy(horaFin = hour)) }
     }
 
     fun onDateChange(date: String) {
         setState { copy(form = form.copy(fecha = date)) }
+        setState { copy(courseUpdate = courseUpdate.copy(fecha = date)) }
     }
 
     fun onCostChange(cost: String) {
         if (cost.matches(Regex("""\d*\.?\d*"""))) {
             setState { copy(form = form.copy(costo = cost)) }
+            setState { copy(courseUpdate = courseUpdate.copy(costo = cost)) }
         }
     }
 
-    fun onApartaChange(aparta: String) {
-        if (aparta.matches(Regex("""\d*\.?\d*"""))) {
-            setState { copy(form = form.copy(apartado = aparta)) }
+    fun onApartaChange(apartar: String) {
+        if (apartar.matches(Regex("""\d*\.?\d*"""))) {
+            setState { copy(form = form.copy(apartar = apartar)) }
+            setState { copy(courseUpdate = courseUpdate.copy(apartar = apartar)) }
         }
     }
 
     fun onInstructorChange(instructor: String) {
         setState { copy(form = form.copy(instructora = instructor)) }
+        setState { copy(courseUpdate = courseUpdate.copy(instructora = instructor)) }
     }
 
     fun onInstructorDescChange(instructorDesc: String) {
         setState { copy(form = form.copy(instructoraDesc = instructorDesc)) }
+        setState { copy(courseUpdate = courseUpdate.copy(instructoraDesc = instructorDesc)) }
     }
 
     fun onTemarioChange(index: Int, value: String) {
         val updatedTemarios = uiState.value.form.temarios.toMutableList()
         updatedTemarios[index] = value
         setState { copy(form = form.copy(temarios = updatedTemarios)) }
+        setState { copy(courseUpdate = courseUpdate.copy(temarios = updatedTemarios)) }
     }
 
     fun onImageChange(image: Uri?) {
@@ -249,7 +262,7 @@ class CourseViewModel @Inject constructor(
             horaFin = form.horaFin,
             fecha = form.fecha,
             costo = form.costo,
-            apartado = form.apartado,
+            apartar = form.apartar,
             instructora = form.instructora,
             instructoraDesc = form.instructoraDesc,
             temarios = form.temarios,
@@ -270,6 +283,48 @@ class CourseViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun updateCourse(selectedLocation: LocationItem?) = launchWithLoading {
+
+        val course = UpdateCourseModel(
+            id = uiState.value.courseUpdate.id,
+            titulo = uiState.value.courseUpdate.titulo,
+            descripcion = uiState.value.courseUpdate.descripcion,
+            horaInicio = uiState.value.courseUpdate.horaIncio,
+            horaFin = uiState.value.courseUpdate.horaFin,
+            fecha = uiState.value.courseUpdate.fecha,
+            costo = uiState.value.courseUpdate.costo,
+            apartar = uiState.value.courseUpdate.apartar,
+            instructora = uiState.value.courseUpdate.instructora,
+            instructoraDesc = uiState.value.courseUpdate.instructoraDesc,
+            temarios = uiState.value.courseUpdate.temarios,
+
+            currentImageUrl = uiState.value.courseUpdate.imagen,
+            newImageUri = uiState.value.form.imageUri,
+
+            currentInstructorImageUrl =
+                uiState.value.courseUpdate.instructoraImage,
+
+            newInstructorImageUri =
+                uiState.value.form.instructorImageUri,
+
+            ubicacionNombre = selectedLocation?.name,
+            lat = selectedLocation?.lat,
+            lng = selectedLocation?.lng,
+            banner = uiState.value.courseUpdate.banner
+        )
+
+        when (val result = updateCourseUseCase(course)) {
+
+            is Resource.Success -> {
+                sendEvent(CourseUiEvent.CourseSaved)
+            }
+
+            is Resource.Error -> {
+                sendEvent(CourseUiEvent.ShowError(result.error))
+            }
+        }
     }
 
     fun deleteCourse(
@@ -302,7 +357,7 @@ class CourseViewModel @Inject constructor(
                             horaFin = course.horaFin,
                             fecha = course.fecha,
                             costo = course.costo,
-                            apartado = course.apartado,
+                            apartar = course.apartar,
                             instructora = course.instructora,
                             instructoraDesc = course.instructoraDesc,
                             temarios = course.temarios,
@@ -360,6 +415,33 @@ class CourseViewModel @Inject constructor(
                     sendEvent(CourseUiEvent.ShowError(result.error))
                 }
             }
+        }
+    }
+
+    fun copyToForm() {
+        val course = uiState.value.courseDetail
+        setState {
+            copy(
+                courseUpdate = courseUpdate.copy(
+                    titulo = course.titulo,
+                    descripcion = course.descripcion,
+                    horaIncio = course.horaIncio,
+                    horaFin = course.horaFin,
+                    fecha = course.fecha,
+                    costo = course.costo,
+                    apartar = course.apartar,
+                    instructora = course.instructora,
+                    instructoraDesc = course.instructoraDesc,
+                    temarios = course.temarios,
+                    imagen = course.imagen,
+                    instructoraImage = course.instructoraImage,
+                    ubicacionNombre = course.ubicacionNombre,
+                    lat = course.lat,
+                    lng = course.lng,
+                    banner = course.banner,
+                    id = course.id
+                )
+            )
         }
     }
 

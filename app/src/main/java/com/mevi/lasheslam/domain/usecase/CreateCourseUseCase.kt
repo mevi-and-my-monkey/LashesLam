@@ -25,7 +25,7 @@ class CreateCourseUseCase @Inject constructor(private val repository: CoursesRep
         validateRequired(course.fecha, CourseValidationMessages.DATE_REQUIRED)?.let { return it }
         validateRequired(course.costo, CourseValidationMessages.COST_REQUIRED)?.let { return it }
         validateRequired(
-            course.apartado,
+            course.apartar,
             CourseValidationMessages.APARTADO_REQUIRED
         )?.let { return it }
         validateRequired(

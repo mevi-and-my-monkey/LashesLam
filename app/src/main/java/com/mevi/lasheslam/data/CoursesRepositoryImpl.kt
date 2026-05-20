@@ -14,6 +14,7 @@ import com.mevi.lasheslam.network.CourseItemDto
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.network.CreateCourseDto
 import com.mevi.lasheslam.domain.model.CreateCourseRequestModel
+import com.mevi.lasheslam.domain.model.UpdateCourseModel
 import com.mevi.lasheslam.network.toDomain
 import com.mevi.lasheslam.network.toDto
 import com.mevi.lasheslam.utils.Constants
@@ -187,6 +188,37 @@ class CoursesRepositoryImpl @Inject constructor(
                 .collection(FirestorePaths.Users.COURSE)
                 .document(request.courseId)
                 .set(mapOf(FirestorePaths.Courses.STATUS to FirestorePaths.Courses.STATUS_PANDING))
+                .await()
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun updateCourse(course: UpdateCourseModel): Resource<Unit> {
+        return try {
+            val courseImageUrl = if (course.newImageUri != null) {
+                uploadCourseImage(courseId = course.id, imageUri = course.newImageUri)
+            } else {
+                course.currentImageUrl
+            }
+
+            val instructorImageUrl = if (course.newInstructorImageUri != null) {
+                uploadInstructorImage(courseId = course.id, imageUri = course.newInstructorImageUri)
+            } else {
+                course.currentInstructorImageUrl
+            }
+
+            val dto = course.toDto(
+                imageUrl = courseImageUrl,
+                instructorImageUrl = instructorImageUrl,
+                id = course.id
+            )
+
+            firestore.collection(FirestorePaths.Courses.collectionPath())
+                .document(course.id)
+                .set(dto)
                 .await()
 
             Resource.Success(Unit)
