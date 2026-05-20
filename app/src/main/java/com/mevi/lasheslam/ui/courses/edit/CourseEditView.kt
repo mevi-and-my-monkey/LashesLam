@@ -172,7 +172,7 @@ fun CourseEditView(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { viewModel.updateCourse(selectedLocation) }
                 ) {
-                    Text(if (uiState.isLoading) "Guardando..." else "Guardar cambios")
+                    Text(if (uiState.isLoading) stringResource(R.string.saving) else stringResource(R.string.save_changes) )
                 }
             }
         }
@@ -180,7 +180,7 @@ fun CourseEditView(
 
     if (showSuccess) {
         SuccessDialog(
-            title = "Actualizado",
+            title = stringResource(R.string.update) ,
             message = successMessage,
             onDismiss = {
                 showSuccess = false
