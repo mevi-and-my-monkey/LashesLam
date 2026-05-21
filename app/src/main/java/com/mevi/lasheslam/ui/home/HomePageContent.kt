@@ -44,6 +44,7 @@ fun HomePageContent(
     onNavigateToSearch: () -> Unit,
     onNavigateToRequest: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
+    onNavigateToProductsDetail: (String) -> Unit,
     onSelectedSection: (Section) -> Unit,
     trackEvent: (AnalyticsEvent) -> Unit,
     trackScreen: (String) -> Unit,
@@ -93,6 +94,7 @@ fun HomePageContent(
 
                 Section.PRODUCTOS -> {
                     ProductsHPContent(
+                        onNavigateToProductsDetail = onNavigateToProductsDetail,
                         categories = state.categoriesProducts,
                         selectedCategoryId = selectedCategoryId,
                         onCategorySelected = onCategorySelected,

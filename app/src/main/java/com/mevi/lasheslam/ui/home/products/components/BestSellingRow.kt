@@ -11,7 +11,9 @@ import com.mevi.lasheslam.network.ProductItem
 
 @Composable
 fun BestSellingRow(
-    products: List<ProductItem>, trackEvent: (AnalyticsEvent) -> Unit,
+    onNavigateToProductsDetail: (String) -> Unit,
+    products: List<ProductItem>,
+    trackEvent: (AnalyticsEvent) -> Unit,
     favorites: Set<String>,
     onToggleFavorite: (String) -> Unit,
 ) {
@@ -20,9 +22,12 @@ fun BestSellingRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(products) { product ->
-            BestSellingItem(product = product, trackEvent = trackEvent,
+            BestSellingItem(
+                onNavigateToProductsDetail = onNavigateToProductsDetail,
+                product = product, trackEvent = trackEvent,
                 isFavorite = favorites.contains(product.id),
-                onToggleFavorite = { onToggleFavorite(product.id) },)
+                onToggleFavorite = { onToggleFavorite(product.id) },
+            )
         }
     }
 }

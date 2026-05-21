@@ -1,12 +1,12 @@
 package com.mevi.lasheslam.ui.home.products
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -23,6 +23,7 @@ import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox
 import com.mevi.lasheslam.ui.home.products.components.AnimatedMarketplaceProductItem
 import com.mevi.lasheslam.ui.home.products.components.BestSellingRow
 import com.mevi.lasheslam.ui.home.products.components.CategoriesView
@@ -31,6 +32,7 @@ import com.mevi.lasheslam.ui.home.products.components.CategoriesView
 fun ProductsHPContent(
     products: List<ProductItem>,
     isLoading: Boolean,
+    onNavigateToProductsDetail: (String) -> Unit,
     categories: List<CategoryModel>,
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit,
@@ -67,6 +69,7 @@ fun ProductsHPContent(
 
             item {
                 BestSellingRow(
+                    onNavigateToProductsDetail = onNavigateToProductsDetail,
                     products = bestSellingProducts,
                     trackEvent = trackEvent,
                     favorites = favorites,
@@ -99,43 +102,57 @@ fun ProductsHPContent(
             }
         }
 
-        itemsIndexed(
-            items = products.chunked(2),
-            key = { _, row ->
-                row.joinToString { it.id }
+        if (isLoading) {
+
+            items(6) {
+                ShimmerBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                )
             }
-        ) { rowIndex, rowProducts ->
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+        } else {
 
-                rowProducts.forEachIndexed { columnIndex, product ->
-
-                    val realIndex = (rowIndex * 2) + columnIndex
-
-                    Box(
-                        modifier = Modifier.weight(1f)
-                    ) {
-
-                        AnimatedMarketplaceProductItem(
-                            trackEvent = trackEvent,
-                            products = product,
-                            index = realIndex,
-                            favorites = favorites,
-                            onToggleFavorite = onToggleFavorite,
-                            onClick = {
-                                Log.d("Product", "Product: $product")
-                            }
-                        )
-                    }
+            itemsIndexed(
+                items = products.chunked(2),
+                key = { _, row ->
+                    row.joinToString { it.id }
                 }
+            ) { rowIndex, rowProducts ->
 
-                if (rowProducts.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    rowProducts.forEachIndexed { columnIndex, product ->
+
+                        val realIndex = (rowIndex * 2) + columnIndex
+
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+
+                            AnimatedMarketplaceProductItem(
+                                trackEvent = trackEvent,
+                                products = product,
+                                index = realIndex,
+                                favorites = favorites,
+                                onToggleFavorite = onToggleFavorite,
+                                onClick = {
+                                    onNavigateToProductsDetail(product.id)
+                                }
+                            )
+                        }
+                    }
+
+                    if (rowProducts.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                 }
             }
         }

@@ -39,6 +39,7 @@ fun HomeScreen(
     onNavigateToCourses: () -> Unit,
     onNavigateToLogOut: () -> Unit,
     onNavigateToCourseDetails: (String) -> Unit,
+    onNavigateToProductsDetail: (String) -> Unit,
     modifier: Modifier,
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
@@ -101,7 +102,8 @@ fun HomeScreen(
                     HomePage(
                         onNavigateToRequest = onNavigateToRequest,
                         onNavigateToSearch = onNavigateToSearch,
-                        onNavigateToServiceDetails = onNavigateToCourseDetails
+                        onNavigateToServiceDetails = onNavigateToCourseDetails,
+                        onNavigateToProductsDetail = onNavigateToProductsDetail,
                     )
                 }
 

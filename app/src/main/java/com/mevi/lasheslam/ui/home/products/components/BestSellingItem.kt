@@ -30,7 +30,9 @@ import com.mevi.lasheslam.network.ProductItem
 
 @Composable
 fun BestSellingItem(
-    product: ProductItem, trackEvent: (AnalyticsEvent) -> Unit,
+    onNavigateToProductsDetail: (String) -> Unit,
+    product: ProductItem,
+    trackEvent: (AnalyticsEvent) -> Unit,
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
 ) {
@@ -39,6 +41,7 @@ fun BestSellingItem(
             .width(100.dp)
             .clickable {
                 trackEvent(AnalyticsEvent.ProductClick(product.title))
+                onNavigateToProductsDetail(product.id)
             }
     ) {
         Box(

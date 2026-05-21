@@ -27,7 +27,7 @@ fun ProductsAddScreen(
     var successMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        viewModel.trackScreen(Screen.Products.route)
+        viewModel.trackScreen(Screen.Product.route)
     }
 
     LaunchedEffect(Unit) {

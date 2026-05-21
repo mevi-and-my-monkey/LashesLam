@@ -53,7 +53,7 @@ fun CourseDetailView(
     var warningMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(courseId) {
-        viewModel.trackScreen(Screen.ServiceDetails.route)
+        viewModel.trackScreen(Screen.CourseDetails.route)
         viewModel.loadCourseById(courseId)
     }
     LaunchedEffect(courseId, uiState.currentUserId) {

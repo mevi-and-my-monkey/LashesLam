@@ -21,6 +21,7 @@ import com.mevi.lasheslam.ui.courses.details.CourseDetailView
 import com.mevi.lasheslam.ui.courses.edit.CourseEditView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
+import com.mevi.lasheslam.ui.products.details.ProductDetailView
 import com.mevi.lasheslam.ui.profile.ProfilePage
 import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
@@ -94,9 +95,37 @@ fun AppNavGraph(
                 onNavigateToCourseDetails = { Id ->
                     navController.navigate(Screen.CourseDetails.createRoute(Id))
                 },
+                onNavigateToProductsDetail = { Id ->
+                    navController.navigate(Screen.ProductDetails.createRoute(Id))
+                },
                 modifier
             )
         }
+
+        composable(
+            Screen.Search.route,
+            enterTransition = {
+                fadeIn() + expandVertically(expandFrom = Alignment.Top)
+            },
+            exitTransition = {
+                fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
+            }
+        ) {
+            SearchPage(navController)
+        }
+
+        composable(Screen.Products.route) {
+            ProductsView(navController)
+        }
+
+        composable(
+            route = Screen.Favorite.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) {
+            FavoriteScreen(navController)
+        }
+
         composable(Screen.Profile.route) {
             ProfilePage(
                 onNavigateToFavorite = {
@@ -123,18 +152,44 @@ fun AppNavGraph(
 
             )
         }
+
+        /***
+         * Secciones dentro de perfil
+         */
         composable(
-            Screen.Search.route,
-            enterTransition = {
-                fadeIn() + expandVertically(expandFrom = Alignment.Top)
-            },
-            exitTransition = {
-                fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
-            }
+            route = Screen.Request.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
         ) {
-            SearchPage(navController)
+            AdminRequestsScreen(navController)
         }
 
+        composable(
+            route = Screen.Courses.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) {
+            EnrolledCoursesScreen(navController)
+        }
+
+        composable(
+            route = Screen.CourseInscritos.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
+            val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
+
+            EnrolledStudentsScreen(
+                navController = navController,
+                courseId = courseId,
+                courseName = courseName
+            )
+        }
+
+        /***
+         * Seccion de cursos
+         */
         composable(
             route = Screen.CourseDetails.route,
             enterTransition = NavTransitions.slideIn,
@@ -187,49 +242,36 @@ fun AppNavGraph(
             )
         }
 
+        /**
+         * Seccion de productos
+         */
         composable(
-            route = Screen.Request.route,
-            enterTransition = NavTransitions.slideIn,
-            exitTransition = NavTransitions.slideOut
-        ) {
-            AdminRequestsScreen(navController)
-        }
-
-        composable(Screen.Products.route) {
-            ProductsView(navController)
-        }
-
-        composable(
-            route = Screen.Courses.route,
-            enterTransition = NavTransitions.slideIn,
-            exitTransition = NavTransitions.slideOut
-        ) {
-            EnrolledCoursesScreen(navController)
-        }
-
-        composable(
-            route = Screen.CourseInscritos.route,
+            route = Screen.ProductDetails.route,
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
-            val courseName = backStackEntry.arguments?.getString("courseName") ?: ""
-
-            EnrolledStudentsScreen(
-                navController = navController,
-                courseId = courseId,
-                courseName = courseName
+            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+            val context = LocalContext.current
+            ProductDetailView(
+                productId = productId,
+                onDismiss = { navController.popBackStack() },
+                onEditClick = { id -> navController.navigate(Screen.ProductEdit.createRoute(id)) },
+                onOpenFacebook = { facebook ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, facebook.toUri()))
+                },
+                onOpenInstagram = { instagram ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, instagram.toUri()))
+                },
+                onOpenWhatsApp = { whatsapp ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
+                },
+                modifier = modifier
             )
         }
 
-        composable(
-            route = Screen.Favorite.route,
-            enterTransition = NavTransitions.slideIn,
-            exitTransition = NavTransitions.slideOut
-        ) {
-            FavoriteScreen(navController)
-        }
-
+        /***
+         * Seccion de servicios
+         */
         composable(
             route = Screen.ServiceDetails.route,
             enterTransition = NavTransitions.slideIn,

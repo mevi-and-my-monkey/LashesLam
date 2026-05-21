@@ -16,16 +16,6 @@ sealed class Screen(val route: String) {
             "course_inscritos/$courseId/$courseName"
     }
 
-    object Service : Screen("service")
-
-    object ServiceDetails : Screen("service_details/{serviceId}") {
-        fun createRoute(serviceId: String) = "service_details/$serviceId"
-    }
-
-    object ServiceEdit : Screen("service_edit/{serviceId}") {
-        fun createRoute(serviceId: String) = "service_edit/$serviceId"
-    }
-
     object Course : Screen("course")
 
     object CourseDetails : Screen("course_details/{courseId}") {
@@ -34,5 +24,25 @@ sealed class Screen(val route: String) {
 
     object CourseEdit : Screen("course_edit/{courseId}") {
         fun createRoute(courseId: String) = "course_edit/$courseId"
+    }
+
+    object Product : Screen("product")
+
+    object ProductDetails : Screen("product_details/{productId}") {
+        fun createRoute(productId: String) = "product_details/$productId"
+    }
+
+    object ProductEdit : Screen("product_edit/{productId}") {
+        fun createRoute(productId: String) = "product_edit/$productId"
+    }
+
+    object Service : Screen("service")
+
+    object ServiceDetails : Screen("service_details/{serviceId}") {
+        fun createRoute(serviceId: String) = "service_details/$serviceId"
+    }
+
+    object ServiceEdit : Screen("service_edit/{serviceId}") {
+        fun createRoute(serviceId: String) = "service_edit/$serviceId"
     }
 }
