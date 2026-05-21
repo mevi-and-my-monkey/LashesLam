@@ -16,22 +16,22 @@ import com.mevi.lasheslam.ui.courses.details.ExpandableSection
 
 @Composable
 fun EditTemarioView(temarios: List<String>, onTemarioChange: (Int, String) -> Unit) {
+    val fixedTemarios = List(5) { index -> temarios.getOrNull(index) ?: "" }
     ExpandableSection(title = stringResource(R.string.temarios_title)) {
-        temarios.forEachIndexed { index, temario ->
-            if (temario.isNotBlank()) {
-                OutlinedTextField(
-                    value = temario,
-                    onValueChange = { onTemarioChange(index, it) },
-                    label = { Text("• Día ${index + 1}: $temario") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Next
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                )
-            }
+        fixedTemarios.forEachIndexed { index, temario ->
+            OutlinedTextField(
+                value = temario,
+                onValueChange = { onTemarioChange(index, it) },
+                label = { Text("Día ${index + 1}") },
+                placeholder = { Text("Contenido del día ${index + 1}") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
     }
 }

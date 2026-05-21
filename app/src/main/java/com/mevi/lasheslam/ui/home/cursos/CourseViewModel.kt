@@ -119,11 +119,17 @@ class CourseViewModel @Inject constructor(
         setState { copy(courseUpdate = courseUpdate.copy(instructoraDesc = instructorDesc)) }
     }
 
-    fun onTemarioChange(index: Int, value: String) {
-        val updatedTemarios = uiState.value.form.temarios.toMutableList()
-        updatedTemarios[index] = value
-        setState { copy(form = form.copy(temarios = updatedTemarios)) }
-        setState { copy(courseUpdate = courseUpdate.copy(temarios = updatedTemarios)) }
+    fun onTemarioChange(index: Int, value: String, update: Boolean) {
+        if (update) {
+            val currentTemarios = uiState.value.courseUpdate.temarios
+            val updatedTemarios = MutableList(5) { i -> currentTemarios.getOrNull(i) ?: "" }
+            updatedTemarios[index] = value
+            setState { copy(courseUpdate = courseUpdate.copy(temarios = updatedTemarios)) }
+        } else {
+            val updatedTemarios = uiState.value.form.temarios.toMutableList()
+            updatedTemarios[index] = value
+            setState { copy(form = form.copy(temarios = updatedTemarios)) }
+        }
     }
 
     fun onImageChange(image: Uri?) {
@@ -152,11 +158,6 @@ class CourseViewModel @Inject constructor(
                 }
                 if (userId.isNotEmpty()) {
                     loadFavorites(userId)
-                }
-                if (isAdmin) {
-                    //loadAdminPendingRequests()
-                } else if (userId.isNotEmpty()) {
-                    //observeUserCourses(userId)
                 }
             }
         }
@@ -368,6 +369,26 @@ class CourseViewModel @Inject constructor(
                             lng = course.lng,
                             banner = course.banner,
                             id = course.id
+                        ),
+
+                        courseUpdate = courseUpdate.copy(
+                            titulo = course.titulo,
+                            descripcion = course.descripcion,
+                            horaIncio = course.horaIncio,
+                            horaFin = course.horaFin,
+                            fecha = course.fecha,
+                            costo = course.costo,
+                            apartar = course.apartar,
+                            instructora = course.instructora,
+                            instructoraDesc = course.instructoraDesc,
+                            temarios = course.temarios,
+                            imagen = course.imagen,
+                            instructoraImage = course.instructoraImage,
+                            ubicacionNombre = course.ubicacionNombre,
+                            lat = course.lat,
+                            lng = course.lng,
+                            banner = course.banner,
+                            id = course.id
                         )
                     )
                 }
@@ -417,34 +438,6 @@ class CourseViewModel @Inject constructor(
             }
         }
     }
-
-    fun copyToForm() {
-        val course = uiState.value.courseDetail
-        setState {
-            copy(
-                courseUpdate = courseUpdate.copy(
-                    titulo = course.titulo,
-                    descripcion = course.descripcion,
-                    horaIncio = course.horaIncio,
-                    horaFin = course.horaFin,
-                    fecha = course.fecha,
-                    costo = course.costo,
-                    apartar = course.apartar,
-                    instructora = course.instructora,
-                    instructoraDesc = course.instructoraDesc,
-                    temarios = course.temarios,
-                    imagen = course.imagen,
-                    instructoraImage = course.instructoraImage,
-                    ubicacionNombre = course.ubicacionNombre,
-                    lat = course.lat,
-                    lng = course.lng,
-                    banner = course.banner,
-                    id = course.id
-                )
-            )
-        }
-    }
-
 
     fun trackEvent(event: AnalyticsEvent) {
         analytics.track(event)

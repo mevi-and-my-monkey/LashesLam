@@ -95,7 +95,7 @@ fun CourseAddView(
                 instructorDesc
             )
         },
-        onTemarioChange = { index, value -> viewModel.onTemarioChange(index, value) },
+        onTemarioChange = { index, value -> viewModel.onTemarioChange(index, value, false) },
         saveCourse = { viewModel.saveCourse(selectedLocation, linkedBannerIndex) },
         locations = state.locations,
         expanded = expanded,

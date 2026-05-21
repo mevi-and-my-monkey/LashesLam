@@ -66,9 +66,12 @@ fun CourseEditView(
     LaunchedEffect(courseId) {
         viewModel.trackScreen(Screen.ServiceEdit.route)
         viewModel.loadCourseById(courseId)
-        viewModel.copyToForm()
-        selectedLocation = locations.find { it.name == uiState.courseUpdate.ubicacionNombre }
-            ?: locations.firstOrNull()
+    }
+
+    LaunchedEffect(locations, uiState.courseUpdate.ubicacionNombre) {
+        selectedLocation = locations.find {
+            it.name == uiState.courseUpdate.ubicacionNombre
+        } ?: locations.firstOrNull()
     }
 
     var showSuccess by remember { mutableStateOf(false) }
@@ -163,7 +166,7 @@ fun CourseEditView(
                 EditTemarioView(
                     temarios = uiState.courseUpdate.temarios,
                     onTemarioChange = { index, it ->
-                        viewModel.onTemarioChange(index, it)
+                        viewModel.onTemarioChange(index, it, true)
                     })
 
                 Spacer(Modifier.height(24.dp))
