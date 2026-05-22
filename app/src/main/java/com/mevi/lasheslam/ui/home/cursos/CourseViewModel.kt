@@ -287,6 +287,7 @@ class CourseViewModel @Inject constructor(
     }
 
     fun updateCourse(selectedLocation: LocationItem?) = launchWithLoading {
+        trackEvent(AnalyticsEvent.UpdateCourseClick)
 
         val course = UpdateCourseModel(
             id = uiState.value.courseUpdate.id,
@@ -319,7 +320,7 @@ class CourseViewModel @Inject constructor(
         when (val result = updateCourseUseCase(course)) {
 
             is Resource.Success -> {
-                sendEvent(CourseUiEvent.CourseSaved)
+                sendEvent(CourseUiEvent.CourseUpdated)
             }
 
             is Resource.Error -> {

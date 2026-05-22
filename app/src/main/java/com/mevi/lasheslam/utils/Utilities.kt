@@ -111,4 +111,17 @@ object Utilities {
         return "https://wa.me/${whatsapp}?text=$encodedMessage"
     }
 
+    fun createProductMessageWhatsApp(titulo: String, precio: String, whatsapp: String) : String {
+        val message = """
+        Hola, me gustaría recibir más información sobre el producto ${titulo}.
+        Precio: ${precio}.
+        ¡Gracias!
+        """.trimIndent()
+
+        val encodedMessage = URLEncoder.encode(
+            message,
+            StandardCharsets.UTF_8.toString()
+        )
+        return "https://wa.me/${whatsapp}?text=$encodedMessage"
+    }
 }

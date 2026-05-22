@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
 
 @Composable
-fun DetailDescriptionView(descripcion: String) {
+fun DetailDescriptionView(descripcion: String, title: String) {
     Text(
-        text = stringResource(R.string.about_course),
+        text = title,
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         fontSize = 28.sp

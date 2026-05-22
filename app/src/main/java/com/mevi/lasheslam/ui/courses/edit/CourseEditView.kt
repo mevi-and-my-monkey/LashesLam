@@ -34,8 +34,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.ui.common.toUserMessage
+import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.pickers.DatePickerDialogCustom
 import com.mevi.lasheslam.ui.components.pickers.TimePickerDialog
@@ -46,6 +49,7 @@ import com.mevi.lasheslam.ui.courses.edit.components.EditLocationsView
 import com.mevi.lasheslam.ui.courses.edit.components.EditScheduleView
 import com.mevi.lasheslam.ui.courses.edit.components.EditTemarioView
 import com.mevi.lasheslam.ui.courses.edit.components.EditTitleView
+import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -76,10 +80,34 @@ fun CourseEditView(
 
     var showSuccess by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var showTimePickerInicio by remember { mutableStateOf(false) }
     var showTimePickerFin by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+
+                is CourseUiEvent.CourseUpdated -> {
+                    viewModel.trackEvent(AnalyticsEvent.UpdateCourseSuccess)
+                    successMessage = "Curso actualizado correctamente"
+                    showSuccess = true
+
+                }
+
+                is CourseUiEvent.ShowError -> {
+                    viewModel.trackEvent(AnalyticsEvent.UpdateCourseError)
+                    errorMessage = event.error.toUserMessage()
+                    showError = true
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -188,6 +216,18 @@ fun CourseEditView(
             onDismiss = {
                 showSuccess = false
                 onfinish()
+            },
+            onCancel = {}
+        )
+    }
+
+    if (showError) {
+        ErrorDialog(
+            title = stringResource(R.string.error),
+            message = errorMessage ?: "",
+            onDismiss = {
+                showError = false
+                onDismiss()
             },
             onCancel = {}
         )

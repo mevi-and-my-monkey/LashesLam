@@ -58,8 +58,7 @@ fun CourseDetailContent(
     ) -> Unit,
     onCreateCourseRequest: () -> Unit,
     showConfirmDelete: () -> Unit,
-
-    ) {
+) {
     val context = LocalContext.current
     val status = uiState.courseStatus
     val favoritesList = viewModel.favorites.collectAsState().value
@@ -118,7 +117,10 @@ fun CourseDetailContent(
 
                 Spacer(Modifier.height(8.dp))
 
-                DetailDescriptionView(descripcion = uiState.courseDetail.descripcion)
+                DetailDescriptionView(
+                    descripcion = uiState.courseDetail.descripcion,
+                    title = stringResource(R.string.about_course)
+                )
 
                 Spacer(Modifier.height(16.dp))
 

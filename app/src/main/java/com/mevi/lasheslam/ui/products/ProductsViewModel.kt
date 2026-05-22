@@ -6,21 +6,54 @@ import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.domain.model.CreateProductModel
+import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.CreateProductUseCase
 import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
+import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
+import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
+import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
+import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
+import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
+import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.products.GetAProductDetailUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
+import com.mevi.lasheslam.network.CreateProductDto
+import com.mevi.lasheslam.network.FavoriteItem
+import com.mevi.lasheslam.ui.favorites.FavoriteType
+import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
+    private val getIsAdminUseCase: GetIsAdminUseCase,
+    private val getIsUserInvitedUseCase: GetIsUserInvitedUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
+    private val getNameUserUseCase: GetNameUserUseCase,
+    private val getEmailUserUseCase: GetEmailUserUseCase,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getFacebookUseCase: GetFacebookUseCase,
+    private val getInstagramUseCase: GetInstagramUseCase,
+    private val getWhatsAppUseCase: GetWhatsAppUseCase,
+    private val getAProductDetailUseCase: GetAProductDetailUseCase,
     private val getCategoriesProducts: GetCategoriesProducts,
     private val createProductUseCase: CreateProductUseCase,
     private val analytics: AnalyticsTracker,
 ) : BaseViewModel<ProductsUiState, ProductUiEvent>() {
 
     override fun createInitialState() = ProductsUiState()
+
+    private val _favorites = MutableStateFlow<List<FavoriteItem>>(emptyList())
+    val favorites = _favorites.asStateFlow()
 
     private var isCategoriesLoaded = false
 
@@ -63,7 +96,112 @@ class ProductsViewModel @Inject constructor(
     }
 
     init {
+        observeSession()
         loadCategories()
+    }
+
+
+    private fun observeSession() {
+        viewModelScope.launch {
+            combine(
+                getIsAdminUseCase(),
+                getIsUserInvitedUseCase(),
+                getCurrentUserIdUseCase()
+            ) { isAdmin, isInvited, userId ->
+                SessionData(isAdmin, isInvited, userId ?: "")
+            }.collect { (isAdmin, isInvited, userId) ->
+                setState {
+                    copy(
+                        isAdmin = isAdmin,
+                        isUserInvited = isInvited,
+                        currentUserId = userId
+                    )
+                }
+                if (userId.isNotEmpty()) {
+                    loadFavorites(userId)
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                getNameUserUseCase(),
+                getEmailUserUseCase()
+            ) { name, email ->
+                name to email
+            }.collect { (name, email) ->
+                setState {
+                    copy(
+                        nameUser = name,
+                        email = email,
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                getFacebookUseCase(),
+                getInstagramUseCase(),
+                getWhatsAppUseCase()
+            ) { facebook, instagram, whatsApp ->
+                Triple(facebook, instagram, whatsApp)
+            }.collect { (facebook, instagram, whatsApp) ->
+                setState {
+                    copy(
+                        facebook = facebook,
+                        instagram = instagram,
+                        whatsApp = whatsApp
+                    )
+                }
+            }
+        }
+    }
+
+
+    fun loadFavorites(userId: String) {
+        viewModelScope.launch {
+            when (val result = getFavoritesUseCase(userId)) {
+                is Resource.Success -> {
+                    _favorites.value = result.data
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    fun toggleFavorite(itemId: String, type: FavoriteType) {
+        val userId = uiState.value.currentUserId ?: return
+        trackEvent(AnalyticsEvent.FavoriteClick(type.name))
+
+        viewModelScope.launch {
+            val currentFavorites = _favorites.value
+            val isFavorite = currentFavorites.any {
+                it.itemId == itemId && it.type == type.name
+            }
+            when (
+                toggleFavoriteUseCase(
+                    userId = userId,
+                    itemId = itemId,
+                    type = type.name,
+                    isFavorite = isFavorite
+                )
+            ) {
+                is Resource.Success -> {
+                    _favorites.value =
+                        if (isFavorite) {
+                            currentFavorites.filterNot {
+                                it.itemId == itemId && it.type == type.name
+                            }
+                        } else {
+                            currentFavorites + FavoriteItem(itemId, type.name)
+                        }
+                }
+
+                else -> {}
+            }
+        }
     }
 
     fun loadCategories() {
@@ -113,6 +251,32 @@ class ProductsViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun loadCourseById(productId: String) = launchWithLoading {
+        when (val result = getAProductDetailUseCase(productId)) {
+            is Resource.Success -> {
+                val product = result.data
+                setState {
+                    copy(
+                        productDetail = productDetail.copy(
+                            id = product.id,
+                            title = product.title,
+                            description = product.description,
+                            price = product.price,
+                            actulPrice = product.actulPrice,
+                            bestSelling = product.bestSelling,
+                            category = product.category,
+                            images = product.images
+                        )
+                    )
+                }
+            }
+
+            is Resource.Error -> {
+                sendEvent(ProductUiEvent.ShowError(result.error))
+            }
+        }
     }
 
     fun trackEvent(event: AnalyticsEvent) {

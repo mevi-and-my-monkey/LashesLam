@@ -10,6 +10,8 @@ import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.network.CreateCourseDto
+import com.mevi.lasheslam.network.CreateProductDto
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.network.ProductItemDto
 import com.mevi.lasheslam.network.toDomain
@@ -34,7 +36,7 @@ class ProductsRepositoryImpl @Inject constructor(
         return try {
             val id = UUID.randomUUID().toString()
             val productsImageUrl = uploadProductsImages(productId = id, images = product.images)
-            val dto = product.toDto(images = productsImageUrl)
+            val dto = product.toDto(id = id, images = productsImageUrl)
 
             firestore.collection(FirestorePaths.Products.collectionPath())
                 .document(id)
@@ -42,6 +44,34 @@ class ProductsRepositoryImpl @Inject constructor(
                 .await()
 
             Resource.Success(Unit)
+
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun getProductById(productId: String): Resource<CreateProductDto> {
+        return try {
+            val snapshot = firestore
+                .collection(FirestorePaths.Products.collectionPath())
+                .document(productId)
+                .get()
+                .await()
+            if (!snapshot.exists()) {
+                return Resource.Error(
+                    errorMapper.map(Exception("Producto no encontrado"))
+                )
+            }
+            val course = snapshot
+                .toObject(CreateProductDto::class.java)
+                ?.copy(id = snapshot.id)
+            if (course != null) {
+                Resource.Success(course)
+            } else {
+                Resource.Error(
+                    errorMapper.map(Exception("Error al convertir producto"))
+                )
+            }
 
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))

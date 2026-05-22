@@ -4,6 +4,7 @@ import com.google.firebase.firestore.PropertyName
 import com.mevi.lasheslam.domain.model.CreateProductModel
 
 data class CreateProductDto(
+    val id: String = "",
     @get:PropertyName("actual_price")
     @set:PropertyName("actual_price")
     var actulPrice: Double = 0.0,
@@ -18,9 +19,11 @@ data class CreateProductDto(
 )
 
 fun CreateProductModel.toDto(
-    images: List<String>
+    images: List<String>,
+    id: String
 ): CreateProductDto {
     return CreateProductDto(
+        id = id,
         actulPrice = actulPrice,
         bestSelling = bestSelling,
         category = category,

@@ -43,6 +43,8 @@ fun ProductsAddScreen(
                     successMessage = "Producto guardado correctamente"
                     showSuccess = true
                 }
+
+                else -> {}
             }
         }
     }

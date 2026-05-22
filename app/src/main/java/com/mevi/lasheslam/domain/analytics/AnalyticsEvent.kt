@@ -83,6 +83,10 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object SaveProductError : AnalyticsEvent("save_product_error")
 
+    data object DetailProductSuccess : AnalyticsEvent("detail_product_success")
+
+    data object DetailProductError : AnalyticsEvent("detail_product_error")
+
     data object SaveServiceClick : AnalyticsEvent("save_service_click")
 
     data object SaveServiceSuccess : AnalyticsEvent("save_service_success")

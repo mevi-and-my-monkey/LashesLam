@@ -123,6 +123,7 @@ fun ProductItemView(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
+                /*
                 IconButton(onClick = {
                     trackEvent(AnalyticsEvent.AddToCartClick(product.title))
                 }) {
@@ -132,6 +133,7 @@ fun ProductItemView(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
+                 */
             }
 
         }
