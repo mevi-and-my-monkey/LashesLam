@@ -21,14 +21,20 @@ class SessionRepositoryImpl @Inject constructor(
 
     override fun getUid(): String? = firebaseAuth.currentUser?.uid
 
-
     override fun setName() {
-        firestore.collection(FirestorePaths.Users.COLLECTION).document(getUid() ?: "")
+        val uid = getUid() ?: return
+
+        firestore.collection(FirestorePaths.Users.COLLECTION)
+            .document(uid)
             .get()
             .addOnSuccessListener {
-                sessionDataSource.setNameUser(
-                    it.getString(FirestorePaths.Users.USER_NAME)?.split(" ")?.firstOrNull() ?: ""
-                )
+
+                val name = it.getString(FirestorePaths.Users.USER_NAME)
+                    ?.split(" ")
+                    ?.firstOrNull()
+                    .orEmpty()
+
+                sessionDataSource.setNameUser(name)
             }
     }
 
