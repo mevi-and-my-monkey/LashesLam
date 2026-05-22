@@ -192,7 +192,7 @@ class ProfileViewModelTest {
     fun `signOut calls FirebaseAuth signOut and navigates to Login`() {
         every { navController.navigate(any<String>(), any<NavOptionsBuilder.() -> Unit>()) } just Runs
 
-        viewModel.signOut(navController)
+        viewModel.signOut(navController as () -> Unit)
 
         verify { auth.signOut() }
         verify {
