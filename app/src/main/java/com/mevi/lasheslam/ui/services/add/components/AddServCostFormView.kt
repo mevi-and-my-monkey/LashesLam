@@ -27,13 +27,17 @@ fun AddServCostFormView(
     onCostChange: (String) -> Unit,
     onDurationChange: (String) -> Unit,
 ) {
-    val costoFormateado = remember(state.form.precio) {
-        NumberFormat.getCurrencyInstance(
-            Locale(
-                Constants.Project.LANGUAGE,
-                Constants.Project.COUNTRY
-            )
-        ).format(state.form.precio)
+    val precioDouble = remember(state.form.precio) { state.form.precio.toDoubleOrNull() }
+
+    val costoFormateado = remember(precioDouble) {
+        precioDouble?.let {
+            NumberFormat.getCurrencyInstance(
+                Locale(
+                    Constants.Project.LANGUAGE,
+                    Constants.Project.COUNTRY
+                )
+            ).format(it)
+        } ?: ""
     }
 
     OutlinedTextField(
@@ -41,7 +45,7 @@ fun AddServCostFormView(
         onValueChange = onCostChange,
         label = { Text(stringResource(R.string.costo)) },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
     )
@@ -53,15 +57,17 @@ fun AddServCostFormView(
             modifier = Modifier.padding(top = 4.dp)
         )
     }
+    Spacer(modifier = Modifier.height(8.dp))
 
     OutlinedTextField(
         value = state.form.duracion,
         onValueChange = onDurationChange,
         label = { Text(stringResource(R.string.duration)) },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
     )
+
     Spacer(modifier = Modifier.height(8.dp))
 }

@@ -10,6 +10,7 @@ import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.domain.model.CreateServiceModel
 import com.mevi.lasheslam.domain.repository.ServicesRepository
 import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.network.CreateServiceDto
 import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.network.ServiceItemDto
 import com.mevi.lasheslam.network.toDomain
@@ -31,7 +32,7 @@ class ServicesRepositoryImpl @Inject constructor(
         return try {
             val id = UUID.randomUUID().toString()
             val serviceImg = uploadServiceImage(serviceId = id, imageUri = service.image!!)
-            val dto = service.toDto(imageUrl = serviceImg)
+            val dto = service.toDto(id = id, imageUrl = serviceImg)
 
             firestore.collection(FirestorePaths.Services.collectionPath())
                 .document(id)
@@ -43,6 +44,34 @@ class ServicesRepositoryImpl @Inject constructor(
             Resource.Error(errorMapper.map(e))
         }
 
+    }
+
+    override suspend fun getServiceId(serviceID: String): Resource<CreateServiceDto> {
+        return try {
+            val snapshot = firestore
+                .collection(FirestorePaths.Services.collectionPath())
+                .document(serviceID)
+                .get()
+                .await()
+            if (!snapshot.exists()) {
+                return Resource.Error(
+                    errorMapper.map(Exception("Servicio no encontrado"))
+                )
+            }
+            val course = snapshot
+                .toObject(CreateServiceDto::class.java)
+                ?.copy(id = snapshot.id)
+            if (course != null) {
+                Resource.Success(course)
+            } else {
+                Resource.Error(
+                    errorMapper.map(Exception("Error al convertir servicio"))
+                )
+            }
+
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
     }
 
     override fun getCategories(): Flow<Resource<List<CategoryModel>>> = callbackFlow {
@@ -93,6 +122,44 @@ class ServicesRepositoryImpl @Inject constructor(
             }
 
         awaitClose { listener.remove() }
+    }
+
+    override suspend fun deleteService(serviceId: String, imageUrl: String): Resource<Unit> {
+        return try {
+            val imageRef = storage.getReferenceFromUrl(imageUrl)
+            imageRef.delete().await()
+            firestore.collection(FirestorePaths.Services.collectionPath())
+                .document(serviceId)
+                .delete()
+                .await()
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun updateService(service: CreateServiceModel): Resource<Unit> {
+        return try {
+            val serviceImageUrl = if (service.image != null) {
+                uploadServiceImage(serviceId = service.id, imageUri = service.image)
+            } else {
+                service.currentImageUrl
+            }
+
+            val dto = service.toDto(
+                imageUrl = serviceImageUrl,
+                id = service.id
+            )
+
+            firestore.collection(FirestorePaths.Services.collectionPath())
+                .document(service.id)
+                .set(dto)
+                .await()
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
     }
 
     private suspend fun uploadServiceImage(serviceId: String, imageUri: Uri): String {

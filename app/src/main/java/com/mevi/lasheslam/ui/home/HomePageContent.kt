@@ -45,6 +45,7 @@ fun HomePageContent(
     onNavigateToRequest: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
+    onNavigateToServiceEdit: (String) -> Unit,
     onSelectedSection: (Section) -> Unit,
     trackEvent: (AnalyticsEvent) -> Unit,
     trackScreen: (String) -> Unit,
@@ -109,6 +110,9 @@ fun HomePageContent(
 
                 Section.SERVICIOS -> {
                     ServicesHPContent(
+                        isAdmin = state.isAdmin,
+                        whatsApp = state.whatsApp.toString(),
+                        onNavigateToServiceEdit = onNavigateToServiceEdit,
                         categories = state.categoriesServices,
                         selectedCategoryId = selectedServiceCategoryId,
                         onCategorySelected = onCategoryServiceSelected,

@@ -42,6 +42,8 @@ fun AddServicesScreen(
                     successMessage = "Servicio guardado correctamente"
                     showSuccess = true
                 }
+
+                else -> {}
             }
         }
     }

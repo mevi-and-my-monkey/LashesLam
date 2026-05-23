@@ -50,18 +50,17 @@ fun FloatingBottomNavigation(
         verticalAlignment = Alignment.CenterVertically
     ) {
         BottomNavItem(Icons.Outlined.Home, "Inicio", selectedIndex == 0) { onItemSelected(0) }
-        BottomNavItem(Icons.Outlined.List, "Productos", selectedIndex == 1) { onItemSelected(1) }
         BottomNavItem(
             Icons.Outlined.FavoriteBorder,
             "Favoritos",
-            selectedIndex == 2
-        ) { onItemSelected(2) }
+            selectedIndex == 1
+        ) { onItemSelected(1) }
         BottomNavItem(
             Icons.Outlined.ShoppingBag,
             "Ordenes",
-            selectedIndex == 3
-        ) { onItemSelected(3) }
-        BottomNavItem(Icons.Outlined.Person, "Perfil", selectedIndex == 4) { onItemSelected(4) }
+            selectedIndex == 2
+        ) { onItemSelected(2) }
+        BottomNavItem(Icons.Outlined.Person, "Perfil", selectedIndex == 3) { onItemSelected(3) }
     }
 }
 

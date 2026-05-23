@@ -25,6 +25,9 @@ import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.FavoriteItem
 import com.mevi.lasheslam.network.ProductItem
@@ -58,6 +61,9 @@ class HomePageViewModel @Inject constructor(
     private val getServicesUseCase: GetServicesUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val getFacebookUseCase: GetFacebookUseCase,
+    private val getInstagramUseCase: GetInstagramUseCase,
+    private val getWhatsAppUseCase: GetWhatsAppUseCase,
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -169,6 +175,24 @@ class HomePageViewModel @Inject constructor(
                         nameUser = name,
                         photoUser = photo,
                         isProfileLoading = false
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            combine(
+                getFacebookUseCase(),
+                getInstagramUseCase(),
+                getWhatsAppUseCase()
+            ) { facebook, instagram, whatsApp ->
+                Triple(facebook, instagram, whatsApp)
+            }.collect { (facebook, instagram, whatsApp) ->
+                setState {
+                    copy(
+                        facebook = facebook,
+                        instagram = instagram,
+                        whatsApp = whatsApp
                     )
                 }
             }

@@ -7,7 +7,7 @@ import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.ui.common.UiState
 import com.mevi.lasheslam.ui.home.components.Section
 
-data class HomePageUiState (
+data class HomePageUiState(
     override val isLoading: Boolean = false,
     val courses: List<CoursesItem> = emptyList(),
     val products: List<ProductItem> = emptyList(),
@@ -24,7 +24,10 @@ data class HomePageUiState (
     val nameUser: String? = null,
     val photoUser: String? = null,
     val isProfileLoading: Boolean = true,
-    val adminPendingCount: Int = 0
+    val adminPendingCount: Int = 0,
+    val facebook: String? = null,
+    val instagram: String? = null,
+    val whatsApp: String? = null,
 ) : UiState<HomePageUiState> {
 
     override fun copyWithLoading(isLoading: Boolean): HomePageUiState {

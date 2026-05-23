@@ -34,9 +34,13 @@ import com.mevi.lasheslam.ui.services.ServiceUiState
 @Composable
 fun AddIProdmageView(state: ServiceUiState, onImageChange: (Uri?) -> Unit) {
 
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri -> onImageChange(uri) }
+    val pickImageLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+            onImageChange(uri)
+        }
+
+    val imageModel = state.form.image ?: state.form.remoteImage
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -46,12 +50,11 @@ fun AddIProdmageView(state: ServiceUiState, onImageChange: (Uri?) -> Unit) {
             .clickable { pickImageLauncher.launch("image/*") },
         contentAlignment = Alignment.Center
     ) {
-        if (state.form.image == null) {
+        if (imageModel == null || imageModel == "") {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-
                 Icon(
                     imageVector = Icons.Outlined.CameraAlt,
                     contentDescription = stringResource(R.string.camera),
@@ -79,12 +82,13 @@ fun AddIProdmageView(state: ServiceUiState, onImageChange: (Uri?) -> Unit) {
 
         } else {
             SubcomposeAsyncImage(
-                model = state.form.image,
+                model = imageModel,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
         }
     }
+
     Spacer(Modifier.height(16.dp))
 }

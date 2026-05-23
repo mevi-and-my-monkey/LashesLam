@@ -1,10 +1,8 @@
 package com.mevi.lasheslam.domain.repository
 
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CreateCourseDto
 import com.mevi.lasheslam.network.CreateProductDto
 import com.mevi.lasheslam.network.ProductItem
 import kotlinx.coroutines.flow.Flow

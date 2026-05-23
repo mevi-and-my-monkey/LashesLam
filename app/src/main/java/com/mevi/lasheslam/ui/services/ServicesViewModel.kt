@@ -9,14 +9,27 @@ import com.mevi.lasheslam.domain.model.CreateServiceModel
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.CreateServiceUseCase
 import com.mevi.lasheslam.domain.usecase.GetCategoriesServices
+import com.mevi.lasheslam.domain.usecase.service.DeleteServiceUseCase
+import com.mevi.lasheslam.domain.usecase.service.GetAServiceDetailUseCase
+import com.mevi.lasheslam.domain.usecase.service.UpdateServiceUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
+import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ServicesViewModel @Inject constructor(
     private val getCategoriesServices: GetCategoriesServices,
+    private val getAServiceDetailUseCase: GetAServiceDetailUseCase,
     private val createServiceUseCase: CreateServiceUseCase,
+    private val updateServiceUseCase: UpdateServiceUseCase,
+    private val deleteServiceUseCase: DeleteServiceUseCase,
+    private val getFacebookUseCase: GetFacebookUseCase,
+    private val getInstagramUseCase: GetInstagramUseCase,
+    private val getWhatsAppUseCase: GetWhatsAppUseCase,
     private val analytics: AnalyticsTracker
 ) : BaseViewModel<ServiceUiState, ServiceUiEvent>() {
 
@@ -49,7 +62,29 @@ class ServicesViewModel @Inject constructor(
     }
 
     init {
+        observeSession()
         loadCategories()
+    }
+
+
+    private fun observeSession() {
+        viewModelScope.launch {
+            combine(
+                getFacebookUseCase(),
+                getInstagramUseCase(),
+                getWhatsAppUseCase()
+            ) { facebook, instagram, whatsApp ->
+                Triple(facebook, instagram, whatsApp)
+            }.collect { (facebook, instagram, whatsApp) ->
+                setState {
+                    copy(
+                        facebook = facebook,
+                        instagram = instagram,
+                        whatsApp = whatsApp
+                    )
+                }
+            }
+        }
     }
 
     fun loadCategories() {
@@ -86,11 +121,80 @@ class ServicesViewModel @Inject constructor(
             subtitle = form.subtitulo,
             price = form.precio.toDoubleOrNull() ?: 0.0,
             title = form.titulo,
-            image = form.image
+            image = form.image,
+            id = form.id,
+            currentImageUrl = form.remoteImage
         )
         when (val result = createServiceUseCase(service)) {
             is Resource.Success -> {
                 sendEvent(ServiceUiEvent.ServiceSaved)
+            }
+
+            is Resource.Error -> {
+                sendEvent(ServiceUiEvent.ShowError(result.error))
+            }
+        }
+    }
+
+    fun updateService() = launchWithLoading {
+        trackEvent(AnalyticsEvent.UpdateServiceClick)
+
+        val form = uiState.value.form
+
+        val service = CreateServiceModel(
+            duration = form.duracion.toDoubleOrNull() ?: 0.0,
+            category = form.category,
+            subtitle = form.subtitulo,
+            price = form.precio.toDoubleOrNull() ?: 0.0,
+            title = form.titulo,
+            image = form.image,
+            id = form.id,
+            currentImageUrl = form.remoteImage
+        )
+
+        when (val result = updateServiceUseCase(service)) {
+
+            is Resource.Success -> {
+                sendEvent(ServiceUiEvent.ServiceUpdated)
+            }
+
+            is Resource.Error -> {
+                sendEvent(ServiceUiEvent.ShowError(result.error))
+            }
+        }
+    }
+
+    fun deleteService(serviceId: String, imageUrl: String) {
+        viewModelScope.launch {
+            when (val result = deleteServiceUseCase(serviceId, imageUrl)) {
+                is Resource.Success -> {
+                    sendEvent(ServiceUiEvent.ServiceDeleted)
+                }
+
+                is Resource.Error -> {
+                    sendEvent(ServiceUiEvent.ShowError(result.error))
+                }
+            }
+        }
+    }
+
+    fun loadServiceById(serviceId: String) = launchWithLoading {
+        when (val result = getAServiceDetailUseCase(serviceId)) {
+            is Resource.Success -> {
+                val product = result.data
+                setState {
+                    copy(
+                        form = form.copy(
+                            id = product.id,
+                            titulo = product.title,
+                            precio = product.price.toString(),
+                            subtitulo = product.subtitle,
+                            duracion = product.duration.toString(),
+                            category = product.category,
+                            remoteImage = product.image
+                        )
+                    )
+                }
             }
 
             is Resource.Error -> {

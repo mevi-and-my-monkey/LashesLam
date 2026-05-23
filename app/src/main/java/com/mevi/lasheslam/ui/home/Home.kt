@@ -40,6 +40,7 @@ fun HomeScreen(
     onNavigateToLogOut: () -> Unit,
     onNavigateToCourseDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
+    onNavigateToServiceEdit: (String) -> Unit,
     modifier: Modifier,
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
@@ -67,18 +68,12 @@ fun HomeScreen(
                     selectedIndex = index
                     when (index) {
                         1 -> {
-                            viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Search.route))
-                            viewModel.trackScreen(Screen.Search.route)
-                            onNavigateToSearch()
-                        }
-
-                        2 -> {
                             viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Favorite.route))
                             viewModel.trackScreen(Screen.Favorite.route)
                             onNavigateToFavorite()
                         }
 
-                        3 -> {
+                        2 -> {
                             if (isAdmin) {
                                 viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Request.route))
                                 viewModel.trackScreen(Screen.Request.route)
@@ -104,11 +99,12 @@ fun HomeScreen(
                         onNavigateToSearch = onNavigateToSearch,
                         onNavigateToServiceDetails = onNavigateToCourseDetails,
                         onNavigateToProductsDetail = onNavigateToProductsDetail,
+                        onNavigateToServiceEdit = onNavigateToServiceEdit,
                     )
                 }
 
-                3 -> if (!isAdmin) EmptyViewScreen()
-                4 -> {
+                2 -> if (!isAdmin) EmptyViewScreen()
+                3 -> {
                     viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Profile.route))
                     viewModel.trackScreen(Screen.Profile.route)
                     ProfilePage(

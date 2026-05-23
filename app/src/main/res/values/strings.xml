@@ -155,5 +155,8 @@
     <!-- COURSE EDIT VIEW-->
     <string name="edit_product_title">Editar producto</string>
 
+    <!-- PRODUCT EDIT VIEW-->
+    <string name="edit_service_title">Editar servicio</string>
+
 
 </resources>

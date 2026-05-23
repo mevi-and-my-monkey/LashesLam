@@ -4,5 +4,7 @@ import com.mevi.lasheslam.core.error.AppError
 
 sealed class ServiceUiEvent {
     object ServiceSaved : ServiceUiEvent()
+    object ServiceUpdated : ServiceUiEvent()
+    object ServiceDeleted : ServiceUiEvent()
     data class ShowError(val error: AppError) : ServiceUiEvent()
 }

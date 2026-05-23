@@ -1,9 +1,11 @@
-package com.mevi.lasheslam.ui.products.edit
+package com.mevi.lasheslam.ui.services.edit
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,27 +37,27 @@ import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
-import com.mevi.lasheslam.ui.courses.components.AddTitleView
-import com.mevi.lasheslam.ui.products.ProductUiEvent
-import com.mevi.lasheslam.ui.products.ProductsViewModel
-import com.mevi.lasheslam.ui.products.add.components.AddProdCategoryFormView
-import com.mevi.lasheslam.ui.products.add.components.AddProdCostFormView
-import com.mevi.lasheslam.ui.products.add.components.AddProdImagesView
-import com.mevi.lasheslam.ui.products.add.components.AddProdTitleFormView
+import com.mevi.lasheslam.ui.components.WarningDialog
+import com.mevi.lasheslam.ui.services.ServiceUiEvent
+import com.mevi.lasheslam.ui.services.ServicesViewModel
+import com.mevi.lasheslam.ui.services.add.components.AddIProdmageView
+import com.mevi.lasheslam.ui.services.add.components.AddServCategoryFormView
+import com.mevi.lasheslam.ui.services.add.components.AddServCostFormView
+import com.mevi.lasheslam.ui.services.add.components.AddServTitleFormView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductEditView(
-    productId: String,
+fun ServiceEditView(
+    serviceId: String,
     onDismiss: () -> Unit,
     onfinish: () -> Unit,
-    viewModel: ProductsViewModel = hiltViewModel()
+    viewModel: ServicesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(productId) {
-        viewModel.trackScreen(Screen.ProductEdit.route)
-        viewModel.loadProductById(productId)
+    LaunchedEffect(serviceId) {
+        viewModel.trackScreen(Screen.ServiceEdit.route)
+        viewModel.loadServiceById(serviceId)
     }
 
     var showSuccess by remember { mutableStateOf(false) }
@@ -63,19 +65,22 @@ fun ProductEditView(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    var showConfirmDelete by remember { mutableStateOf(false) }
+    var warningMessage by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
 
-                is ProductUiEvent.ProductUpdated -> {
-                    viewModel.trackEvent(AnalyticsEvent.UpdateProductSuccess)
-                    successMessage = "Producto actualizado correctamente"
+                is ServiceUiEvent.ServiceUpdated -> {
+                    viewModel.trackEvent(AnalyticsEvent.UpdateServiceSuccess)
+                    successMessage = "servicio actualizado correctamente"
                     showSuccess = true
 
                 }
 
-                is ProductUiEvent.ShowError -> {
-                    viewModel.trackEvent(AnalyticsEvent.UpdateProductError)
+                is ServiceUiEvent.ShowError -> {
+                    viewModel.trackEvent(AnalyticsEvent.UpdateServiceError)
                     errorMessage = event.error.toUserMessage()
                     showError = true
                 }
@@ -109,42 +114,47 @@ fun ProductEditView(
                     .verticalScroll(rememberScrollState())
                     .padding(24.dp)
             ) {
+                AddIProdmageView(state = uiState, onImageChange = { viewModel.onImageChange(it) })
 
-                AddProdImagesView(
+                AddServTitleFormView(
                     state = uiState,
-                    onAddImages = { viewModel.onImagesSelected(it) },
-                    onRemoveImage = { viewModel.removeImage(it) },
-                    removeRemoteImage = { viewModel.removeRemoteImage(it) },
-                )
-
-                AddProdTitleFormView(
-                    uiState,
                     onTitleChange = { viewModel.onTitleChange(it) },
-                    onDescriptionChange = { viewModel.onDescriptionChange(it) },
-                    onCharacteristicsChange = { viewModel.onCharacteristicsChange(it) }
+                    onSubtitleChange = { viewModel.onSubtitleChange(it) }
                 )
 
-                AddProdCostFormView(
-                    uiState,
+                AddServCostFormView(
+                    state = uiState,
                     onCostChange = { viewModel.onCostChange(it) },
-                    onActualCostChange = { viewModel.onActualCostChange(it) }
+                    onDurationChange = { viewModel.onDurationChange(it) }
                 )
 
-                AddProdCategoryFormView(
-                    uiState,
-                    onCategoryChange = { viewModel.onCategoryChange(it) },
-                    onBestSellingChange = { viewModel.onBestSellingChange(it) })
-
+                AddServCategoryFormView(
+                    state = uiState,
+                    onCategoryChange = { viewModel.onCategoryChange(it) })
 
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { viewModel.updateProduct() }
+                    onClick = { viewModel.updateService() }
                 ) {
                     Text(
                         if (uiState.isLoading) stringResource(R.string.saving) else stringResource(
                             R.string.save_changes
                         )
                     )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        viewModel.trackEvent(AnalyticsEvent.ShowDialog)
+                        warningMessage =
+                            "¿Seguro que deseas eliminar este servicio? Esta acción no se puede deshacer."
+                        showConfirmDelete = true
+                    }
+                ) {
+                    Text(stringResource(R.string.delete))
                 }
             }
         }
@@ -174,4 +184,21 @@ fun ProductEditView(
         )
     }
 
+    if (showConfirmDelete) {
+        viewModel.trackEvent(AnalyticsEvent.ShowDialog)
+        WarningDialog(
+            message = warningMessage,
+            onDismiss = {
+                viewModel.trackEvent(AnalyticsEvent.HideDialog)
+                showConfirmDelete = false
+                warningMessage = ""
+                viewModel.deleteService(serviceId = serviceId, imageUrl = uiState.form.remoteImage)
+            },
+            onCancel = {
+                viewModel.trackEvent(AnalyticsEvent.HideDialog)
+                showConfirmDelete = false
+                warningMessage = ""
+            }
+        )
+    }
 }

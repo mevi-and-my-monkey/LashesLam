@@ -99,6 +99,13 @@ sealed class AnalyticsEvent(val name: String) {
 
     data object SaveServiceError : AnalyticsEvent("save_service_error")
 
+    data object UpdateServiceClick : AnalyticsEvent("update_service_click")
+
+    data object UpdateServiceSuccess : AnalyticsEvent("update_service_success")
+
+    data object UpdateServiceError : AnalyticsEvent("update_service_error")
+
+
 
     // GENERAL
 

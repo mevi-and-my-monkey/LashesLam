@@ -98,8 +98,8 @@ fun ProductDetailContent(
                 }
 
                 DetailCostProductView(
-                    currentPrice = uiState.productDetail.price,
-                    originalPrice = uiState.productDetail.actulPrice,
+                    currentPrice = uiState.productDetail.actulPrice,
+                    originalPrice = uiState.productDetail.price,
                     modifier = modifier
                 )
 

@@ -17,7 +17,8 @@ fun ServicesList(
     trackEvent: (AnalyticsEvent) -> Unit,
     services: List<ServiceItem>,
     isLoading: Boolean,
-    onClick: (ServiceItem) -> Unit
+    onClick: (ServiceItem) -> Unit,
+    onClickReservation: (ServiceItem) -> Unit = {}
 ) {
     LazyColumn {
         if (isLoading) {
@@ -36,7 +37,8 @@ fun ServicesList(
                     trackEvent = trackEvent,
                     services = service,
                     index = index,
-                    onClick = { onClick(service) }
+                    onClick = { onClick(service) },
+                    onClickReservation = { onClickReservation(service) }
                 )
             }
         }

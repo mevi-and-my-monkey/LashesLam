@@ -21,10 +21,14 @@ import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.ui.home.products.components.CategoriesView
 import com.mevi.lasheslam.ui.home.services.components.ServicesList
+import com.mevi.lasheslam.utils.Utilities
 
 @Composable
 fun ServicesHPContent(
+    onNavigateToServiceEdit: (String) -> Unit,
     isLoading: Boolean,
+    isAdmin: Boolean,
+    whatsApp: String,
     categories: List<CategoryModel>,
     selectedCategoryId: String?,
     onCategorySelected: (CategoryModel) -> Unit,
@@ -64,9 +68,20 @@ fun ServicesHPContent(
         ServicesList(
             trackEvent = trackEvent,
             services = services,
-            isLoading = isLoading
-        ) { services ->
-            //onNavigateToServiceDetails(service.id)
-        }
+            isLoading = isLoading,
+            onClick = { service ->
+                if (isAdmin) {
+                    onNavigateToServiceEdit(service.id)
+
+                }
+            },
+            onClickReservation = { service ->
+                Utilities.createServiceMessageWhatsApp(
+                    titulo = service.title,
+                    precio = service.price.toString(),
+                    whatsapp = whatsApp
+                )
+            }
+        )
     }
 }

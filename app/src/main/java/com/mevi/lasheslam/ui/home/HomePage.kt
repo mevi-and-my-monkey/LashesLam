@@ -26,6 +26,7 @@ fun HomePage(
     onNavigateToRequest: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
+    onNavigateToServiceEdit: (String) -> Unit,
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
     RequestNotificationPermission()
@@ -64,6 +65,7 @@ fun HomePage(
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToServiceDetails = onNavigateToServiceDetails,
         onNavigateToProductsDetail = onNavigateToProductsDetail,
+        onNavigateToServiceEdit = onNavigateToServiceEdit,
         onSelectedSection = { section ->
             viewModel.onSectionSelected(section)
         },

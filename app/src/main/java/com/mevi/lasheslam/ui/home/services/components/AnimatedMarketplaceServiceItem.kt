@@ -17,6 +17,7 @@ fun AnimatedMarketplaceServiceItem(
     services: ServiceItem,
     index: Int,
     onClick: () -> Unit = {},
+    onClickReservation: () -> Unit = {},
     trackEvent: (AnalyticsEvent) -> Unit
 ) {
     val alpha by animateFloatAsState(
@@ -38,7 +39,8 @@ fun AnimatedMarketplaceServiceItem(
                 translationY = offsetY.toPx()
             },
         service = services,
-        onClick = onClick
+        onClick = onClick,
+        onClickReservation = onClickReservation
     )
 
 }

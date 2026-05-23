@@ -46,7 +46,8 @@ fun ServiceItemView(
     trackEvent: (AnalyticsEvent) -> Unit,
     service: ServiceItem,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    onClickReservation: () -> Unit = {},
 ) {
     Card(
         modifier = modifier
@@ -58,7 +59,7 @@ fun ServiceItemView(
         onClick = {
             trackEvent(AnalyticsEvent.ProductClick(service.title))
             onClick()
-        }
+        },
     ) {
         Row(
             modifier = Modifier
@@ -145,7 +146,7 @@ fun ServiceItemView(
             }
 
             Button(
-                onClick = onClick,
+                onClick = onClickReservation,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD97D8C)
                 ),

@@ -28,6 +28,7 @@ import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
+import com.mevi.lasheslam.ui.services.edit.ServiceEditView
 import com.mevi.lasheslam.ui.splashscreen.SplashScreen
 import com.mevi.lasheslam.utils.NavTransitions
 import com.mevi.lasheslam.utils.Utilities
@@ -98,6 +99,9 @@ fun AppNavGraph(
                 },
                 onNavigateToProductsDetail = { Id ->
                     navController.navigate(Screen.ProductDetails.createRoute(Id))
+                },
+                onNavigateToServiceEdit = { Id ->
+                    navController.navigate(Screen.ServiceEdit.createRoute(Id))
                 },
                 modifier
             )
@@ -322,6 +326,24 @@ fun AppNavGraph(
 
                 },
                 modifier = modifier
+            )
+        }
+
+        composable(
+            route = Screen.ServiceEdit.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) { backStackEntry ->
+            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            ServiceEditView(
+                serviceId = serviceId,
+                onDismiss = { navController.popBackStack() },
+                onfinish = {
+                    navController.popBackStack(
+                        route = Screen.Home.route,
+                        inclusive = false
+                    )
+                }
             )
         }
     }
