@@ -34,13 +34,15 @@ fun AddProductsContent(
     state: ProductsUiState,
     onDismiss: () -> Unit,
     onTitleChange: (String) -> Unit = {},
+    onCharacteristicsChange: (String) -> Unit = {},
     onDescriptionChange: (String) -> Unit = {},
-    onCostChange: (Double) -> Unit = {},
-    onActualCostChange: (Double) -> Unit = {},
+    onCostChange: (String) -> Unit = {},
+    onActualCostChange: (String) -> Unit = {},
     onCategoryChange: (String) -> Unit = {},
     onBestSellingChange: (Boolean) -> Unit = {},
     onImagesSelected: (List<Uri>) -> Unit = {},
     removeImage: (Uri) -> Unit = {},
+    removeRemoteImage: (String) -> Unit = {},
     showSuccess: Boolean = false,
     successMessage: String = "",
     showError: Boolean = false,
@@ -64,10 +66,16 @@ fun AddProductsContent(
             AddProdImagesView(
                 state = state,
                 onAddImages = onImagesSelected,
-                onRemoveImage = removeImage
+                onRemoveImage = removeImage,
+                removeRemoteImage = removeRemoteImage
             )
 
-            AddProdTitleFormView(state, onTitleChange, onDescriptionChange)
+            AddProdTitleFormView(
+                state,
+                onTitleChange,
+                onDescriptionChange,
+                onCharacteristicsChange = onCharacteristicsChange
+            )
 
             AddProdCostFormView(state, onCostChange, onActualCostChange)
 

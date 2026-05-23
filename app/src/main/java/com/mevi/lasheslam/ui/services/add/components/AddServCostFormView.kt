@@ -24,8 +24,8 @@ import java.util.Locale
 @Composable
 fun AddServCostFormView(
     state: ServiceUiState,
-    onCostChange: (Double) -> Unit,
-    onDurationChange: (Double) -> Unit,
+    onCostChange: (String) -> Unit,
+    onDurationChange: (String) -> Unit,
 ) {
     val costoFormateado = remember(state.form.precio) {
         NumberFormat.getCurrencyInstance(
@@ -37,10 +37,8 @@ fun AddServCostFormView(
     }
 
     OutlinedTextField(
-        value = state.form.precio.toString(),
-        onValueChange = { cost ->
-            onCostChange(cost.toDoubleOrNull() ?: 0.0)
-        },
+        value = state.form.precio,
+        onValueChange = onCostChange,
         label = { Text(stringResource(R.string.costo)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -57,10 +55,8 @@ fun AddServCostFormView(
     }
 
     OutlinedTextField(
-        value = state.form.duracion.toString(),
-        onValueChange = { duration ->
-            onDurationChange(duration.toDoubleOrNull() ?: 0.0)
-        },
+        value = state.form.duracion,
+        onValueChange = onDurationChange,
         label = { Text(stringResource(R.string.duration)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

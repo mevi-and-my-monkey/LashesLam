@@ -15,6 +15,7 @@ data class CreateProductDto(
     val description: String = "",
     val price: Double = 0.0,
     val title: String = "",
+    val characteristics: String = "",
     val images: List<String> = emptyList()
 )
 
@@ -30,6 +31,7 @@ fun CreateProductModel.toDto(
         description = description,
         price = price,
         title = title,
+        characteristics = characteristics,
         images = images
     )
 }

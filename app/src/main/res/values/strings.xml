@@ -94,6 +94,7 @@
     <string name="add_image_placeholder">Añadir imagen de portada</string>
     <string name="image_details">(JPG, PNG, Rec: 1200x600px)</string>
     <string name="title">Título</string>
+    <string name="characteristics">Características</string>
     <string name="description">Descripción</string>
     <string name="hora_inicio">Hora inicio</string>
     <string name="hora_fin">Hora fin</string>
@@ -151,6 +152,8 @@
     <string name="best_seller">Más vendido</string>
 
 
+    <!-- COURSE EDIT VIEW-->
+    <string name="edit_product_title">Editar producto</string>
 
 
 </resources>

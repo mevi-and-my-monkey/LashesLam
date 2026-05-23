@@ -32,7 +32,7 @@ class ServicesViewModel @Inject constructor(
         setState { copy(form = form.copy(subtitulo = subtitle)) }
     }
 
-    fun onCostChange(cost: Double) {
+    fun onCostChange(cost: String) {
         setState { copy(form = form.copy(precio = cost)) }
     }
 
@@ -40,7 +40,7 @@ class ServicesViewModel @Inject constructor(
         setState { copy(form = form.copy(category = categoryId)) }
     }
 
-    fun onDurationChange(duration: Double) {
+    fun onDurationChange(duration: String) {
         setState { copy(form = form.copy(duracion = duration)) }
     }
 
@@ -81,10 +81,10 @@ class ServicesViewModel @Inject constructor(
         val form = uiState.value.form
 
         val service = CreateServiceModel(
-            duration = form.duracion,
+            duration = form.duracion.toDoubleOrNull() ?: 0.0,
             category = form.category,
             subtitle = form.subtitulo,
-            price = form.precio,
+            price = form.precio.toDoubleOrNull() ?: 0.0,
             title = form.titulo,
             image = form.image
         )

@@ -5,8 +5,8 @@ import android.net.Uri
 data class ServicesFormState(
     val titulo: String = "",
     val subtitulo: String = "",
-    val precio: Double = 0.0,
+    val precio: String = "",
     val image: Uri? = null,
-    val duracion: Double = 0.0,
+    val duracion: String = "",
     val category: String = ""
 )

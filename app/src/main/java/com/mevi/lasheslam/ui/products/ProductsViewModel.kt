@@ -16,15 +16,15 @@ import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.products.DeleteProductUseCase
 import com.mevi.lasheslam.domain.usecase.products.GetAProductDetailUseCase
+import com.mevi.lasheslam.domain.usecase.products.UpdateProductUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
-import com.mevi.lasheslam.network.CreateProductDto
 import com.mevi.lasheslam.network.FavoriteItem
 import com.mevi.lasheslam.ui.favorites.FavoriteType
-import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,6 +47,8 @@ class ProductsViewModel @Inject constructor(
     private val getAProductDetailUseCase: GetAProductDetailUseCase,
     private val getCategoriesProducts: GetCategoriesProducts,
     private val createProductUseCase: CreateProductUseCase,
+    private val deleteProductUseCase: DeleteProductUseCase,
+    private val updateProductUseCase: UpdateProductUseCase,
     private val analytics: AnalyticsTracker,
 ) : BaseViewModel<ProductsUiState, ProductUiEvent>() {
 
@@ -61,15 +63,19 @@ class ProductsViewModel @Inject constructor(
         setState { copy(form = form.copy(titulo = title)) }
     }
 
+    fun onCharacteristicsChange(characteristics: String) {
+        setState { copy(form = form.copy(caracteristicas = characteristics)) }
+    }
+
     fun onDescriptionChange(description: String) {
         setState { copy(form = form.copy(descripcion = description)) }
     }
 
-    fun onCostChange(cost: Double) {
+    fun onCostChange(cost: String) {
         setState { copy(form = form.copy(precio = cost)) }
     }
 
-    fun onActualCostChange(actualCost: Double) {
+    fun onActualCostChange(actualCost: String) {
         setState { copy(form = form.copy(precioActual = actualCost)) }
     }
 
@@ -85,6 +91,18 @@ class ProductsViewModel @Inject constructor(
     fun removeImage(image: Uri) {
         val updatedImages = uiState.value.form.images.filterNot { it == image }
         setState { copy(form = form.copy(images = updatedImages)) }
+    }
+
+    fun removeRemoteImage(image: String) {
+        val updated = uiState.value.form.remoteImages.filterNot { it == image }
+
+        setState {
+            copy(
+                form = form.copy(
+                    remoteImages = updated
+                )
+            )
+        }
     }
 
     fun onCategoryChange(categoryId: String) {
@@ -233,13 +251,15 @@ class ProductsViewModel @Inject constructor(
         val form = uiState.value.form
 
         val product = CreateProductModel(
-            actulPrice = form.precioActual,
+            id = form.id,
+            actulPrice = form.precioActual.toDoubleOrNull() ?: 0.0,
             bestSelling = form.masVendidos,
             category = form.category,
             description = form.descripcion,
-            price = form.precio,
+            price = form.precio.toDoubleOrNull() ?: 0.0,
             title = form.titulo,
-            images = form.images
+            images = form.images,
+            characteristics = form.caracteristicas
         )
         when (val result = createProductUseCase(product)) {
             is Resource.Success -> {
@@ -253,7 +273,51 @@ class ProductsViewModel @Inject constructor(
 
     }
 
-    fun loadCourseById(productId: String) = launchWithLoading {
+    fun updateProduct() = launchWithLoading {
+        trackEvent(AnalyticsEvent.UpdateProductClick)
+
+        val form = uiState.value.form
+
+        val product = CreateProductModel(
+            id = form.id,
+            actulPrice = form.precioActual.toDoubleOrNull() ?: 0.0,
+            bestSelling = form.masVendidos,
+            category = form.category,
+            description = form.descripcion,
+            price = form.precio.toDoubleOrNull() ?: 0.0,
+            title = form.titulo,
+            images = form.images,
+            characteristics = form.caracteristicas,
+            remoteImages = form.remoteImages
+        )
+
+        when (val result = updateProductUseCase(product)) {
+
+            is Resource.Success -> {
+                sendEvent(ProductUiEvent.ProductUpdated)
+            }
+
+            is Resource.Error -> {
+                sendEvent(ProductUiEvent.ShowError(result.error))
+            }
+        }
+    }
+
+    fun deleteCourse(productId: String, imageUrl: List<String>) {
+        viewModelScope.launch {
+            when (val result = deleteProductUseCase(productId, imageUrl)) {
+                is Resource.Success -> {
+                    sendEvent(ProductUiEvent.ProductDeleted)
+                }
+
+                is Resource.Error -> {
+                    sendEvent(ProductUiEvent.ShowError(result.error))
+                }
+            }
+        }
+    }
+
+    fun loadProductById(productId: String) = launchWithLoading {
         when (val result = getAProductDetailUseCase(productId)) {
             is Resource.Success -> {
                 val product = result.data
@@ -262,12 +326,24 @@ class ProductsViewModel @Inject constructor(
                         productDetail = productDetail.copy(
                             id = product.id,
                             title = product.title,
+                            characteristics = product.characteristics,
                             description = product.description,
                             price = product.price,
                             actulPrice = product.actulPrice,
                             bestSelling = product.bestSelling,
                             category = product.category,
                             images = product.images
+                        ),
+                        form = form.copy(
+                            id = product.id,
+                            titulo = product.title,
+                            caracteristicas = product.characteristics,
+                            descripcion = product.description,
+                            precio = product.price.toString(),
+                            precioActual = product.actulPrice.toString(),
+                            masVendidos = product.bestSelling,
+                            category = product.category,
+                            remoteImages = product.images
                         )
                     )
                 }

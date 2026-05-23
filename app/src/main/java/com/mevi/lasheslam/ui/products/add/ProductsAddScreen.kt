@@ -18,7 +18,7 @@ import com.mevi.lasheslam.ui.products.ProductsViewModel
 fun ProductsAddScreen(
     onDismiss: () -> Unit,
     viewModel: ProductsViewModel = hiltViewModel()
-){
+) {
     val state by viewModel.uiState.collectAsState()
 
     var showError by remember { mutableStateOf(false) }
@@ -38,6 +38,7 @@ fun ProductsAddScreen(
                     errorMessage = event.error.toUserMessage()
                     showError = true
                 }
+
                 ProductUiEvent.ProductSaved -> {
                     viewModel.trackEvent(AnalyticsEvent.SaveProductSuccess)
                     successMessage = "Producto guardado correctamente"
@@ -53,6 +54,7 @@ fun ProductsAddScreen(
         state = state,
         onDismiss = onDismiss,
         onTitleChange = viewModel::onTitleChange,
+        onCharacteristicsChange = viewModel::onCharacteristicsChange,
         onDescriptionChange = viewModel::onDescriptionChange,
         onCostChange = viewModel::onCostChange,
         onActualCostChange = viewModel::onActualCostChange,
@@ -71,6 +73,7 @@ fun ProductsAddScreen(
         },
         saveProduct = viewModel::saveProduct,
         onImagesSelected = viewModel::onImagesSelected,
-        removeImage = viewModel::removeImage
+        removeImage = viewModel::removeImage,
+        removeRemoteImage = viewModel::removeRemoteImage
     )
 }

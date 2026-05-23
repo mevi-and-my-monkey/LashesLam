@@ -14,5 +14,6 @@ interface ProductsRepository {
     suspend fun getProductById(productId: String): Resource<CreateProductDto>
     fun getCategories(): Flow<Resource<List<CategoryModel>>>
     fun getAllProducts(): Flow<Resource<List<ProductItem>>>
-
+    suspend fun deleteCourse(productId: String, imageUrl: List<String>): Resource<Unit>
+    suspend fun updateProduct(product: CreateProductModel): Resource<Unit>
 }

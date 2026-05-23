@@ -28,20 +28,20 @@ import com.mevi.lasheslam.ui.products.ProductsUiState
 fun AddProdImagesView(
     state: ProductsUiState,
     onAddImages: (List<Uri>) -> Unit,
-    onRemoveImage: (Uri) -> Unit
+    onRemoveImage: (Uri) -> Unit,
+    removeRemoteImage: (String) -> Unit,
 ) {
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        onAddImages(uris.take(5))
-    }
-    Column {
-        Button(
-            onClick = { launcher.launch("image/*") }
-        ) { Text(stringResource(R.string.select_image)) }
+    val launcher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()) { uris ->
+            val currentSize = state.form.images.size + state.form.remoteImages.size
+            val remaining = 5 - currentSize
+            onAddImages(uris.take(remaining))
+        }
 
+    Column {
+        Button(onClick = { launcher.launch("image/*") }) { Text(stringResource(R.string.select_image)) }
         LazyRow {
-            items(state.form.images) { image ->
+            items(state.form.remoteImages) { image ->
                 Box {
                     AsyncImage(
                         model = image,
@@ -49,7 +49,7 @@ fun AddProdImagesView(
                         modifier = Modifier.size(100.dp)
                     )
                     IconButton(
-                        onClick = { onRemoveImage(image) }
+                        onClick = { removeRemoteImage(image) }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -58,12 +58,22 @@ fun AddProdImagesView(
                     }
                 }
             }
+
+            items(state.form.images) { image ->
+                Box {
+                    AsyncImage(
+                        model = image,
+                        contentDescription = null,
+                        modifier = Modifier.size(100.dp)
+                    )
+                    IconButton(onClick = { onRemoveImage(image) }) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                    }
+                }
+            }
         }
-
-        Text("${state.form.images.size}/${stringResource(R.string.five_images)}")
-
+        Text("${state.form.images.size + state.form.remoteImages.size}/${stringResource(R.string.five_images)}")
     }
-
     Spacer(Modifier.height(16.dp))
 
 }

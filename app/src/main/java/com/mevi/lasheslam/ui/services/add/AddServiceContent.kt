@@ -42,8 +42,8 @@ fun AddServiceContent(
     saveService: () -> Unit = {},
     onTitleChange: (String) -> Unit = {},
     onSubtitleChange: (String) -> Unit = {},
-    onCostChange: (Double) -> Unit = {},
-    onDurationChange: (Double) -> Unit = {},
+    onCostChange: (String) -> Unit = {},
+    onDurationChange: (String) -> Unit = {},
     onCategoryChange: (String) -> Unit = {},
     onImageChange: (Uri?) -> Unit
 ) {

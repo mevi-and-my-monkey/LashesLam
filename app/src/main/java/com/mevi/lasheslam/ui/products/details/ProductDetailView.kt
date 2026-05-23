@@ -19,7 +19,6 @@ import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.components.WarningDialog
-import com.mevi.lasheslam.ui.home.cursos.CourseUiEvent
 import com.mevi.lasheslam.ui.products.ProductUiEvent
 import com.mevi.lasheslam.ui.products.ProductsViewModel
 
@@ -46,7 +45,7 @@ fun ProductDetailView(
 
     LaunchedEffect(productId) {
         viewModel.trackScreen(Screen.ProductDetails.route)
-        viewModel.loadCourseById(productId)
+        viewModel.loadProductById(productId)
     }
 
     if (uiState.isLoading) {
@@ -104,7 +103,7 @@ fun ProductDetailView(
                 viewModel.trackEvent(AnalyticsEvent.HideDialog)
                 showConfirmDelete = false
                 warningMessage = ""
-                //viewModel.deleteCourse(courseId = courseId, imageUrl = uiState.courseDetail.imagen)
+                viewModel.deleteCourse(productId = productId, imageUrl = uiState.productDetail.images)
             },
             onCancel = {
                 viewModel.trackEvent(AnalyticsEvent.HideDialog)

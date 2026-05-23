@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.network.FavoriteItem
@@ -28,10 +30,10 @@ import com.mevi.lasheslam.ui.courses.details.CourseContent
 import com.mevi.lasheslam.ui.courses.details.components.DetailDescriptionView
 import com.mevi.lasheslam.ui.courses.details.components.DetailsOptionsTop
 import com.mevi.lasheslam.ui.favorites.FavoriteType
-import com.mevi.lasheslam.ui.home.cursos.CourseViewModel
 import com.mevi.lasheslam.ui.products.ProductsUiState
 import com.mevi.lasheslam.ui.products.ProductsViewModel
 import com.mevi.lasheslam.ui.products.details.components.DetailBestSellerView
+import com.mevi.lasheslam.ui.products.details.components.DetailCharactView
 import com.mevi.lasheslam.ui.products.details.components.DetailCostProductView
 import com.mevi.lasheslam.ui.products.details.components.DetailsImagesCourseView
 import com.mevi.lasheslam.ui.products.details.components.DetailsSocialMediaCourView
@@ -88,6 +90,12 @@ fun ProductDetailContent(
                 Spacer(Modifier.height(8.dp))
 
                 CourseContent(titulo = uiState.productDetail.title)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (uiState.productDetail.characteristics.isNotEmpty()) {
+                    DetailCharactView(uiState.productDetail.characteristics)
+                }
 
                 DetailCostProductView(
                     currentPrice = uiState.productDetail.price,

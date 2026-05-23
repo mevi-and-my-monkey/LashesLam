@@ -22,6 +22,7 @@ import com.mevi.lasheslam.ui.courses.edit.CourseEditView
 import com.mevi.lasheslam.ui.products.ProductsView
 import com.mevi.lasheslam.ui.products.SearchPage
 import com.mevi.lasheslam.ui.products.details.ProductDetailView
+import com.mevi.lasheslam.ui.products.edit.ProductEditView
 import com.mevi.lasheslam.ui.profile.ProfilePage
 import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
@@ -266,6 +267,24 @@ fun AppNavGraph(
                     context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
                 },
                 modifier = modifier
+            )
+        }
+
+        composable(
+            route = Screen.ProductEdit.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+            ProductEditView(
+                productId = productId,
+                onDismiss = { navController.popBackStack() },
+                onfinish = {
+                    navController.popBackStack(
+                        route = Screen.Home.route,
+                        inclusive = false
+                    )
+                }
             )
         }
 

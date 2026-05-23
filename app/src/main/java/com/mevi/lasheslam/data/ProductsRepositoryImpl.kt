@@ -10,7 +10,6 @@ import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CreateCourseDto
 import com.mevi.lasheslam.network.CreateProductDto
 import com.mevi.lasheslam.network.ProductItem
 import com.mevi.lasheslam.network.ProductItemDto
@@ -40,6 +39,46 @@ class ProductsRepositoryImpl @Inject constructor(
 
             firestore.collection(FirestorePaths.Products.collectionPath())
                 .document(id)
+                .set(dto)
+                .await()
+
+            Resource.Success(Unit)
+
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun deleteCourse(productId: String, imageUrl: List<String>): Resource<Unit> {
+        return try {
+            imageUrl.forEach { url ->
+                if (url.isNotBlank()) {
+                    runCatching {
+                        val imageRef = storage.getReferenceFromUrl(url)
+                        imageRef.delete().await()
+                    }
+                }
+            }
+
+            firestore.collection(FirestorePaths.Products.collectionPath())
+                .document(productId)
+                .delete()
+                .await()
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun updateProduct(product: CreateProductModel): Resource<Unit> {
+        return try {
+            val newImages = uploadProductsImages(productId = product.id, images = product.images)
+            val finalImages = product.remoteImages + newImages
+            val dto = product.toDto(id = product.id, images = finalImages)
+
+            firestore.collection(FirestorePaths.Products.collectionPath())
+                .document(product.id)
                 .set(dto)
                 .await()
 

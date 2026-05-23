@@ -22,12 +22,27 @@ import com.mevi.lasheslam.ui.products.ProductsUiState
 fun AddProdTitleFormView(
     state: ProductsUiState,
     onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit
+    onDescriptionChange: (String) -> Unit,
+    onCharacteristicsChange: (String) -> Unit
 ){
     OutlinedTextField(
         value = state.form.titulo,
         onValueChange = { onTitleChange(it) },
         label = { Text(stringResource(R.string.title)) },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            imeAction = ImeAction.Next
+        ),
+        shape = RoundedCornerShape(12.dp)
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+
+    OutlinedTextField(
+        value = state.form.caracteristicas,
+        onValueChange = { onCharacteristicsChange(it) },
+        label = { Text(stringResource(R.string.characteristics)) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(

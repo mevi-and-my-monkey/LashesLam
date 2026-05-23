@@ -24,32 +24,35 @@ import java.util.Locale
 @Composable
 fun AddProdCostFormView(
     state: ProductsUiState,
-    onCostChange: (Double) -> Unit,
-    onActualCostChange: (Double) -> Unit
+    onCostChange: (String) -> Unit,
+    onActualCostChange: (String) -> Unit
 ) {
-    val costoFormateado = remember(state.form.precio) {
+    val numberFormat = remember {
         NumberFormat.getCurrencyInstance(
             Locale(
                 Constants.Project.LANGUAGE,
                 Constants.Project.COUNTRY
             )
-        ).format(state.form.precio)
+        )
+    }
+
+    val costoFormateado = remember(state.form.precio) {
+        state.form.precio
+            .toDoubleOrNull()
+            ?.let { numberFormat.format(it) }
+            ?: ""
     }
 
     val costoActualFormateado = remember(state.form.precioActual) {
-        NumberFormat.getCurrencyInstance(
-            Locale(
-                Constants.Project.LANGUAGE,
-                Constants.Project.COUNTRY
-            )
-        ).format(state.form.precioActual)
+        state.form.precioActual
+            .toDoubleOrNull()
+            ?.let { numberFormat.format(it) }
+            ?: ""
     }
 
     OutlinedTextField(
-        value = state.form.precio.toString(),
-        onValueChange = { cost ->
-            onCostChange(cost.toDoubleOrNull() ?: 0.0)
-        },
+        value = state.form.precio,
+        onValueChange = onCostChange,
         label = { Text(stringResource(R.string.costo)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -67,10 +70,8 @@ fun AddProdCostFormView(
     Spacer(modifier = Modifier.height(8.dp))
 
     OutlinedTextField(
-        value = state.form.precioActual.toString(),
-        onValueChange = { newValue ->
-            onActualCostChange(newValue.toDoubleOrNull() ?: 0.0)
-        },
+        value = state.form.precioActual,
+        onValueChange = onActualCostChange,
         label = { Text(stringResource(R.string.actual_price)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
