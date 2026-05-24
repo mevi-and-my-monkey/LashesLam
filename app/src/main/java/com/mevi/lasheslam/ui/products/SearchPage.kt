@@ -27,42 +27,62 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.mevi.lasheslam.R
-import com.mevi.lasheslam.navigation.Screen
-import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.components.HeaderHPCategoriesMenu
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.home.cursos.CursesListSearch
+import com.mevi.lasheslam.ui.home.services.components.ServicesList
 import com.mevi.lasheslam.ui.products.search.SearchViewModel
+import com.mevi.lasheslam.ui.products.search.lists.ProductsListSearch
+import com.mevi.lasheslam.utils.Utilities
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SearchPage(
-    navController: NavController,
+    onOpenWhatsApp: (String) -> Unit,
+    onNavigateToCourseDetails: (String) -> Unit,
+    onNavigateToProductsDetail: (String) -> Unit,
+    onNavigateToServiceEdit: (String) -> Unit,
+    popBack: () -> Unit,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    val state by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
-    val query = viewModel.searchQuery
-    val selectedSection = viewModel.selectedSection
-    val filteredItems = viewModel.filteredItems
-    val isLoading = viewModel.isLoading
-    var showDialogComingSoon by remember { mutableStateOf(false) }
+    val favoritesList = viewModel.favorites.collectAsState().value
+
+    val favoriteCourseIds = remember(favoritesList) {
+        favoritesList
+            .filter { it.type == FavoriteType.COURSE.name }
+            .map { it.itemId }
+            .toSet()
+    }
+
+    val favoriteProductsIds = remember(favoritesList) {
+        favoritesList
+            .filter { it.type == FavoriteType.PRODUCT.name }
+            .map { it.itemId }
+            .toSet()
+    }
+
+    val favoriteServicesIds = remember(favoritesList) {
+        favoritesList
+            .filter { it.type == FavoriteType.SERVICE.name }
+            .map { it.itemId }
+            .toSet()
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -83,7 +103,7 @@ fun SearchPage(
                 ) {
 
                     IconButton(
-                        onClick = { navController.popBackStack() },
+                        onClick = popBack,
                         modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
@@ -94,7 +114,7 @@ fun SearchPage(
                     }
 
                     OutlinedTextField(
-                        value = query,
+                        value = state.query,
                         onValueChange = { viewModel.onSearchChanged(it) },
                         placeholder = {
                             Text("Buscar productos...", color = Color.Black.copy(alpha = 0.8f))
@@ -128,8 +148,8 @@ fun SearchPage(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 HeaderHPCategoriesMenu(
-                    selected = selectedSection,
-                    onSelect = { viewModel.onSectionChanged(it) }
+                    selected = state.selectedSection,
+                    onSelect = { viewModel.onSectionSelected(it) }
                 )
             }
         }
@@ -139,39 +159,62 @@ fun SearchPage(
             focusRequester.requestFocus()
         }
 
-        when (selectedSection) {
+        when (state.selectedSection) {
             Section.CURSOS -> {
                 CursesListSearch(
-                    services = filteredItems,
-                    isLoading = isLoading
-                ) { item ->
-                    navController.navigate(
-                        Screen.CourseDetails.createRoute(item.id)
-                    )
-                }
+                    onNavigateToServiceDetails = onNavigateToCourseDetails,
+                    courses = state.filteredCourses,
+                    isLoading = state.isLoading,
+                    trackEvent = { event ->
+                        viewModel.trackEvent(event)
+                    },
+                    favorites = favoriteCourseIds,
+                    onToggleFavorite = { courseId ->
+                        viewModel.toggleFavorite(courseId, FavoriteType.COURSE)
+                    }
+                )
             }
 
             Section.PRODUCTOS -> {
-                showDialogComingSoon = true
+                ProductsListSearch(
+                    products = state.filteredProducts,
+                    isLoading = state.isLoading,
+                    onNavigateToProductsDetail = onNavigateToProductsDetail,
+                    trackEvent = { event ->
+                        viewModel.trackEvent(event)
+                    },
+                    favorites = favoriteProductsIds,
+                    onToggleFavorite = { productId ->
+                        viewModel.toggleFavorite(productId, FavoriteType.PRODUCT)
+                    }
+                )
             }
 
             Section.SERVICIOS -> {
-                showDialogComingSoon = true
+                ServicesList(
+                    trackEvent = { event ->
+                        viewModel.trackEvent(event)
+                    },
+                    services = state.filteredServices,
+                    isLoading = state.isLoading,
+                    onClick = { service ->
+                        if (state.isAdmin) {
+                            onNavigateToServiceEdit(service.id)
+                        }
+                    },
+                    onClickReservation = { service ->
+                        onOpenWhatsApp(
+                            Utilities.createServiceMessageWhatsApp(
+                                titulo = service.title,
+                                precio = service.price.toString(),
+                                whatsapp = state.whatsApp.toString()
+                            )
+                        )
+                    }
+                )
             }
         }
 
     }
 
-    if (showDialogComingSoon) {
-        DialogComingSon(
-            onDismiss = {
-                showDialogComingSoon = false
-                viewModel.onSectionChanged(Section.CURSOS)
-            },
-            drawableRes = R.drawable.ic_star,
-            title = stringResource(R.string.title_coming_soon),
-            content = stringResource(R.string.content_coming_soon),
-            textButton = stringResource(R.string.button_understand)
-        )
-    }
 }

@@ -57,7 +57,8 @@ fun HomePageContent(
     favoritesProducts: Set<String>,
     onToggleFavorite: (String) -> Unit,
     onToggleFavoriteProducts: (String) -> Unit,
-) {
+    onOpenWhatsApp: (String) -> Unit,
+    ) {
     var showOptionsBottomSheet by remember { mutableStateOf(false) }
     var showAddCourseView by remember { mutableStateOf(false) }
     var showAddProductView by remember { mutableStateOf(false) }
@@ -118,7 +119,8 @@ fun HomePageContent(
                         onCategorySelected = onCategoryServiceSelected,
                         services = state.filteredServices,
                         isLoading = state.isLoading,
-                        trackEvent = trackEvent
+                        trackEvent = trackEvent,
+                        onOpenWhatsApp = onOpenWhatsApp
                     )
                 }
 

@@ -25,6 +25,7 @@ import com.mevi.lasheslam.utils.Utilities
 
 @Composable
 fun ServicesHPContent(
+    onOpenWhatsApp: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
     isLoading: Boolean,
     isAdmin: Boolean,
@@ -76,10 +77,12 @@ fun ServicesHPContent(
                 }
             },
             onClickReservation = { service ->
-                Utilities.createServiceMessageWhatsApp(
-                    titulo = service.title,
-                    precio = service.price.toString(),
-                    whatsapp = whatsApp
+                onOpenWhatsApp(
+                    Utilities.createServiceMessageWhatsApp(
+                        titulo = service.title,
+                        precio = service.price.toString(),
+                        whatsapp = whatsApp
+                    )
                 )
             }
         )

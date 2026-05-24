@@ -27,6 +27,7 @@ fun HomePage(
     onNavigateToServiceDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
+    onOpenWhatsApp: (String) -> Unit,
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
     RequestNotificationPermission()
@@ -86,7 +87,8 @@ fun HomePage(
         favoritesProducts = favoriteProductsIds,
         onToggleFavoriteProducts = { productId ->
             viewModel.toggleFavorite(productId, FavoriteType.PRODUCT)
-        }
+        },
+        onOpenWhatsApp = onOpenWhatsApp
     )
 
     if (dialogState is HomeUiEvent.ShowComingSoon) {

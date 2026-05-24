@@ -66,6 +66,7 @@ fun AppNavGraph(
             })
         }
         composable(Screen.Home.route) {
+            val context = LocalContext.current
             HomeScreen(
                 onNavigateToSearch = {
                     navController.navigate(Screen.Search.route) {
@@ -103,6 +104,9 @@ fun AppNavGraph(
                 onNavigateToServiceEdit = { Id ->
                     navController.navigate(Screen.ServiceEdit.createRoute(Id))
                 },
+                onOpenWhatsApp = { whatsapp ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
+                },
                 modifier
             )
         }
@@ -116,7 +120,22 @@ fun AppNavGraph(
                 fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
             }
         ) {
-            SearchPage(navController)
+            val context = LocalContext.current
+            SearchPage(
+                onNavigateToCourseDetails = { Id ->
+                    navController.navigate(Screen.CourseDetails.createRoute(Id))
+                },
+                onNavigateToProductsDetail = { Id ->
+                    navController.navigate(Screen.ProductDetails.createRoute(Id))
+                },
+                onNavigateToServiceEdit = { Id ->
+                    navController.navigate(Screen.ServiceEdit.createRoute(Id))
+                },
+                onOpenWhatsApp = { whatsapp ->
+                    context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
+                },
+                popBack = { navController.popBackStack() }
+            )
         }
 
         composable(Screen.Products.route) {

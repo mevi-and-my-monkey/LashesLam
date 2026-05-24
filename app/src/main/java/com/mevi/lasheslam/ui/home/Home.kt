@@ -41,6 +41,7 @@ fun HomeScreen(
     onNavigateToCourseDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
+    onOpenWhatsApp: (String) -> Unit,
     modifier: Modifier,
     viewModel: HomePageViewModel = hiltViewModel()
 ) {
@@ -100,6 +101,7 @@ fun HomeScreen(
                         onNavigateToServiceDetails = onNavigateToCourseDetails,
                         onNavigateToProductsDetail = onNavigateToProductsDetail,
                         onNavigateToServiceEdit = onNavigateToServiceEdit,
+                        onOpenWhatsApp = onOpenWhatsApp
                     )
                 }
 

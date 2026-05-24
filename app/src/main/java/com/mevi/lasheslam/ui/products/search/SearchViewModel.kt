@@ -3,77 +3,371 @@ package com.mevi.lasheslam.ui.products.search
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.firestore
-import com.mevi.lasheslam.network.CourseItemDto
+import androidx.lifecycle.viewModelScope
+import com.mevi.lasheslam.BaseViewModel
+import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.data.constants.FirestorePaths
+import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.domain.repository.AnalyticsTracker
+import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
+import com.mevi.lasheslam.domain.usecase.GetCategoriesServices
+import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
+import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
+import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
+import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
+import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.CoursesItem
-import com.mevi.lasheslam.network.toDomain
+import com.mevi.lasheslam.network.FavoriteItem
+import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor() : ViewModel() {
+class SearchViewModel @Inject constructor(
+    private val analytics: AnalyticsTracker,
+    private val getACoursesUseCase: GetCoursesUseCase,
+    private val getCategoriesProducts: GetCategoriesProducts,
+    private val getProductsUseCase: GetProductsUseCase,
+    private val getCategoriesServices: GetCategoriesServices,
+    private val getServicesUseCase: GetServicesUseCase,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val getFavoritesUseCase: GetFavoritesUseCase,
+) : BaseViewModel<SearchPageUiState, SearchUiEvent>() {
 
-    private val firestore = Firebase.firestore
+    override fun createInitialState() = SearchPageUiState()
 
-    var selectedSection by mutableStateOf(Section.CURSOS)
+    var selectedCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
         private set
 
-    var searchQuery by mutableStateOf("")
+    var selectedServiceCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
         private set
 
-    var rawItems by mutableStateOf(listOf<CoursesItem>())
-        private set
+    private val _favorites = MutableStateFlow<List<FavoriteItem>>(emptyList())
+    val favorites = _favorites.asStateFlow()
 
-    var isLoading by mutableStateOf(false)
-        private set
-
-    private var listenerRegistration: ListenerRegistration? = null
 
     init {
-        loadSection(Section.CURSOS)
-    }
-
-    fun onSectionChanged(section: Section) {
-        selectedSection = section
-        loadSection(section)
+        loadCourses()
     }
 
     fun onSearchChanged(query: String) {
-        searchQuery = query
+        setState { copy(query = query) }
+
+        applyCourseFilter(uiState.value.courses)
+        applyFilter(uiState.value.products)
+        applyFilterServices(uiState.value.services)
     }
 
-    val filteredItems: List<CoursesItem>
-        get() = rawItems.filter {
-            it.titulo.contains(searchQuery, ignoreCase = true)
-        }
+    private var isCoursesLoaded = false
+    private var isProductsLoaded = false
+    private var isServicesLoaded = false
 
-    private fun loadSection(section: Section) {
-        isLoading = true
-        listenerRegistration?.remove()
+    fun loadCourses() {
+        if (isCoursesLoaded) return
+        isCoursesLoaded = true
 
-        val documentName = when (section) {
-            Section.CURSOS -> "curse"
-            Section.PRODUCTOS -> "products"
-            Section.SERVICIOS -> "services"
-        }
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
 
-        listenerRegistration = firestore
-            .collection("data")
-            .document(documentName)
-            .collection("items")
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    rawItems = snapshot.documents.mapNotNull {
-                        it.toObject(CourseItemDto::class.java)
-                            ?.copy(id = it.id)
-                            ?.toDomain()
+            val today = Calendar.getInstance().time
+
+            getACoursesUseCase().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val filteredCourses = result.data
+                            .filter { it.date >= today }
+                            .sortedBy { it.date }
+                        setState {
+                            copy(
+                                courses = filteredCourses,
+                                filteredCourses = filteredCourses,
+                                isLoading = false
+                            )
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        setState { copy(isLoading = false) }
+                        sendError(result.error) { SearchUiEvent.ShowError(it) }
                     }
                 }
-                isLoading = false
             }
+        }
     }
+
+    private fun applyCourseFilter(courses: List<CoursesItem>) {
+        val query = uiState.value.query.trim()
+        val filtered = if (query.isBlank()) {
+            courses
+        } else {
+            courses.filter {
+                it.titulo.contains(query, ignoreCase = true)
+            }
+        }
+
+        setState {
+            copy(filteredCourses = filtered)
+        }
+    }
+
+    private var isCategoriesLoaded = false
+
+    fun loadCategories() {
+        if (isCategoriesLoaded) return
+        isCategoriesLoaded = true
+
+        viewModelScope.launch {
+            getCategoriesProducts().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+
+                        val sorted = result.data
+                            .sortedBy { it.name.lowercase() }
+
+                        val categoriesWithAll = listOf(
+                            CategoryModel(id = "all", name = "Todos")
+                        ) + sorted
+
+                        setState {
+                            copy(categoriesProducts = categoriesWithAll)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        sendError(result.error) { SearchUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
+    fun onSectionSelected(section: Section) {
+        when (section) {
+            Section.CURSOS -> {
+                trackEvent(AnalyticsEvent.SectionSelected(section.name))
+                setState { copy(selectedSection = section) }
+            }
+
+            Section.PRODUCTOS -> {
+                trackEvent(AnalyticsEvent.SectionSelected(section.name))
+                setState { copy(selectedSection = section) }
+                loadCategories()
+                loadProducts()
+            }
+
+            Section.SERVICIOS -> {
+                trackEvent(AnalyticsEvent.SectionSelected(section.name))
+                setState { copy(selectedSection = section) }
+                loadCategoriesService()
+                loadServices()
+            }
+        }
+    }
+
+    private fun loadProducts() {
+        if (isProductsLoaded) return
+        isProductsLoaded = true
+
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
+
+            getProductsUseCase().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val products = result.data
+                        val bestSelling = products.filter { it.bestSelling }
+                        setState {
+                            copy(
+                                products = products,
+                                bestSellingProducts = bestSelling,
+                                isLoading = false
+                            )
+                        }
+
+                        applyFilter(products)
+                    }
+
+                    is Resource.Error -> {
+                        setState { copy(isLoading = false) }
+                        sendError(result.error) { SearchUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyFilter(products: List<ProductItem>) {
+        val query = uiState.value.query.trim()
+        val filteredByCategory =
+            if (selectedCategoryId == FirestorePaths.Products.CATEGORY_ALL || selectedCategoryId == null) {
+                products
+            } else {
+                products.filter { it.category.equals(selectedCategoryId, ignoreCase = true) }
+            }
+
+        val filtered =
+            if (query.isBlank()) {
+                filteredByCategory
+            } else {
+                filteredByCategory.filter {
+                    it.title.contains(query, ignoreCase = true)
+                }
+            }
+
+        setState {
+            copy(filteredProducts = filtered)
+        }
+    }
+
+    private var isCategoriesServiceLoaded = false
+
+    fun loadCategoriesService() {
+        if (isCategoriesServiceLoaded) return
+        isCategoriesServiceLoaded = true
+
+        viewModelScope.launch {
+            getCategoriesServices().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+
+                        val sorted = result.data
+                            .sortedBy { it.name.lowercase() }
+
+                        val categoriesWithAll = listOf(
+                            CategoryModel(id = "all", name = "Todos")
+                        ) + sorted
+
+                        setState {
+                            copy(categoriesServices = categoriesWithAll)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        sendError(result.error) { SearchUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadServices() {
+        if (isServicesLoaded) return
+        isServicesLoaded = true
+
+        viewModelScope.launch {
+            setState { copy(isLoading = true) }
+
+            getServicesUseCase().collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val services = result.data
+                        setState {
+                            copy(
+                                services = services,
+                                isLoading = false
+                            )
+                        }
+
+                        applyFilterServices(services)
+                    }
+
+                    is Resource.Error -> {
+                        setState { copy(isLoading = false) }
+                        sendError(result.error) { SearchUiEvent.ShowError(it) }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyFilterServices(services: List<ServiceItem>) {
+        val query = uiState.value.query.trim()
+        val filteredByCategory =
+            if (
+                selectedServiceCategoryId == FirestorePaths.Products.CATEGORY_ALL ||
+                selectedServiceCategoryId == null
+            ) {
+                services
+            } else {
+                services.filter {
+                    it.category.equals(selectedServiceCategoryId, ignoreCase = true)
+                }
+            }
+
+        val filtered =
+            if (query.isBlank()) {
+                filteredByCategory
+            } else {
+                filteredByCategory.filter {
+                    it.title.contains(query, ignoreCase = true)
+                }
+            }
+
+        setState {
+            copy(filteredServices = filtered)
+        }
+    }
+
+    fun loadFavorites(userId: String) {
+        viewModelScope.launch {
+            when (val result = getFavoritesUseCase(userId)) {
+                is Resource.Success -> {
+                    _favorites.value = result.data
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    fun toggleFavorite(itemId: String, type: FavoriteType) {
+        val userId = uiState.value.currentUserId ?: return
+        trackEvent(AnalyticsEvent.FavoriteClick(type.name))
+
+        viewModelScope.launch {
+            val currentFavorites = _favorites.value
+            val isFavorite = currentFavorites.any {
+                it.itemId == itemId && it.type == type.name
+            }
+            when (
+                toggleFavoriteUseCase(
+                    userId = userId,
+                    itemId = itemId,
+                    type = type.name,
+                    isFavorite = isFavorite
+                )
+            ) {
+                is Resource.Success -> {
+                    _favorites.value =
+                        if (isFavorite) {
+                            currentFavorites.filterNot {
+                                it.itemId == itemId && it.type == type.name
+                            }
+                        } else {
+                            currentFavorites + FavoriteItem(itemId, type.name)
+                        }
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+
+    fun trackEvent(event: AnalyticsEvent) {
+        analytics.track(event)
+    }
+
+    fun trackScreen(screen: String) {
+        analytics.track(AnalyticsEvent.ScreenView(screen))
+    }
+
 }
