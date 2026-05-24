@@ -34,8 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsViewModel
@@ -43,8 +41,8 @@ import com.mevi.lasheslam.utils.toUiFormat
 
 @Composable
 fun FavoriteCoursesScreen(
+    onNavigateToCourseDetails: (String) -> Unit,
     viewModel: AdminRequestsViewModel = hiltViewModel(),
-    navController: NavController
 ) {
     val courses = viewModel.favoriteCourses
 
@@ -68,7 +66,7 @@ fun FavoriteCoursesScreen(
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(courses) { course ->
                         FavoriteCourseCard(course = course) {
-                            navController.navigate(Screen.CourseDetails.createRoute(course.id))
+                            onNavigateToCourseDetails(course.id)
                         }
                     }
                 }

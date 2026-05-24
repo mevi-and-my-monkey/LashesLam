@@ -18,35 +18,40 @@ import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
 import com.mevi.lasheslam.ui.profile.HeaderViewRequest
 import com.mevi.lasheslam.ui.profile.Section
+import com.mevi.lasheslam.ui.profile.favorite.components.HeaderViewFav
 import com.mevi.lasheslam.ui.profile.request.AdmRequestCursesScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsViewModel
 
 @Composable
 fun FavoriteScreen(
-    navController: NavController,
+    popBack: () -> Unit,
+    onNavigateToCourseDetails: (String) -> Unit,
+    onNavigateToProductsDetail: (String) -> Unit,
+    onNavigateToServiceEdit: (String) -> Unit,
     viewModel: AdminRequestsViewModel = hiltViewModel()
 ) {
     var selectedSection by remember { mutableStateOf(Section.CURSOS) }
     val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
-    var showDialogComingSoon by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
 
-            HeaderViewRequest(
-                navController = navController,
+            HeaderViewFav(
                 selectedSection = selectedSection,
+                popBack = popBack,
                 onSelectSection = { selectedSection = it }
             )
 
             when (selectedSection) {
-                Section.CURSOS -> FavoriteCoursesScreen(navController = navController)
+                Section.CURSOS -> FavoriteCoursesScreen(
+                    onNavigateToCourseDetails = onNavigateToCourseDetails
+                )
                 Section.PRODUCTOS -> {
-                    showDialogComingSoon = true
+
                 }
+
                 Section.SERVICIOS -> {
-                    showDialogComingSoon = true
                 }
             }
         }
@@ -55,19 +60,6 @@ fun FavoriteScreen(
             isLoading = isLoading,
             message = "Procesando, por favor espera...",
             modifier = Modifier.fillMaxSize()
-        )
-    }
-
-    if (showDialogComingSoon) {
-        DialogComingSon(
-            onDismiss = {
-                showDialogComingSoon = false
-                selectedSection = Section.CURSOS
-            },
-            drawableRes = R.drawable.ic_star,
-            title = stringResource(R.string.title_coming_soon),
-            content = stringResource(R.string.content_coming_soon),
-            textButton = stringResource(R.string.button_understand)
         )
     }
 }

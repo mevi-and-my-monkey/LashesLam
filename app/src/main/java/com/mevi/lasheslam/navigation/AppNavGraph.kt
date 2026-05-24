@@ -147,7 +147,18 @@ fun AppNavGraph(
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) {
-            FavoriteScreen(navController)
+            FavoriteScreen(
+                popBack = { navController.popBackStack() },
+                onNavigateToCourseDetails = { Id ->
+                    navController.navigate(Screen.CourseDetails.createRoute(Id))
+                },
+                onNavigateToProductsDetail = { Id ->
+                    navController.navigate(Screen.ProductDetails.createRoute(Id))
+                },
+                onNavigateToServiceEdit = { Id ->
+                    navController.navigate(Screen.ServiceEdit.createRoute(Id))
+                },
+            )
         }
 
         composable(Screen.Profile.route) {

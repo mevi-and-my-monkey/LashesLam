@@ -17,6 +17,7 @@
     <string name="instragram">Instagram</string>
     <string name="whatsApp">WhatsApp</string>
     <string name="edit">Editar</string>
+    <string name="close">Cerrar</string>
 
     <!-- LOGIN -->
     <string name="welcome">¡Bienvenida!</string>

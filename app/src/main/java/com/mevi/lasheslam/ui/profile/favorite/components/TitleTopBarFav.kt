@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.components.views
+package com.mevi.lasheslam.ui.profile.favorite.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,27 +27,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
-fun TitleTopBar(
+fun TitleTopBarFav(
     title: String,
     photoUrl: String?,
-    navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    popBack: () -> Unit,
 ) {
     val context = LocalContext.current
 
     Surface(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         color = Color(0xFFFFC1E3).copy(alpha = 0.92f),
         tonalElevation = 10.dp,
@@ -60,7 +56,7 @@ fun TitleTopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -105,7 +101,7 @@ fun TitleTopBar(
                         shape = CircleShape
                     )
                     .clickable {
-                        navController.popBackStack()
+                        popBack()
                     },
                 contentAlignment = Alignment.Center
             ) {
