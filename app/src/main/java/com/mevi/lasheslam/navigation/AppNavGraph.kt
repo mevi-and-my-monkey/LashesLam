@@ -204,7 +204,9 @@ fun AppNavGraph(
             exitTransition = NavTransitions.slideOut
         ) {
             AdminRequestsUserScreen(
-                onNavigateToCourseDetails = { navController.navigate(Screen.CourseDetails.route) },
+                onNavigateToCourseDetails = { Id ->
+                    navController.navigate(Screen.CourseDetails.createRoute(Id))
+                },
                 popBack = { navController.popBackStack() })
         }
 

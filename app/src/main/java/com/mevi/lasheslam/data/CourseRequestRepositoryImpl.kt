@@ -96,17 +96,17 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
             val cursoData = mapOf(
                 FirestorePaths.Courses.COURSE_ID to courseId,
-                FirestorePaths.Courses.COURSE_NAME to (data[FirestorePaths.Courses.COURSE_NAME] as? String
-                    ?: ""),
+                FirestorePaths.Courses.COURSE_NAME to (data[FirestorePaths.Courses.COURSE_NAME] as? String ?: ""),
                 FirestorePaths.Courses.DATE to (data[FirestorePaths.Courses.DATE] as? String ?: ""),
-                FirestorePaths.Courses.SCHEDULE to (data[FirestorePaths.Courses.SCHEDULE] as? String
-                    ?: ""),
+                FirestorePaths.Courses.SCHEDULE to (data[FirestorePaths.Courses.SCHEDULE] as? String ?: ""),
                 FirestorePaths.Courses.STATUS to FirestorePaths.Courses.STATUS_ACCEPTED,
                 FirestorePaths.Courses.REQUEST_ID to requestId,
                 FirestorePaths.Courses.NOTIFICATION to FirestorePaths.Courses.NOTIFICATION_NOT_CREATED,
-                FirestorePaths.Courses.TIMESTAMP to (data[FirestorePaths.Courses.TIMESTAMP]
-                    ?: System.currentTimeMillis())
-            )
+                FirestorePaths.Courses.TIMESTAMP to (data[FirestorePaths.Courses.TIMESTAMP] ?: System.currentTimeMillis()),
+                FirestorePaths.Courses.PRICE to (data[FirestorePaths.Courses.PRICE] as? String ?: ""),
+                FirestorePaths.Courses.LOCATION to (data[FirestorePaths.Courses.LOCATION] as? String ?: ""),
+                FirestorePaths.Courses.APARTAR to (data[FirestorePaths.Courses.APARTAR] as? String ?: ""),
+                )
 
             val alumnoData = data.toMutableMap()
 

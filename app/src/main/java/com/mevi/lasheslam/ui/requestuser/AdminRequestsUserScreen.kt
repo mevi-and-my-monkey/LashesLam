@@ -14,7 +14,7 @@ import com.mevi.lasheslam.ui.requestuser.components.HeaderViewRequestUser
 
 @Composable
 fun AdminRequestsUserScreen(
-    onNavigateToCourseDetails: () -> Unit,
+    onNavigateToCourseDetails: (String) -> Unit,
     popBack: () -> Unit,
     viewModel: AdminRequestsUserViewModel = hiltViewModel()
 ) {

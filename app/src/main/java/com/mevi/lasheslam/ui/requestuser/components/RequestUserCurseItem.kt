@@ -45,7 +45,7 @@ import com.mevi.lasheslam.utils.Constants
 
 @Composable
 fun RequestUserCurseItem(
-    item: CourseRequest, onNavigateToCourseDetails: () -> Unit,
+    item: CourseRequest, onNavigateToCourseDetails: (String) -> Unit
 ) {
     val isConfirmed = item.status == Constants.Course.STATUS_ACCEPTED
 
@@ -197,7 +197,7 @@ fun RequestUserCurseItem(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            onNavigateToCourseDetails()
+                            onNavigateToCourseDetails(item.courseId)
                         }
                     ) {
                         Text(

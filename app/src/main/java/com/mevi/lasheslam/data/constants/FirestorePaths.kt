@@ -34,6 +34,9 @@ object FirestorePaths {
         const val NOTIFICATION_CREATED = "created"
         const val NOTIFICATION_NOT_CREATED = "notCreated"
         const val TIMESTAMP = "timestamp"
+        const val PRICE = "price"
+        const val LOCATION = "location"
+        const val APARTAR = "apartar"
 
 
         // COURSE REQUEST

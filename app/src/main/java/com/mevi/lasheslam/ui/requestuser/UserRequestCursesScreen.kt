@@ -8,7 +8,7 @@ import com.mevi.lasheslam.ui.requestuser.components.RequestUserCurseItem
 
 @Composable
 fun UserRequestCursesScreen(
-    onNavigateToCourseDetails: () -> Unit,
+    onNavigateToCourseDetails: (String) -> Unit,
     requestUserCourses: List<CourseRequest>
 ) {
     LazyColumn {
