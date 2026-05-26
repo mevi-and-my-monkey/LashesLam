@@ -4,23 +4,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.mevi.lasheslam.R
 import com.mevi.lasheslam.ui.components.GenericLoading
-import com.mevi.lasheslam.ui.components.dialogs.DialogComingSon
-import com.mevi.lasheslam.ui.profile.HeaderViewRequest
-import com.mevi.lasheslam.ui.profile.Section
+import com.mevi.lasheslam.ui.favorites.FavoriteProductScreen
+import com.mevi.lasheslam.ui.favorites.FavoriteServiceScreen
+import com.mevi.lasheslam.ui.favorites.FavoritesViewModel
+import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.ui.profile.favorite.components.HeaderViewFav
-import com.mevi.lasheslam.ui.profile.request.AdmRequestCursesScreen
-import com.mevi.lasheslam.ui.profile.request.AdminRequestsViewModel
 
 @Composable
 fun FavoriteScreen(
@@ -28,36 +21,50 @@ fun FavoriteScreen(
     onNavigateToCourseDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
-    viewModel: AdminRequestsViewModel = hiltViewModel()
+    viewModel: FavoritesViewModel = hiltViewModel()
 ) {
-    var selectedSection by remember { mutableStateOf(Section.CURSOS) }
-    val isLoading: Boolean by viewModel.isLoading.observeAsState(initial = false)
+    val uiState by viewModel.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier.fillMaxSize()) {
 
             HeaderViewFav(
-                selectedSection = selectedSection,
+                selectedSection = uiState.selectedSection,
                 popBack = popBack,
-                onSelectSection = { selectedSection = it }
+                photoUrl = uiState.photoUser,
+
+                onSelectSection = { section ->
+                    viewModel.onSectionSelected(section)
+                }
             )
 
-            when (selectedSection) {
+            when (uiState.selectedSection) {
                 Section.CURSOS -> FavoriteCoursesScreen(
+                    favoriteCourses = uiState.favoriteCourses,
                     onNavigateToCourseDetails = onNavigateToCourseDetails
                 )
-                Section.PRODUCTOS -> {
 
+                Section.PRODUCTOS -> {
+                    FavoriteProductScreen(
+                        favoriteProducts = uiState.favoriteProducts,
+                        onNavigateToProductsDetail = onNavigateToProductsDetail
+                    )
                 }
 
                 Section.SERVICIOS -> {
+                    FavoriteServiceScreen(
+                        favoriteServices = uiState.favoriteServices,
+                        onNavigateToServiceEdit = onNavigateToServiceEdit
+                    )
                 }
+
+                else -> {}
             }
         }
 
         GenericLoading(
-            isLoading = isLoading,
+            isLoading = uiState.isLoading,
             message = "Procesando, por favor espera...",
             modifier = Modifier.fillMaxSize()
         )

@@ -1,6 +1,7 @@
 package com.mevi.lasheslam.data
 
 import android.net.Uri
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.mevi.lasheslam.core.error.ErrorMapper
@@ -111,6 +112,30 @@ class ProductsRepositoryImpl @Inject constructor(
                     errorMapper.map(Exception("Error al convertir producto"))
                 )
             }
+
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
+    }
+
+    override suspend fun getProductsByIds(ids: List<String>): Resource<List<ProductItem>> {
+        return try {
+            val result = mutableListOf<ProductItem>()
+
+            ids.chunked(10).forEach { chunk ->
+                val snapshot = firestore.collection(FirestorePaths.Products.collectionPath())
+                    .whereIn(FieldPath.documentId(), chunk)
+                    .get()
+                    .await()
+
+                result += snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(ProductItemDto::class.java)
+                        ?.copy(id = doc.id)
+                        ?.toDomain()
+                }
+            }
+
+            Resource.Success(result)
 
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))

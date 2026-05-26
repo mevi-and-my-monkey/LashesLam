@@ -1,4 +1,4 @@
-package com.mevi.lasheslam.ui.profile.favorite
+package com.mevi.lasheslam.ui.favorites
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,14 +11,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
-import com.mevi.lasheslam.ui.favorites.courses.FavoriteCourseCard
+import com.mevi.lasheslam.ui.favorites.service.FavoriteServiceCard
 
 @Composable
-fun FavoriteCoursesScreen(
-    onNavigateToCourseDetails: (String) -> Unit,
-    favoriteCourses: List<CoursesItem>,
+fun FavoriteServiceScreen(
+    onNavigateToServiceEdit: (String) -> Unit,
+    favoriteServices: List<ServiceItem>,
 ) {
     Box(
         modifier = Modifier
@@ -30,13 +30,13 @@ fun FavoriteCoursesScreen(
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(12.dp))
-            if (favoriteCourses.isEmpty()) {
+            if (favoriteServices.isEmpty()) {
                 EmptyViewScreen()
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(favoriteCourses) { course ->
-                        FavoriteCourseCard(course = course) {
-                            onNavigateToCourseDetails(course.id)
+                    items(favoriteServices) { service ->
+                        FavoriteServiceCard(service = service) {
+                            onNavigateToServiceEdit(service.id)
                         }
                     }
                 }

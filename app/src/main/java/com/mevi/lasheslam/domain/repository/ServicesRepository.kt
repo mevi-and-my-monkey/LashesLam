@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface ServicesRepository {
     suspend fun createService(service: CreateServiceModel): Resource<Unit>
     suspend fun getServiceId(serviceID: String): Resource<CreateServiceDto>
+    suspend fun getServicesByIds(ids: List<String>): Resource<List<ServiceItem>>
     fun getCategories(): Flow<Resource<List<CategoryModel>>>
     fun getAllServices(): Flow<Resource<List<ServiceItem>>>
     suspend fun deleteService(serviceId: String, imageUrl: String): Resource<Unit>

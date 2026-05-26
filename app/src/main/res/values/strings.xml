@@ -139,10 +139,13 @@
     <string name="expand">Expandir</string>
     <string name="ubicacion">Ver ubicación</string>
     <string name="total_cost">Costo Total: </string>
+    <string name="title_cost">Costo: </string>
     <string name="seat_aside_with">Aparta con: </string>
     <string name="about_course">Acerca del curso</string>
     <string name="apartado_det">Apartado</string>
     <string name="horario">Horario</string>
+    <string name="title_horario">Horario</string>
+    <string name="see_details">Ver detalles</string>
 
     <!-- COURSE EDIT VIEW-->
     <string name="edit_course_title">Editar curso</string>

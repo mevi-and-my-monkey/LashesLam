@@ -6,6 +6,7 @@ data class ProductItem(
     val bestSelling: Boolean,
     val category: String,
     val description: String,
+    val characteristics: String,
     val images: List<String> = emptyList(),
     val title: String,
     val price: Double

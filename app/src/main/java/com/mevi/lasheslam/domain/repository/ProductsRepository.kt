@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface ProductsRepository {
     suspend fun createProduct(product: CreateProductModel): Resource<Unit>
     suspend fun getProductById(productId: String): Resource<CreateProductDto>
+    suspend fun getProductsByIds(ids: List<String>): Resource<List<ProductItem>>
     fun getCategories(): Flow<Resource<List<CategoryModel>>>
     fun getAllProducts(): Flow<Resource<List<ProductItem>>>
     suspend fun deleteCourse(productId: String, imageUrl: List<String>): Resource<Unit>

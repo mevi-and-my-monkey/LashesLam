@@ -14,7 +14,8 @@ data class ProductItemDto(
     val description: String = "",
     val images: List<String> = emptyList(),
     val title: String = "",
-    val price: Double? = 0.0
+    val price: Double? = 0.0,
+    val characteristics: String = ""
 )
 
 fun ProductItemDto.toDomain(): ProductItem {
@@ -26,6 +27,7 @@ fun ProductItemDto.toDomain(): ProductItem {
         description = description,
         images = images,
         title = title,
-        price = price ?: 0.0
+        price = price ?: 0.0,
+        characteristics = characteristics
     )
 }

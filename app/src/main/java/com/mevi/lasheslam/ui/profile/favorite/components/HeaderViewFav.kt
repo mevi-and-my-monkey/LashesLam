@@ -8,28 +8,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.ui.home.HomeViewModel
-import com.mevi.lasheslam.ui.profile.Section
+import com.mevi.lasheslam.ui.home.components.Section
 
 @Composable
 fun HeaderViewFav(
     selectedSection: Section,
     onSelectSection: (Section) -> Unit,
-    popBack: () -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    photoUrl: String?,
+    popBack: () -> Unit
 ) {
-    val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
