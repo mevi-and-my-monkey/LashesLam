@@ -4,6 +4,9 @@ import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.network.CourseRequest
 
 interface CourseRequestRepository {
+
+    suspend fun getAllRequests(userId: String): Resource<List<CourseRequest>>
+
     suspend fun sendRequest(request: CourseRequest): Resource<Boolean>
 
     suspend fun getRequestsByStatus(status: String): Resource<List<CourseRequest>>

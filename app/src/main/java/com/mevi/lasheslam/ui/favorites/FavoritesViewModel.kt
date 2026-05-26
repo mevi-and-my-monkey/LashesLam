@@ -16,7 +16,6 @@ import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
 import com.mevi.lasheslam.domain.usecase.products.GetFavoriteProductsUseCase
 import com.mevi.lasheslam.domain.usecase.service.GetFavoriteServicesUseCase
 import com.mevi.lasheslam.ui.home.components.Section
-import com.mevi.lasheslam.ui.products.ProductUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch

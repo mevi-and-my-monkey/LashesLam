@@ -28,6 +28,7 @@ import com.mevi.lasheslam.ui.profile.favorite.FavoriteScreen
 import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
+import com.mevi.lasheslam.ui.requestuser.AdminRequestsUserScreen
 import com.mevi.lasheslam.ui.services.edit.ServiceEditView
 import com.mevi.lasheslam.ui.splashscreen.SplashScreen
 import com.mevi.lasheslam.utils.NavTransitions
@@ -82,6 +83,12 @@ fun AppNavGraph(
                 },
                 onNavigateToRequest = {
                     navController.navigate(Screen.Request.route) {
+                        popUpTo(Screen.Home.route)
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToUserRequest = {
+                    navController.navigate(Screen.RequestUser.route) {
                         popUpTo(Screen.Home.route)
                         launchSingleTop = true
                     }
@@ -189,6 +196,19 @@ fun AppNavGraph(
         }
 
         /***
+         * Solicitudes de usuario
+         */
+        composable(
+            route = Screen.RequestUser.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) {
+            AdminRequestsUserScreen(
+                onNavigateToCourseDetails = { navController.navigate(Screen.CourseDetails.route) },
+                popBack = { navController.popBackStack() })
+        }
+
+        /***
          * Secciones dentro de perfil
          */
         composable(
@@ -196,7 +216,7 @@ fun AppNavGraph(
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) {
-            AdminRequestsScreen(navController)
+            AdminRequestsScreen(popBack = { navController.popBackStack() })
         }
 
         composable(

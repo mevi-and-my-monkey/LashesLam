@@ -187,7 +187,7 @@ class CoursesRepositoryImpl @Inject constructor(
                 .document(request.userId)
                 .collection(FirestorePaths.Users.COURSE)
                 .document(request.courseId)
-                .set(mapOf(FirestorePaths.Courses.STATUS to FirestorePaths.Courses.STATUS_PANDING))
+                .set(dto)
                 .await()
 
             Resource.Success(Unit)

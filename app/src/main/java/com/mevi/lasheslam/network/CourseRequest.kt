@@ -1,16 +1,17 @@
 package com.mevi.lasheslam.network
 
-import com.mevi.lasheslam.data.constants.FirestorePaths
-
 data class CourseRequest(
     val requestId: String = "",
     val userId: String = "",
     val courseId: String = "",
     val courseName: String = "",
-    val status: String = FirestorePaths.Courses.STATUS_PANDING,
+    val status: String = "",
     val date: String = "",
     val schedule: String = "",
     val nameUser: String = "",
     val emailUser: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val price: String = "",
+    val location: String = "",
+    val apartar: String = ""
 )

@@ -13,7 +13,10 @@ data class CreateCourseRequestDto(
     val status: String = "",
     val date: String = "",
     val schedule: String = "",
-    val timestamp: Long = 0L
+    val timestamp: Long = 0L,
+    val price: String = "",
+    val location: String = "",
+    val apartar: String = ""
 )
 
 fun CreateCourseRequestModel.toDto(requestId: String): CreateCourseRequestDto {
@@ -27,6 +30,9 @@ fun CreateCourseRequestModel.toDto(requestId: String): CreateCourseRequestDto {
         status = FirestorePaths.Courses.STATUS_PANDING,
         date = date,
         schedule = schedule,
-        timestamp = System.currentTimeMillis()
+        timestamp = System.currentTimeMillis(),
+        price = price,
+        location = location,
+        apartar = apartar
     )
 }

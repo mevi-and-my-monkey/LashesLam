@@ -7,12 +7,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class SendRequestUseCase @Inject constructor(
+
+class GetAllRequestsUseCase @Inject constructor(
     private val repo: CourseRequestRepository,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) {
-    suspend operator fun invoke(request: CourseRequest) = withContext(dispatcher) {
-        repo.sendRequest(request)
+    suspend operator fun invoke(userId : String) = withContext(dispatcher) {
+        repo.getAllRequests(userId)
     }
 }
 
@@ -22,6 +23,15 @@ class GetRequestsUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(status: String) = withContext(dispatcher) {
         repo.getRequestsByStatus(status)
+    }
+}
+
+class SendRequestUseCase @Inject constructor(
+    private val repo: CourseRequestRepository,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher
+) {
+    suspend operator fun invoke(request: CourseRequest) = withContext(dispatcher) {
+        repo.sendRequest(request)
     }
 }
 

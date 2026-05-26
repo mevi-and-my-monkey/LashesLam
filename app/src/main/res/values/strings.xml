@@ -162,5 +162,10 @@
     <!-- PRODUCT EDIT VIEW-->
     <string name="edit_service_title">Editar servicio</string>
 
+    <!-- COURSE REQUEST-->
+    <string name="status_confirmed">Confirmado</string>
+    <string name="status_pending">Pendiente</string>
+
+
 
 </resources>

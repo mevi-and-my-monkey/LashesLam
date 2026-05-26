@@ -11,14 +11,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.profile.HeaderViewRequest
 import com.mevi.lasheslam.ui.profile.Section
 
 @Composable
 fun AdminRequestsScreen(
-    navController: NavController,
+    popBack: () -> Unit,
     viewModel: AdminRequestsViewModel = hiltViewModel()
 ) {
     var selectedSection by remember { mutableStateOf(Section.CURSOS) }
@@ -29,7 +28,7 @@ fun AdminRequestsScreen(
         Column(modifier = Modifier.fillMaxSize()) {
 
             HeaderViewRequest(
-                navController = navController,
+                popBack = popBack,
                 selectedSection = selectedSection,
                 onSelectSection = { selectedSection = it }
             )

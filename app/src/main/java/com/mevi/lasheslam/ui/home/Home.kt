@@ -36,6 +36,7 @@ fun HomeScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToFavorite: () -> Unit,
     onNavigateToRequest: () -> Unit,
+    onNavigateToUserRequest: () -> Unit,
     onNavigateToCourses: () -> Unit,
     onNavigateToLogOut: () -> Unit,
     onNavigateToCourseDetails: (String) -> Unit,
@@ -79,6 +80,10 @@ fun HomeScreen(
                                 viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Request.route))
                                 viewModel.trackScreen(Screen.Request.route)
                                 onNavigateToRequest()
+                            }else{
+                                viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.RequestUser.route))
+                                viewModel.trackScreen(Screen.RequestUser.route)
+                                onNavigateToUserRequest()
                             }
                         }
                     }

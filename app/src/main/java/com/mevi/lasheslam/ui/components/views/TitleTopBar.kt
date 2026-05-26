@@ -27,20 +27,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun TitleTopBar(
+    popBack: () -> Unit,
     title: String,
     photoUrl: String?,
-    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -105,7 +102,7 @@ fun TitleTopBar(
                         shape = CircleShape
                     )
                     .clickable {
-                        navController.popBackStack()
+                        popBack()
                     },
                 contentAlignment = Alignment.Center
             ) {

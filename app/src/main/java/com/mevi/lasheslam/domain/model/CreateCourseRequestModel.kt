@@ -7,5 +7,8 @@ data class CreateCourseRequestModel(
     val courseId: String,
     val courseName: String,
     val date: String,
-    val schedule: String
+    val schedule: String,
+    val price: String = "",
+    val location: String = "",
+    val apartar: String = ""
 )

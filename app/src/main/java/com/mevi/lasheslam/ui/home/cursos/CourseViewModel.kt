@@ -425,7 +425,10 @@ class CourseViewModel @Inject constructor(
                 courseId = courseId,
                 courseName = uiState.value.courseDetail.titulo.uppercase(),
                 date = uiState.value.courseDetail.fecha,
-                schedule = "${uiState.value.courseDetail.horaIncio} - ${uiState.value.courseDetail.horaFin}"
+                schedule = "${uiState.value.courseDetail.horaIncio} - ${uiState.value.courseDetail.horaFin}",
+                price = uiState.value.courseDetail.costo,
+                location = uiState.value.courseDetail.ubicacionNombre ?: "",
+                apartar = uiState.value.courseDetail.apartar
             )
 
             when (val result = createCourseRequestUseCase(request)) {
