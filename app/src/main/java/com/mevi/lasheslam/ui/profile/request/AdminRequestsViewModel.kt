@@ -6,19 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.ApproveRequestUseCase
-import com.mevi.lasheslam.domain.usecase.GetFavoriteCoursesUseCase
-import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.RejectRequestUseCase
 import com.mevi.lasheslam.network.CourseRequest
-import com.mevi.lasheslam.network.CoursesItem
 import com.mevi.lasheslam.ui.courses.CourseUiState
 import com.mevi.lasheslam.ui.courses.CoursesUiEvent
-import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,9 +23,6 @@ class AdminRequestsViewModel @Inject constructor(
     private val getRequestsUseCase: GetRequestsUseCase,
     private val approveRequestUseCase: ApproveRequestUseCase,
     private val rejectRequestUseCase: RejectRequestUseCase,
-    private val getFavoritesUseCase: GetFavoritesUseCase,
-    private val getFavoriteCoursesUseCase: GetFavoriteCoursesUseCase,
-    private val auth: FirebaseAuth,
 ) : BaseViewModel<CourseUiState, CoursesUiEvent>() {
 
 
@@ -41,9 +33,6 @@ class AdminRequestsViewModel @Inject constructor(
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
-
-    var favoriteCourses by mutableStateOf<List<CoursesItem>>(emptyList())
-        private set
 
     fun showLoading() {
         _isLoading.value = true
@@ -77,37 +66,6 @@ class AdminRequestsViewModel @Inject constructor(
         rejectRequestUseCase(id)
         onDone()
         hideLoading()
-    }
-
-    fun loadFavoriteCourses() {
-        val user = auth.currentUser ?: return
-
-        viewModelScope.launch {
-            showLoading()
-
-            when (val favResult = getFavoritesUseCase(user.uid)) {
-                is Resource.Success -> {
-
-                    val ids = favResult.data
-                        .filter { it.type == FavoriteType.COURSE.name || it.type == null }
-                        .map { it.itemId }
-
-                    if (ids.isEmpty()) {
-                        favoriteCourses = emptyList()
-                    } else {
-                        when (val courseResult = getFavoriteCoursesUseCase(ids)) {
-                            is Resource.Success -> {
-                                favoriteCourses = courseResult.data
-                            }
-                            else -> {}
-                        }
-                    }
-                }
-                else -> {}
-            }
-
-            hideLoading()
-        }
     }
 
 }
