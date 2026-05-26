@@ -43,6 +43,7 @@ fun HomePageContent(
     state: HomePageUiState,
     onNavigateToSearch: () -> Unit,
     onNavigateToRequest: () -> Unit,
+    onNavigateToRequestUser: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
@@ -74,6 +75,7 @@ fun HomePageContent(
                 uiState = state,
                 onNavigateToSearch = onNavigateToSearch,
                 onNavigateToRequest = onNavigateToRequest,
+                onNavigateToRequestUser = onNavigateToRequestUser,
                 selectedSection = state.selectedSection,
                 onSelectSection = { section ->
                     onSelectedSection(section)

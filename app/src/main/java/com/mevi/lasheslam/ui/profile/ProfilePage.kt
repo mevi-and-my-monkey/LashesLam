@@ -54,6 +54,7 @@ import com.mevi.lasheslam.ui.components.WarningDialog
 fun ProfilePage(
     onNavigateToFavorite: () -> Unit,
     onNavigateToRequest: () -> Unit,
+    onNavigateToRequestUser: () -> Unit,
     onNavigateToCourses: () -> Unit,
     onNavigateToLogOut: () -> Unit,
     profileViewModel: ProfileViewModel = hiltViewModel()
@@ -85,7 +86,6 @@ fun ProfilePage(
             .verticalScroll(scrollState)
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header con fondo rosa degradado
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -104,7 +104,7 @@ fun ProfilePage(
             ) {
                 AsyncImage(
                     model = photoUser.ifEmpty { R.drawable.ic_guest },
-                    contentDescription = "Foto de perfil",
+                    contentDescription = stringResource(R.string.profile_picture),
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
@@ -112,14 +112,15 @@ fun ProfilePage(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = user.name ?: "Usuario",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    text = user.name ?: stringResource(R.string.user),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 26.sp
+                    ),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Correo en recuadro suave
                 Box(
                     modifier = Modifier
                         .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
@@ -135,7 +136,13 @@ fun ProfilePage(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Telefono: ${user.phone.orDefault(stringResource(R.string.without_phone))}",
+                    text = "${stringResource(R.string.phone)} ${
+                        user.phone.orDefault(
+                            stringResource(
+                                R.string.without_data
+                            )
+                        )
+                    }",
                     fontSize = 14.sp,
                     color = Color.Black,
                     textAlign = TextAlign.Center
@@ -143,7 +150,7 @@ fun ProfilePage(
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Dirección: ${user.address?.takeIf { it.isNotEmpty() } ?: "Sin direccion registrada"}",
+                    text = "Dirección: ${user.address?.takeIf { it.isNotEmpty() } ?: "Sin datos registrados"}",
                     fontSize = 14.sp,
                     color = Color.Black,
                     modifier = Modifier.padding(horizontal = 32.dp),
@@ -152,11 +159,9 @@ fun ProfilePage(
             }
         }
 
-        // Cuerpo con opciones
         Column(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            // Toggle modo oscuro
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -165,11 +170,11 @@ fun ProfilePage(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dark_mode),
-                        contentDescription = "Modo oscuro",
+                        contentDescription = stringResource(R.string.dark_mode),
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text("Modo oscuro", fontSize = 18.sp)
+                    Text(stringResource(R.string.dark_mode), fontSize = 18.sp)
                 }
                 Switch(
                     checked = isDarkMode,
@@ -179,39 +184,49 @@ fun ProfilePage(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botones modernos
+            Text(
+                stringResource(R.string.account),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             ProfileOptionButton(
                 icon = R.drawable.ic_location,
-                text = "Editar dirección",
+                text = stringResource(R.string.edit_address),
                 onClick = { showEditAddress = true }
             )
             ProfileOptionButton(
                 icon = R.drawable.ic_phone,
-                text = "Editar teléfono",
+                text = stringResource(R.string.edit_phone),
                 onClick = { showEditPhone = true }
             )
             ProfileOptionButton(
                 icon = R.drawable.ic_favorite,
-                text = "Favoritos",
+                text = stringResource(R.string.favorites),
                 onClick = {
                     onNavigateToFavorite()
                 }
             )
             ProfileOptionButton(
                 icon = R.drawable.ic_orders,
-                text = "Órdenes",
+                text = stringResource(R.string.orders),
                 onClick = {
                     if (isAdmin) {
                         onNavigateToRequest()
                     } else {
-
+                        onNavigateToRequestUser()
                     }
                 }
             )
             if (isAdmin) {
                 ProfileOptionButton(
                     icon = R.drawable.ic_inscripciones,
-                    text = "Inscripciones",
+                    text = stringResource(R.string.inscripciones),
                     onClick = {
                         onNavigateToCourses()
                     }
@@ -228,11 +243,11 @@ fun ProfilePage(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_logout),
-                    contentDescription = "Cerrar sesión",
+                    contentDescription = stringResource(R.string.log_out),
                     tint = Color.Unspecified
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Cerrar sesión", color = MaterialTheme.colorScheme.onPrimary)
+                Text(stringResource(R.string.log_out), color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }

@@ -59,6 +59,7 @@ fun HeaderView(
     uiState: HomePageUiState,
     onNavigateToSearch: () -> Unit,
     onNavigateToRequest: () -> Unit,
+    onNavigateToRequestUser: () -> Unit,
     selectedSection: Section,
     onSelectSection: (Section) -> Unit,
     trackEvent: (AnalyticsEvent) -> Unit,
@@ -143,7 +144,7 @@ fun HeaderView(
                             trackEvent(AnalyticsEvent.IconHeaderClick)
                             onNavigateToRequest()
                         } else {
-                            //navController.navigate(Screen.UserCourses.route)
+                            onNavigateToRequestUser()
                         }
                     },
                     modifier = Modifier

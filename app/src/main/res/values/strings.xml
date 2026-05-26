@@ -166,6 +166,17 @@
     <string name="status_confirmed">Confirmado</string>
     <string name="status_pending">Pendiente</string>
 
+    <!-- PROFILE PAGE-->
+    <string name="user">Usuario</string>
+    <string name="phone">Teléfono:</string>
+    <string name="without_data">Sin datos</string>"
+    <string name="dark_mode">Modo oscuro</string>
+    <string name="account">Cuenta</string>
+    <string name="edit_address">Editar dirección</string>
+    <string name="edit_phone">Editar teléfono</string>
+    <string name="orders">Órdenes</string>
+    <string name="inscripciones">Inscripciones</string>
+    <string name="log_out">Cerrar sesión</string>
 
 
 </resources>

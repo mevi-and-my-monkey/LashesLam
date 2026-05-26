@@ -182,6 +182,12 @@ fun AppNavGraph(
                         launchSingleTop = true
                     }
                 },
+                onNavigateToRequestUser = {
+                    navController.navigate(Screen.RequestUser.route) {
+                        popUpTo(Screen.Profile.route)
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToCourses = {
                     navController.navigate(Screen.Courses.route)
                 },

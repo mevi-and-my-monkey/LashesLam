@@ -24,6 +24,7 @@ import kotlin.collections.toSet
 fun HomePage(
     onNavigateToSearch: () -> Unit,
     onNavigateToRequest: () -> Unit,
+    onNavigateToRequestUser: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
@@ -63,6 +64,7 @@ fun HomePage(
     HomePageContent(
         state = uiState,
         onNavigateToRequest = onNavigateToRequest,
+        onNavigateToRequestUser = onNavigateToRequestUser,
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToServiceDetails = onNavigateToServiceDetails,
         onNavigateToProductsDetail = onNavigateToProductsDetail,

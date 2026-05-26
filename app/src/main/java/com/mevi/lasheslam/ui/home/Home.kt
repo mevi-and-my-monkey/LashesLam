@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -80,7 +79,7 @@ fun HomeScreen(
                                 viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Request.route))
                                 viewModel.trackScreen(Screen.Request.route)
                                 onNavigateToRequest()
-                            }else{
+                            } else {
                                 viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.RequestUser.route))
                                 viewModel.trackScreen(Screen.RequestUser.route)
                                 onNavigateToUserRequest()
@@ -102,6 +101,7 @@ fun HomeScreen(
                     viewModel.trackScreen(Screen.Home.route)
                     HomePage(
                         onNavigateToRequest = onNavigateToRequest,
+                        onNavigateToRequestUser = onNavigateToUserRequest,
                         onNavigateToSearch = onNavigateToSearch,
                         onNavigateToServiceDetails = onNavigateToCourseDetails,
                         onNavigateToProductsDetail = onNavigateToProductsDetail,
@@ -115,10 +115,11 @@ fun HomeScreen(
                     viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Profile.route))
                     viewModel.trackScreen(Screen.Profile.route)
                     ProfilePage(
-                        onNavigateToFavorite,
-                        onNavigateToRequest,
-                        onNavigateToCourses,
-                        onNavigateToLogOut
+                        onNavigateToFavorite = onNavigateToFavorite,
+                        onNavigateToRequest = onNavigateToRequest,
+                        onNavigateToRequestUser = onNavigateToUserRequest,
+                        onNavigateToCourses = onNavigateToCourses,
+                        onNavigateToLogOut = onNavigateToLogOut
                     )
                 }
             }
