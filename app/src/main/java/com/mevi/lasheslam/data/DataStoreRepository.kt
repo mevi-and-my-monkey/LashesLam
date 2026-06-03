@@ -21,7 +21,6 @@ class DataStoreRepository @Inject constructor(private val dataStore: DataStore<P
         val KEY_DARK_MODE = booleanPreferencesKey("dark_mode")
     }
 
-    // ✅ Guardar valores
     suspend fun saveUserEmail(email: String) {
         dataStore.edit { prefs ->
             prefs[KEY_USER_EMAIL] = email
@@ -40,7 +39,6 @@ class DataStoreRepository @Inject constructor(private val dataStore: DataStore<P
         }
     }
 
-    // ✅ Leer valores como Flow
     val userEmail: Flow<String?> = dataStore.data.map { prefs ->
         prefs[KEY_USER_EMAIL]
     }
@@ -53,7 +51,6 @@ class DataStoreRepository @Inject constructor(private val dataStore: DataStore<P
         prefs[KEY_DARK_MODE] ?: false
     }
 
-    // ✅ Borrar todo (logout)
     suspend fun clearAll() {
         dataStore.edit { it.clear() }
     }

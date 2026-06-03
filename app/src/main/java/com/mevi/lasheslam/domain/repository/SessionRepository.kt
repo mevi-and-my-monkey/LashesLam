@@ -13,7 +13,8 @@ interface SessionRepository {
     fun getWhatsApp(): Flow<String?>
     fun getUid(): String?
     fun getPhotoUrl(): Flow<String?>
-    fun setName()
+    suspend fun setName()
+    suspend fun setPhoto()
     fun getUserName(): Flow<String?>
     fun isAdmin(email: String): Boolean
     fun setAdmin(isAdmin: Boolean)

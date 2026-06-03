@@ -6,8 +6,8 @@ import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
 import com.mevi.lasheslam.network.LocationItem
-import com.mevi.lasheslam.session.SessionManager
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
@@ -21,21 +21,29 @@ class SessionRepositoryImpl @Inject constructor(
 
     override fun getUid(): String? = firebaseAuth.currentUser?.uid
 
-    override fun setName() {
+    override suspend fun setName() {
+
         val uid = getUid() ?: return
 
-        firestore.collection(FirestorePaths.Users.COLLECTION)
+        val snapshot = firestore.collection(FirestorePaths.Users.COLLECTION)
             .document(uid)
             .get()
-            .addOnSuccessListener {
+            .await()
 
-                val name = it.getString(FirestorePaths.Users.USER_NAME)
-                    ?.split(" ")
-                    ?.firstOrNull()
-                    .orEmpty()
+        val name = snapshot.getString(FirestorePaths.Users.USER_NAME)
+            ?.split(" ")
+            ?.firstOrNull()
+            .orEmpty()
 
-                sessionDataSource.setNameUser(name)
-            }
+        sessionDataSource.setNameUser(name)
+    }
+
+    override suspend fun setPhoto() {
+        val firebasePhoto = firebaseAuth.currentUser?.photoUrl?.toString()
+
+        if (firebasePhoto.isNullOrEmpty()) return
+
+        sessionDataSource.setPhotoUrl(firebasePhoto)
     }
 
     override fun getUserName(): Flow<String?> {

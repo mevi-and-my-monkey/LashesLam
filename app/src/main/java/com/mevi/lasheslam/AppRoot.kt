@@ -19,9 +19,8 @@ import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppRoot() {
-    val appViewModel: AppViewModel = hiltViewModel()
-    val isDarkMode by appViewModel.isDarkMode.collectAsStateWithLifecycle()
+fun AppRoot(viewModel: AppViewModel = hiltViewModel()) {
+    val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
 
     LashesLamTheme(darkTheme = isDarkMode) {
         Surface(
