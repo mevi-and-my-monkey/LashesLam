@@ -40,12 +40,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.network.UserModel
 import com.mevi.lasheslam.ui.components.GenericButton
@@ -111,7 +113,7 @@ fun RegisterBottomSheet(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = Strings.createAccount,
+                    text = stringResource(R.string.create_account),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                 )
             }
@@ -125,11 +127,11 @@ fun RegisterBottomSheet(
                     fullName = it
                     nameValidation.value = InputValidator.validateName(it)
                 },
-                label = { Text(Strings.fullName) },
+                label = { Text(stringResource(R.string.full_name)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.AccountCircle,
-                        contentDescription = Strings.fullName
+                        contentDescription = stringResource(R.string.full_name)
                     )
                 },
                 singleLine = true,
@@ -153,8 +155,8 @@ fun RegisterBottomSheet(
                     email = it
                     emailValidation.value = InputValidator.validateEmail(it)
                 },
-                label = { Text(Strings.email) },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = Strings.emailHint) },
+                label = { Text(stringResource(R.string.email)) },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = stringResource(R.string.email_hint)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -176,13 +178,13 @@ fun RegisterBottomSheet(
                     password = it
                     passwordValidation.value = InputValidator.validatePassword(it)
                 },
-                label = { Text(Strings.password) },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = Strings.password) },
+                label = { Text(stringResource(R.string.password)) },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = stringResource(R.string.password)) },
                 trailingIcon = {
                     val icon =
                         if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = Strings.showHidePassword)
+                        Icon(imageVector = icon, contentDescription = stringResource(R.string.show_hide_password))
                     }
                 },
                 singleLine = true,
@@ -207,18 +209,18 @@ fun RegisterBottomSheet(
                     confirmPassword = it
                     confirmValidation.value = InputValidator.validateConfirmPassword(password, it)
                 },
-                label = { Text(Strings.confirmPassword) },
+                label = { Text(stringResource(R.string.confirm_password)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Lock,
-                        contentDescription = Strings.confirmPassword
+                        contentDescription = stringResource(R.string.confirm_password)
                     )
                 },
                 trailingIcon = {
                     val icon =
                         if (confirmPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(imageVector = icon, contentDescription = Strings.showHidePassword)
+                        Icon(imageVector = icon, contentDescription = stringResource(R.string.show_hide_password))
                     }
                 },
                 singleLine = true,
@@ -246,11 +248,11 @@ fun RegisterBottomSheet(
                         phoneValidation.value = InputValidator.validatePhone(filtered)
                     }
                 },
-                label = { Text(Strings.phoneNumber) },
+                label = { Text(stringResource(R.string.phone_number)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Call,
-                        contentDescription = Strings.phoneNumber
+                        contentDescription = stringResource(R.string.phone_number)
                     )
                 },
                 singleLine = true,
@@ -275,7 +277,7 @@ fun RegisterBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 GenericButton(
-                    Strings.registerButton,
+                    stringResource(R.string.register_button),
                     onClick = {
                         onRegister(
                             UserModel(
@@ -294,7 +296,7 @@ fun RegisterBottomSheet(
                 )
 
                 GenericOutlinedButton(
-                    text = Strings.cancelButton,
+                    text = stringResource(R.string.cancel_button),
                     onClick = { onCancel() },
                     textColor = Color.Gray,
                     borderColor = Color.Gray,

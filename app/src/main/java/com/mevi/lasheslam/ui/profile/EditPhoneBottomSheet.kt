@@ -31,11 +31,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 import com.mevi.lasheslam.utils.InputValidator
@@ -80,11 +82,11 @@ fun EditPhoneBottomSheet(
                     phone = it.filter(Char::isDigit)
                     phoneValidation.value = InputValidator.validatePhone(phone)
                 },
-                label = { Text(Strings.phoneNumber) },
+                label = { Text(stringResource(R.string.phone_number)) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Call,
-                        contentDescription = Strings.phoneNumber
+                        contentDescription = stringResource(R.string.phone_number)
                     )
                 },
                 singleLine = true,

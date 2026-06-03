@@ -37,6 +37,7 @@
     <string name="app_name_by_creator">LashesLam by Mevi</string>
     <string name="access">Acceder</string>
     <string name="login_with_google">Acceder con Google</string>
+    <string name="logo_content_description">Logo LashesLam</string>
 
     <!-- LOGIN REPOSITORY -->
     <string name="without_display_name">Sin nombre registrado</string>

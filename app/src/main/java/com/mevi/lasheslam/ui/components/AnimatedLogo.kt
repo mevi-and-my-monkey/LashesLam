@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
@@ -37,7 +38,7 @@ fun AnimatedLogo() {
     ) {
         Image(
             painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.logo_lashes_dark else R.drawable.logo_lashes_),
-            contentDescription = Strings.logoContentDescription,
+            contentDescription = stringResource(R.string.logo_content_description),
             modifier = Modifier
                 .size(120.dp)
         )

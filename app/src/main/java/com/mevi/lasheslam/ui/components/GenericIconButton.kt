@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
@@ -58,7 +59,7 @@ fun GenericIconButtonPreview() {
     LashesLamTheme {
         GenericIconButton(
             icon = painterResource(id = R.drawable.ic_google_one),
-            contentDescription = Strings.loginWithGoogle,
+            contentDescription = stringResource(R.string.login_with_google),
             onClick = { /* Acción */ },
             backgroundColor = Color.Companion.White,
             iconTint = Color.Companion.Unspecified // respeta los colores del PNG

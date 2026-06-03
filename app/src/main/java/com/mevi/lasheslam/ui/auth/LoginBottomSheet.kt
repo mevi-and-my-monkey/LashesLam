@@ -30,11 +30,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mevi.lasheslam.R
 import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
@@ -73,7 +75,7 @@ fun LoginBottomSheet(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = Strings.login,
+                    text = stringResource(R.string.login),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSecondary
                 )
@@ -85,11 +87,11 @@ fun LoginBottomSheet(
             OutlinedTextField(
                 value = email,
                 onValueChange = onEmailChange,
-                label = { Text(Strings.email) },
+                label = { Text(stringResource(R.string.email)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
-                        contentDescription = Strings.emailHint
+                        contentDescription = stringResource(R.string.email_hint)
                     )
                 },
                 singleLine = true,
@@ -103,18 +105,18 @@ fun LoginBottomSheet(
             OutlinedTextField(
                 value = password,
                 onValueChange = onPasswordChange,
-                label = { Text(Strings.password) },
+                label = { Text(stringResource(R.string.password)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = Strings.password
+                        contentDescription = stringResource(R.string.password)
                     )
                 },
                 trailingIcon = {
                     val icon =
                         if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icon, contentDescription = Strings.showHidePassword)
+                        Icon(imageVector = icon, contentDescription = stringResource(R.string.show_hide_password))
                     }
                 },
                 singleLine = true,
@@ -127,7 +129,7 @@ fun LoginBottomSheet(
 
             // 🔹 Botón de acceder
             GenericButton(
-                Strings.access,
+                stringResource(R.string.access),
                 onClick = onLogin,
                 backgroundColor = MaterialTheme.colorScheme.primary,
                 textColor = MaterialTheme.colorScheme.onPrimary,
