@@ -78,7 +78,7 @@ abstract class RepositoryModule {
     ): UserCourseRepository
 
     @Binds
-    abstract fun binProductsRepository(
+    abstract fun bindProductsRepository(
         impl: ProductsRepositoryImpl
     ): ProductsRepository
 

@@ -30,15 +30,14 @@ class SplashViewModel @Inject constructor(
         viewModelScope.launch {
 
             // Update
-            when (val update = checkUpdateUseCase()) {
-                is UpdateResult.Required -> {
-                    _effect.emit(SplashEffect.ForceUpdate(update.appUpdateInfo))
+            when (checkUpdateUseCase()) {
+                UpdateResult.Required -> {
+                    _effect.emit(SplashEffect.ForceUpdate)
                     return@launch
                 }
 
-                else -> {}
+                UpdateResult.NotRequired -> Unit
             }
-
             // Session
             refreshSessionUseCase()
 

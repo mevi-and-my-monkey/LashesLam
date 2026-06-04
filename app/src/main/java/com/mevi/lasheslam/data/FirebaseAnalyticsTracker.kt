@@ -12,36 +12,34 @@ class FirebaseAnalyticsTracker @Inject constructor(
 ) : AnalyticsTracker {
 
     override fun track(event: AnalyticsEvent) {
-        val bundle = mapParams(event)
-        firebaseAnalytics.logEvent(event.name, bundle)
+        firebaseAnalytics.logEvent(event.name, event.toBundle())
     }
 
     override fun setUserId(userId: String?) {
         firebaseAnalytics.setUserId(userId)
     }
 
-    private fun mapParams(event: AnalyticsEvent): Bundle {
+    private fun AnalyticsEvent.toBundle(): Bundle {
         return Bundle().apply {
-            when (event) {
-
+            when (this@toBundle) {
                 is AnalyticsEvent.LoginSuccess -> {
-                    putString(AnalyticsParams.METHOD, event.method)
+                    putString(AnalyticsParams.METHOD, method)
                 }
 
                 is AnalyticsEvent.LoginError -> {
-                    putString(AnalyticsParams.ERROR, event.message)
+                    putString(AnalyticsParams.ERROR, message)
                 }
 
                 is AnalyticsEvent.ScreenView -> {
-                    putString(AnalyticsParams.SCREEN_NAME, event.screen)
+                    putString(AnalyticsParams.SCREEN_NAME, screen)
                 }
 
                 is AnalyticsEvent.SectionSelected -> {
-                    putString(AnalyticsParams.SECTION, event.section)
+                    putString(AnalyticsParams.SECTION, section)
                 }
 
                 is AnalyticsEvent.BottomSelection -> {
-                    putString(AnalyticsParams.SECTION, event.section)
+                    putString(AnalyticsParams.SECTION, section)
                 }
 
                 else -> Unit

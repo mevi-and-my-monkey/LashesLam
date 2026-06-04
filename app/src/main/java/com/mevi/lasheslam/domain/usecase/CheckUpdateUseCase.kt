@@ -5,5 +5,7 @@ import com.mevi.lasheslam.core.results.UpdateResult
 import javax.inject.Inject
 
 class CheckUpdateUseCase @Inject constructor(private val repository: UpdateRepository) {
-    suspend operator fun invoke(): UpdateResult = repository.getUpdateInfo()
+    suspend operator fun invoke(): UpdateResult {
+        return repository.checkForUpdate()
+    }
 }

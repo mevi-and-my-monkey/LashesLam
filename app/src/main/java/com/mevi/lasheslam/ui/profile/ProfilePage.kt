@@ -189,8 +189,8 @@ fun ProfilePage(
                 style = MaterialTheme.typography.titleMedium.copy(
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                ),
+                    fontSize = 22.sp
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))

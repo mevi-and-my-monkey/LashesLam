@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.core.di
 
-import com.mevi.lasheslam.core.error.ErrorMapperImpl
 import com.mevi.lasheslam.core.error.ErrorMapper
+import com.mevi.lasheslam.data.error.FirebaseErrorMapper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,6 +13,6 @@ abstract class CoreModule {
 
     @Binds
     abstract fun bindErrorMapper(
-        impl: ErrorMapperImpl
+        impl: FirebaseErrorMapper
     ): ErrorMapper
 }

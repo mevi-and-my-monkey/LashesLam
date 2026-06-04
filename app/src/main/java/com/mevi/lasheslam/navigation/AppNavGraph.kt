@@ -31,12 +31,14 @@ import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
 import com.mevi.lasheslam.ui.requestuser.AdminRequestsUserScreen
 import com.mevi.lasheslam.ui.services.edit.ServiceEditView
 import com.mevi.lasheslam.ui.splashscreen.SplashScreen
+import com.mevi.lasheslam.ui.update.PlayCoreUpdateLauncher
 import com.mevi.lasheslam.utils.NavTransitions
 import com.mevi.lasheslam.utils.Utilities
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavGraph(
+    playCoreUpdateLauncher: PlayCoreUpdateLauncher,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -56,7 +58,8 @@ fun AppNavGraph(
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
-                })
+                },
+                playCoreUpdateLauncher = playCoreUpdateLauncher)
         }
         composable(Screen.Login.route) {
             LogIn(onNavigateToHome = {

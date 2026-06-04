@@ -16,10 +16,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mevi.lasheslam.navigation.AppNavGraph
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
+import com.mevi.lasheslam.ui.update.PlayCoreUpdateLauncher
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppRoot(viewModel: AppViewModel = hiltViewModel()) {
+fun AppRoot(
+    playCoreUpdateLauncher: PlayCoreUpdateLauncher,
+    viewModel: AppViewModel = hiltViewModel()
+) {
     val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
 
     LashesLamTheme(darkTheme = isDarkMode) {
@@ -32,6 +36,7 @@ fun AppRoot(viewModel: AppViewModel = hiltViewModel()) {
                 contentWindowInsets = WindowInsets.systemBars
             ) { innerPadding ->
                 AppNavGraph(
+                    playCoreUpdateLauncher = playCoreUpdateLauncher,
                     modifier = Modifier.padding(innerPadding)
                 )
             }

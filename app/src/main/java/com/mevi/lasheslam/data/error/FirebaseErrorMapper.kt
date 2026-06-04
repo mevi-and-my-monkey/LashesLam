@@ -1,11 +1,12 @@
-package com.mevi.lasheslam.core.error
+package com.mevi.lasheslam.data.error
 
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.error.ErrorMapper
 import javax.inject.Inject
 
-class ErrorMapperImpl @Inject constructor() : ErrorMapper {
+class FirebaseErrorMapper @Inject constructor() : ErrorMapper {
     override fun map(e: Exception): AppError {
         return when (e) {
             is FirebaseFirestoreException -> {
