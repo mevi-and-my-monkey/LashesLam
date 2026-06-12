@@ -12,8 +12,6 @@ import com.mevi.lasheslam.domain.model.CreateServiceModel
 import com.mevi.lasheslam.domain.repository.ServicesRepository
 import com.mevi.lasheslam.network.CategoryModel
 import com.mevi.lasheslam.network.CreateServiceDto
-import com.mevi.lasheslam.network.ProductItem
-import com.mevi.lasheslam.network.ProductItemDto
 import com.mevi.lasheslam.network.ServiceItem
 import com.mevi.lasheslam.network.ServiceItemDto
 import com.mevi.lasheslam.network.toDomain
