@@ -6,5 +6,6 @@ data class UserDto(
     val uid: String? = null,
     val phone: String? = null,
     val address: String? = null,
-    val userPhoto: String? = null
+    val userPhoto: String? = null,
+    val photoUpdatedByUser: Boolean = false
 )

@@ -1,6 +1,9 @@
 package com.mevi.lasheslam.ui.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -78,6 +83,22 @@ fun ProfilePage(
         profileViewModel.loadUserData()
     }
 
+    val pickPhotoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            profileViewModel.updateProfilePhoto(it) { success, resultMessage ->
+                if (success) {
+                    successMessage = "Foto de perfil actualizada exitosamente"
+                    showSuccess = true
+                } else {
+                    errorMessage = resultMessage ?: "Error al actualizar la foto de perfil"
+                    showError = true
+                }
+            }
+        }
+    }
+
     val scrollState = rememberScrollState()
 
     Column(
@@ -102,14 +123,32 @@ fun ProfilePage(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                AsyncImage(
-                    model = photoUser.ifEmpty { R.drawable.ic_guest },
-                    contentDescription = stringResource(R.string.profile_picture),
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                )
+                Box {
+                    AsyncImage(
+                        model = photoUser.ifEmpty { R.drawable.ic_guest },
+                        contentDescription = stringResource(R.string.profile_picture),
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .clickable { pickPhotoLauncher.launch("image/*") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_profile_picture),
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = user.name ?: stringResource(R.string.user),

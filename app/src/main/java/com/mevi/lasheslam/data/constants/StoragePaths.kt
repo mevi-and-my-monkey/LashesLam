@@ -1,6 +1,14 @@
 package com.mevi.lasheslam.data.constants
 
 object StoragePaths {
+    object Users {
+        private const val ROOT = "users"
+        private const val PROFILE_IMAGE = "profile.jpg"
+        fun profilePhoto(userId: String): String {
+            return "$ROOT/$userId/$PROFILE_IMAGE"
+        }
+    }
+
     object Courses {
         private const val ROOT = "courses"
         private const val COURSE_IMAGE = "course.jpg"

@@ -10,8 +10,8 @@ class RefreshSessionUseCase @Inject constructor(
         repository.refreshSession()
 
         val email = repository.getEmail()
-        repository.setName()
-        repository.setPhoto()
+        runCatching { repository.setName() }
+        runCatching { repository.setPhoto() }
         if (email != null) {
             val isAdmin = repository.isAdmin(email)
             repository.setAdmin(isAdmin)

@@ -71,6 +71,7 @@
     <string name="uploaded_new_course">Subir nuevo curso</string>
     <string name="uploaded_new_service">Subir nuevo servicio</string>
     <string name="profile_picture">Foto de perfil</string>
+    <string name="edit_profile_picture">Editar foto de perfil</string>
     <string name="requests">Solicitudes</string>
     <string name="courses">Cursos</string>
     <string name="products">Productos</string>

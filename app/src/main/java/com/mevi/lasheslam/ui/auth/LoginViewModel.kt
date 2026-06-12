@@ -9,6 +9,7 @@ import com.mevi.lasheslam.domain.analytics.AuthMethod
 import com.mevi.lasheslam.domain.analytics.toAnalyticsType
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.LoginUseCase
+import com.mevi.lasheslam.domain.usecase.RefreshSessionUseCase
 import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
@@ -24,6 +25,7 @@ class LoginViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val googleUseCase: SignInWithGoogleUseCase,
     private val saveSessionUseCase: SaveSessionUseCase,
+    private val refreshSessionUseCase: RefreshSessionUseCase,
     private val errorMapper: ErrorMapper,
     private val validateLoginUseCase: ValidateLoginUseCase,
     private val analytics: AnalyticsTracker
@@ -46,6 +48,7 @@ class LoginViewModel @Inject constructor(
             onSuccess = {
                 trackEvent(AnalyticsEvent.LoginSuccess(AuthMethod.EMAIL))
                 saveSessionUseCase(uiState.value.email)
+                refreshSessionUseCase()
                 sendEvent(LoginUiEvent.NavigateToHome)
             },
             onError = { error ->
@@ -65,6 +68,7 @@ class LoginViewModel @Inject constructor(
                 user.email?.let {
                     saveSessionUseCase(it)
                 }
+                refreshSessionUseCase()
                 sendEvent(LoginUiEvent.RegisterSuccess)
             },
             onError = { error ->
@@ -82,6 +86,7 @@ class LoginViewModel @Inject constructor(
                 email?.let {
                     saveSessionUseCase(it)
                 }
+                refreshSessionUseCase()
                 sendEvent(LoginUiEvent.NavigateToHome)
             },
             onError = { error ->

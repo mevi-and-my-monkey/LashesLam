@@ -1,5 +1,6 @@
 package com.mevi.lasheslam.ui.profile
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,8 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.DataStoreRepository
+import com.mevi.lasheslam.domain.usecase.UpdateUserPhotoUseCase
 import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,7 +21,8 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val dataStoreRepository: DataStoreRepository
+    private val dataStoreRepository: DataStoreRepository,
+    private val updateUserPhotoUseCase: UpdateUserPhotoUseCase
 ) : ViewModel() {
 
     var userModel by mutableStateOf(UserModel())
@@ -43,8 +48,37 @@ class ProfileViewModel @Inject constructor(
             .addOnSuccessListener { snapshot ->
                 snapshot.toObject(UserModel::class.java)?.let {
                     userModel = it
+                    val storedPhoto = it.userPhoto.orEmpty()
+                    if (it.photoUpdatedByUser && storedPhoto.isNotEmpty()) {
+                        photoUser = storedPhoto
+                    } else if (photoUser.isEmpty()) {
+                        photoUser = storedPhoto
+                    }
                 }
             }
+    }
+
+    fun updateProfilePhoto(imageUri: Uri, onResult: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            isLoading = true
+            when (val result = updateUserPhotoUseCase(imageUri)) {
+                is Resource.Success -> {
+                    photoUser = result.data
+                    userModel = userModel.copy(
+                        userPhoto = result.data,
+                        photoUpdatedByUser = true
+                    )
+                    SessionManager.setPhotoUrl(result.data)
+                    isLoading = false
+                    onResult(true, null)
+                }
+
+                is Resource.Error -> {
+                    isLoading = false
+                    onResult(false, "Error al actualizar la foto de perfil")
+                }
+            }
+        }
     }
 
     fun updateAddress(newAddress: String,onResult: (Boolean, String?) -> Unit) {

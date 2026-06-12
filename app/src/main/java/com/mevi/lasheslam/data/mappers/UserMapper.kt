@@ -9,7 +9,8 @@ fun UserDto.toDomain() = UserModel(
     uid = uid.orEmpty(),
     phone = phone.orEmpty(),
     address = address.orEmpty(),
-    userPhoto = userPhoto.orEmpty()
+    userPhoto = userPhoto.orEmpty(),
+    photoUpdatedByUser = photoUpdatedByUser
 )
 
 fun UserModel.toDto() = UserDto(
@@ -18,5 +19,6 @@ fun UserModel.toDto() = UserDto(
     uid = uid,
     phone = phone,
     address = address,
-    userPhoto = userPhoto
+    userPhoto = userPhoto,
+    photoUpdatedByUser = photoUpdatedByUser
 )
