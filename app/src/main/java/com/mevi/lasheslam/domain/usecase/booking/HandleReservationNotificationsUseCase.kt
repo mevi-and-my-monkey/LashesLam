@@ -3,6 +3,7 @@ package com.mevi.lasheslam.domain.usecase.booking
 import android.os.Build
 import android.util.Log
 import com.mevi.lasheslam.data.local.NotificationCache
+import com.mevi.lasheslam.data.local.ReservationNotificationStore
 import com.mevi.lasheslam.domain.repository.NotificationScheduler
 import com.mevi.lasheslam.network.ServiceReservation
 import com.mevi.lasheslam.utils.date.CourseDateParser
@@ -16,12 +17,22 @@ import javax.inject.Inject
 class HandleReservationNotificationsUseCase @Inject constructor(
     private val scheduler: NotificationScheduler,
     private val dateParser: CourseDateParser,
-    private val cache: NotificationCache
+    private val cache: NotificationCache,
+    private val store: ReservationNotificationStore
 ) {
     operator fun invoke(reservations: List<ServiceReservation>) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
         reservations.forEach { reservation ->
+            // Notificación inmediata "agendada", una sola vez por reserva
+            if (!store.hasWelcomed(reservation.reservationId)) {
+                scheduler.notifyNow(
+                    title = "Cita agendada 🎉",
+                    message = "Tu cita de ${reservation.serviceName} quedó agendada"
+                )
+                store.markWelcomed(reservation.reservationId)
+            }
+
             // Evita reprogramar la misma reserva varias veces en la misma sesión
             if (!cache.shouldProcess("reservation-${reservation.reservationId}")) return@forEach
 

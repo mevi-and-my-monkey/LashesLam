@@ -69,6 +69,7 @@ fun HomeScreen(
                 selectedIndex = selectedIndex,
                 cartCount = uiState.cartCount,
                 showCart = !isAdmin,
+                showFavorites = !isAdmin,
                 onItemSelected = { index ->
                     selectedIndex = index
                     when (index) {

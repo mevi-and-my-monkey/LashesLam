@@ -45,6 +45,7 @@ fun FloatingBottomNavigation(
     selectedIndex: Int,
     cartCount: Int = 0,
     showCart: Boolean = true,
+    showFavorites: Boolean = true,
     onItemSelected: (Int) -> Unit
 ) {
     Row(
@@ -58,11 +59,13 @@ fun FloatingBottomNavigation(
         verticalAlignment = Alignment.CenterVertically
     ) {
         BottomNavItem(Icons.Outlined.Home, "Inicio", selectedIndex == 0) { onItemSelected(0) }
-        BottomNavItem(
-            Icons.Outlined.FavoriteBorder,
-            "Favoritos",
-            selectedIndex == 1
-        ) { onItemSelected(1) }
+        if (showFavorites) {
+            BottomNavItem(
+                Icons.Outlined.FavoriteBorder,
+                "Favoritos",
+                selectedIndex == 1
+            ) { onItemSelected(1) }
+        }
         if (showCart) {
             BottomNavItem(
                 Icons.Outlined.ShoppingCart,
