@@ -12,7 +12,7 @@ import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
 import com.mevi.lasheslam.domain.usecase.GetCategoriesServices
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
-import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
+import com.mevi.lasheslam.domain.usecase.ObserveFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
 import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
@@ -26,6 +26,7 @@ import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -39,7 +40,7 @@ class SearchViewModel @Inject constructor(
     private val getCategoriesServices: GetCategoriesServices,
     private val getServicesUseCase: GetServicesUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val observeFavoritesUseCase: ObserveFavoritesUseCase,
 ) : BaseViewModel<SearchPageUiState, SearchUiEvent>() {
 
     override fun createInitialState() = SearchPageUiState()
@@ -316,14 +317,13 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun loadFavorites(userId: String) {
-        viewModelScope.launch {
-            when (val result = getFavoritesUseCase(userId)) {
-                is Resource.Success -> {
-                    _favorites.value = result.data
-                }
+    private var favoritesJob: Job? = null
 
-                else -> {}
+    fun loadFavorites(userId: String) {
+        favoritesJob?.cancel()
+        favoritesJob = viewModelScope.launch {
+            observeFavoritesUseCase(userId).collect { favorites ->
+                _favorites.value = favorites
             }
         }
     }
@@ -333,31 +333,16 @@ class SearchViewModel @Inject constructor(
         trackEvent(AnalyticsEvent.FavoriteClick(type.name))
 
         viewModelScope.launch {
-            val currentFavorites = _favorites.value
-            val isFavorite = currentFavorites.any {
+            val isFavorite = _favorites.value.any {
                 it.itemId == itemId && it.type == type.name
             }
-            when (
-                toggleFavoriteUseCase(
-                    userId = userId,
-                    itemId = itemId,
-                    type = type.name,
-                    isFavorite = isFavorite
-                )
-            ) {
-                is Resource.Success -> {
-                    _favorites.value =
-                        if (isFavorite) {
-                            currentFavorites.filterNot {
-                                it.itemId == itemId && it.type == type.name
-                            }
-                        } else {
-                            currentFavorites + FavoriteItem(itemId, type.name)
-                        }
-                }
-
-                else -> {}
-            }
+            // El snapshot listener actualiza _favorites automáticamente
+            toggleFavoriteUseCase(
+                userId = userId,
+                itemId = itemId,
+                type = type.name,
+                isFavorite = isFavorite
+            )
         }
     }
 

@@ -49,6 +49,9 @@ object SessionManager {
     private val _locations = MutableStateFlow<List<LocationItem>>(emptyList())
     val locations = _locations.asStateFlow()
 
+    private val _shippingCost = MutableStateFlow(0.0)
+    val shippingCost = _shippingCost.asStateFlow()
+
     fun setAdmin(value: Boolean) {
         _isUserAdmin.value = value
     }
@@ -85,6 +88,17 @@ object SessionManager {
         _photoUrl.value = photoUrl
     }
 
+    // Limpia los datos del usuario al cerrar sesión para que no se filtren
+    // a la siguiente cuenta que inicie sesión en el mismo dispositivo
+    fun clearUserSession() {
+        _currentUserId.value = null
+        _nameUser.value = null
+        _emailUser.value = null
+        _photoUrl.value = null
+        _isUserAdmin.value = false
+        _isUserInvited.value = false
+    }
+
     private fun parseAdminList(jsonString: String): List<String> {
         return try {
             val jsonArray = JSONArray(jsonString)
@@ -112,6 +126,7 @@ object SessionManager {
             setWhatsApp(whatsApp)
             setInstagram(instagram)
             setFacebook(facebook)
+            _shippingCost.value = remoteConfig.getDouble(Strings.keyRemoteConfigShippingCost)
             //Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {
             Log.e("SessionManager", Strings.logErrorFetchingRemoteConfig, e)

@@ -27,6 +27,7 @@ import com.mevi.lasheslam.utils.Utilities
 fun ServicesHPContent(
     onOpenWhatsApp: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
+    onNavigateToServiceDetail: (String) -> Unit,
     isLoading: Boolean,
     isAdmin: Boolean,
     whatsApp: String,
@@ -71,19 +72,10 @@ fun ServicesHPContent(
             services = services,
             isLoading = isLoading,
             onClick = { service ->
-                if (isAdmin) {
-                    onNavigateToServiceEdit(service.id)
-
-                }
+                onNavigateToServiceDetail(service.id)
             },
             onClickReservation = { service ->
-                onOpenWhatsApp(
-                    Utilities.createServiceMessageWhatsApp(
-                        titulo = service.title,
-                        precio = service.price.toString(),
-                        whatsapp = whatsApp
-                    )
-                )
+                onNavigateToServiceDetail(service.id)
             }
         )
     }

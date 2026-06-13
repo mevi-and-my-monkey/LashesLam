@@ -68,6 +68,8 @@ fun AddServicesScreen(
         onCostChange = viewModel::onCostChange,
         onDurationChange = viewModel::onDurationChange,
         onCategoryChange = viewModel::onCategoryChange,
+        onDescriptionChange = viewModel::onDescriptionChange,
+        onIncludesChange = viewModel::onIncludesChange,
         onImageChange = viewModel::onImageChange
     )
 }

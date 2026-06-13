@@ -29,6 +29,8 @@ import com.mevi.lasheslam.ui.profile.request.AdminRequestsScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledCoursesScreen
 import com.mevi.lasheslam.ui.profile.students.EnrolledStudentsScreen
 import com.mevi.lasheslam.ui.requestuser.AdminRequestsUserScreen
+import com.mevi.lasheslam.ui.booking.BookingScreen
+import com.mevi.lasheslam.ui.services.details.ServiceDetailView
 import com.mevi.lasheslam.ui.services.edit.ServiceEditView
 import com.mevi.lasheslam.ui.splashscreen.SplashScreen
 import com.mevi.lasheslam.ui.update.PlayCoreUpdateLauncher
@@ -113,6 +115,9 @@ fun AppNavGraph(
                 },
                 onNavigateToServiceEdit = { Id ->
                     navController.navigate(Screen.ServiceEdit.createRoute(Id))
+                },
+                onNavigateToServiceDetail = { Id ->
+                    navController.navigate(Screen.ServiceDetails.createRoute(Id))
                 },
                 onOpenWhatsApp = { whatsapp ->
                     context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
@@ -361,32 +366,35 @@ fun AppNavGraph(
             enterTransition = NavTransitions.slideIn,
             exitTransition = NavTransitions.slideOut
         ) { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
-            val context = LocalContext.current
-            CourseDetailView(
-                courseId = courseId,
+            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            ServiceDetailView(
+                serviceId = serviceId,
                 onDismiss = { navController.popBackStack() },
                 onEditClick = { id -> navController.navigate(Screen.ServiceEdit.createRoute(id)) },
-                onOpenFacebook = { facebook ->
-                    context.startActivity(Intent(Intent.ACTION_VIEW, facebook.toUri()))
-                },
-                onOpenInstagram = { instagram ->
-                    context.startActivity(Intent(Intent.ACTION_VIEW, instagram.toUri()))
+                onBookClick = { id -> navController.navigate(Screen.Booking.createRoute(id)) },
+                modifier = modifier
+            )
+        }
+
+        composable(
+            route = Screen.Booking.route,
+            enterTransition = NavTransitions.slideIn,
+            exitTransition = NavTransitions.slideOut
+        ) { backStackEntry ->
+            val serviceId = backStackEntry.arguments?.getString("serviceId") ?: return@composable
+            val context = LocalContext.current
+            BookingScreen(
+                serviceId = serviceId,
+                popBack = { navController.popBackStack() },
+                onBackToHome = {
+                    navController.popBackStack(
+                        route = Screen.Home.route,
+                        inclusive = false
+                    )
                 },
                 onOpenWhatsApp = { whatsapp ->
                     context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
-                },
-                onAddToCalendar = { titulo, fecha, horaInicio, horaFin ->
-                    Utilities.agregarEventoCalendario(
-                        context = context,
-                        titulo = titulo,
-                        fecha = fecha,
-                        horaInicio = horaInicio,
-                        horaFin = horaFin
-                    )
-
-                },
-                modifier = modifier
+                }
             )
         }
 

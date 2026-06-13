@@ -31,6 +31,12 @@ class GetFavoritesUseCase @Inject constructor(
     ) = repo.getFavorites(userId)
 }
 
+class ObserveFavoritesUseCase @Inject constructor(
+    private val repo: FavoritesRepository
+) {
+    operator fun invoke(userId: String) = repo.observeFavorites(userId)
+}
+
 class ToggleFavoriteUseCase @Inject constructor(
     private val repo: FavoritesRepository
 ) {

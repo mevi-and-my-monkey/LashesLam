@@ -10,6 +10,8 @@ data class CreateServiceDto(
     val price: Double = 0.0,
     val title: String = "",
     val image: String = "",
+    val description: String = "",
+    val includes: List<String> = emptyList(),
 )
 
 fun CreateServiceModel.toDto(
@@ -24,5 +26,7 @@ fun CreateServiceModel.toDto(
         price = price,
         title = title,
         image = imageUrl,
+        description = description,
+        includes = includes,
     )
 }

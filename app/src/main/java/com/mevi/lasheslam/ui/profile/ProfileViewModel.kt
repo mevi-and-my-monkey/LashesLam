@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.DataStoreRepository
 import com.mevi.lasheslam.domain.usecase.UpdateUserPhotoUseCase
+import com.mevi.lasheslam.domain.usecase.cart.ClearCartUseCase
 import com.mevi.lasheslam.network.UserModel
 import com.mevi.lasheslam.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ class ProfileViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val dataStoreRepository: DataStoreRepository,
-    private val updateUserPhotoUseCase: UpdateUserPhotoUseCase
+    private val updateUserPhotoUseCase: UpdateUserPhotoUseCase,
+    private val clearCartUseCase: ClearCartUseCase
 ) : ViewModel() {
 
     var userModel by mutableStateOf(UserModel())
@@ -116,6 +118,8 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun signOut(onNavigateToLogOut: () -> Unit) {
+        clearCartUseCase()
+        SessionManager.clearUserSession()
         auth.signOut()
         onNavigateToLogOut()
     }

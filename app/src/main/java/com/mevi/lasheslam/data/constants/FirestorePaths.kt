@@ -71,4 +71,38 @@ object FirestorePaths {
     object Favorites {
         const val COLLECTION_FAVORITES = "favorites"
     }
+
+    object Booking {
+        // Disponibilidad por servicio: service_availability/{serviceId}
+        const val AVAILABILITY_COLLECTION = "service_availability"
+        // schedule: { "2026-06-19": [{ time, occupied }], ... }
+        const val SCHEDULE = "schedule"
+        const val SLOT_TIME = "time"
+        const val SLOT_OCCUPIED = "occupied"
+
+        const val RESERVATIONS_COLLECTION = "service_reservations"
+        const val SERVICE_ID = "serviceId"
+        const val DATE = "date"
+        const val TIME = "time"
+        const val STATUS = "status"
+        const val USER_ID = "userId"
+
+        // Estados específicos de reservaciones de servicios
+        const val STATUS_PENDING = "pendiente"
+        const val STATUS_SCHEDULED = "agendado"
+        const val STATUS_CANCELLED = "cancelado"
+        const val STATUS_ARCHIVED = "archivado"
+    }
+
+    object Orders {
+        const val COLLECTION = "product_orders"
+        const val STATUS = "status"
+        const val USER_ID = "userId"
+        const val STATUS_PENDING = "pendiente"
+        const val STATUS_COMPLETED = "finalizado"
+        const val STATUS_ARCHIVED = "archivado"
+
+        // Órdenes creadas antes del cambio de "aceptado" a "finalizado"
+        const val STATUS_LEGACY_ACCEPTED = "aceptado"
+    }
 }

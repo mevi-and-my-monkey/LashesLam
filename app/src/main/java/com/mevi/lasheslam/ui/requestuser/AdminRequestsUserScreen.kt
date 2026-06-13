@@ -30,6 +30,8 @@ fun AdminRequestsUserScreen(
                 photoUrl = uiState.photoUser ?: "",
                 onSelectSection = { viewModel.onSectionSelected(it) },
                 countCourses = uiState.requestUserCourses.size,
+                countProducts = uiState.productOrders.size,
+                countServices = uiState.reservations.size,
             )
 
             when (uiState.selectedSection) {
@@ -38,8 +40,13 @@ fun AdminRequestsUserScreen(
                     requestUserCourses = uiState.requestUserCourses
                 )
 
-                Section.PRODUCTOS -> {}
-                Section.SERVICIOS -> {}
+                Section.PRODUCTOS -> UserRequestProductsScreen(
+                    productOrders = uiState.productOrders
+                )
+
+                Section.SERVICIOS -> UserRequestServicesScreen(
+                    reservations = uiState.reservations
+                )
             }
         }
 

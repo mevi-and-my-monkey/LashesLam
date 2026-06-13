@@ -23,6 +23,7 @@ import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.navigation.Screen
 import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.ui.cart.CartScreen
 import com.mevi.lasheslam.ui.components.FloatingBottomNavigation
 import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.components.WarningDialog
@@ -41,6 +42,7 @@ fun HomeScreen(
     onNavigateToCourseDetails: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
+    onNavigateToServiceDetail: (String) -> Unit,
     onOpenWhatsApp: (String) -> Unit,
     modifier: Modifier,
     viewModel: HomePageViewModel = hiltViewModel()
@@ -65,6 +67,8 @@ fun HomeScreen(
         bottomBar = {
             FloatingBottomNavigation(
                 selectedIndex = selectedIndex,
+                cartCount = uiState.cartCount,
+                showCart = !isAdmin,
                 onItemSelected = { index ->
                     selectedIndex = index
                     when (index) {
@@ -75,6 +79,11 @@ fun HomeScreen(
                         }
 
                         2 -> {
+                            viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Cart.route))
+                            viewModel.trackScreen(Screen.Cart.route)
+                        }
+
+                        3 -> {
                             if (isAdmin) {
                                 viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Request.route))
                                 viewModel.trackScreen(Screen.Request.route)
@@ -106,12 +115,18 @@ fun HomeScreen(
                         onNavigateToServiceDetails = onNavigateToCourseDetails,
                         onNavigateToProductsDetail = onNavigateToProductsDetail,
                         onNavigateToServiceEdit = onNavigateToServiceEdit,
+                        onNavigateToServiceDetail = onNavigateToServiceDetail,
                         onOpenWhatsApp = onOpenWhatsApp
                     )
                 }
 
-                2 -> if (!isAdmin) EmptyViewScreen()
-                3 -> {
+                2 -> CartScreen(
+                    onBackToHome = { selectedIndex = 0 },
+                    onOpenWhatsApp = onOpenWhatsApp
+                )
+
+                3 -> if (!isAdmin) EmptyViewScreen()
+                4 -> {
                     viewModel.trackEvent(AnalyticsEvent.BottomSelection(Screen.Profile.route))
                     viewModel.trackScreen(Screen.Profile.route)
                     ProfilePage(

@@ -11,4 +11,6 @@ data class CreateServiceModel(
     val title: String,
     val currentImageUrl: String,
     val image: Uri?,
+    val description: String = "",
+    val includes: List<String> = emptyList(),
 )

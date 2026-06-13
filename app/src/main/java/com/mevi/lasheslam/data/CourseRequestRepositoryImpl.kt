@@ -20,11 +20,28 @@ class CourseRequestRepositoryImpl @Inject constructor(
 
     override suspend fun getAllRequests(userId: String): Resource<List<CourseRequest>> {
         return try {
-            val snapshot = firestore.collection(FirestorePaths.Users.collectionUserRequest(userId))
+            // Solicitudes pendientes: viven en course_requests hasta que el admin
+            // las aprueba (pasan a users/{uid}/cursos) o las rechaza (se eliminan)
+            val pendingSnapshot = requestsRef
+                .whereEqualTo(FirestorePaths.Users.USER_ID, userId)
                 .get()
                 .await()
 
-            val list = snapshot.documents.mapNotNull { it.toObject(CourseRequest::class.java) }
+            val pending = pendingSnapshot.documents
+                .mapNotNull { it.toObject(CourseRequest::class.java) }
+
+            val userCoursesSnapshot = firestore
+                .collection(FirestorePaths.Users.collectionUserRequest(userId))
+                .get()
+                .await()
+
+            val accepted = userCoursesSnapshot.documents
+                .mapNotNull { it.toObject(CourseRequest::class.java) }
+                .filter { it.status == FirestorePaths.Courses.STATUS_ACCEPTED }
+
+            val list = (pending + accepted)
+                .distinctBy { it.requestId.ifEmpty { it.courseId } }
+                .sortedByDescending { it.timestamp }
 
             Resource.Success(list)
         } catch (e: Exception) {

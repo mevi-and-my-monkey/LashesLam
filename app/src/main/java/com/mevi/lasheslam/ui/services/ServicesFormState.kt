@@ -10,5 +10,7 @@ data class ServicesFormState(
     val image: Uri? = null,
     val duracion: String = "",
     val category: String = "",
-    val remoteImage: String = ""
+    val remoteImage: String = "",
+    val descripcion: String = "",
+    val incluye: String = ""
 )

@@ -8,4 +8,6 @@ data class ServiceItem(
     val title: String,
     val subtitle: String,
     val category: String,
+    val description: String = "",
+    val includes: List<String> = emptyList(),
     )

@@ -8,6 +8,8 @@ data class ServiceItemDto(
     val title: String = "",
     val subtitle: String = "",
     val category: String = "",
+    val description: String = "",
+    val includes: List<String> = emptyList(),
     )
 
 fun ServiceItemDto.toDomain(): ServiceItem {
@@ -19,5 +21,7 @@ fun ServiceItemDto.toDomain(): ServiceItem {
         title = title,
         subtitle = subtitle,
         category = category,
+        description = description,
+        includes = includes,
     )
 }

@@ -1,6 +1,8 @@
 package com.mevi.lasheslam.ui.requestuser
 
 import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.network.ServiceReservation
 import com.mevi.lasheslam.ui.common.UiState
 import com.mevi.lasheslam.ui.home.components.Section
 
@@ -16,7 +18,9 @@ data class RequestUserUiState(
     val facebook: String? = null,
     val instagram: String? = null,
     val whatsApp: String? = null,
-    val requestUserCourses: List<CourseRequest> = emptyList()
+    val requestUserCourses: List<CourseRequest> = emptyList(),
+    val productOrders: List<ProductOrder> = emptyList(),
+    val reservations: List<ServiceReservation> = emptyList()
 ) : UiState<RequestUserUiState> {
     override fun copyWithLoading(isLoading: Boolean): RequestUserUiState {
         return copy(isLoading = isLoading)

@@ -42,6 +42,7 @@ import com.mevi.lasheslam.ui.services.ServiceUiEvent
 import com.mevi.lasheslam.ui.services.ServicesViewModel
 import com.mevi.lasheslam.ui.services.add.components.AddIProdmageView
 import com.mevi.lasheslam.ui.services.add.components.AddServCategoryFormView
+import com.mevi.lasheslam.ui.services.add.components.AddServDetailsFormView
 import com.mevi.lasheslam.ui.services.add.components.AddServCostFormView
 import com.mevi.lasheslam.ui.services.add.components.AddServTitleFormView
 
@@ -131,6 +132,12 @@ fun ServiceEditView(
                 AddServCategoryFormView(
                     state = uiState,
                     onCategoryChange = { viewModel.onCategoryChange(it) })
+
+                AddServDetailsFormView(
+                    state = uiState,
+                    onDescriptionChange = { viewModel.onDescriptionChange(it) },
+                    onIncludesChange = { viewModel.onIncludesChange(it) }
+                )
 
                 Button(
                     modifier = Modifier.fillMaxWidth(),

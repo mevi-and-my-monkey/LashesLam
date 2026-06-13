@@ -6,6 +6,9 @@ import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import com.mevi.lasheslam.network.FavoriteItem
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -56,6 +59,24 @@ class FavoritesRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(errorMapper.map(e))
         }
+    }
+
+    override fun observeFavorites(userId: String): Flow<List<FavoriteItem>> = callbackFlow {
+        val listener = favoritesRef(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+                val items = snapshot.documents.mapNotNull { doc ->
+                    val itemId = doc.getString("itemId") ?: return@mapNotNull null
+                    val type = doc.getString("type") ?: return@mapNotNull null
+                    FavoriteItem(itemId, type)
+                }
+                trySend(items)
+            }
+
+        awaitClose { listener.remove() }
     }
 
     override suspend fun getFavorites(

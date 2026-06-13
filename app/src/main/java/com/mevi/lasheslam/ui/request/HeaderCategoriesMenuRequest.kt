@@ -17,7 +17,8 @@ fun HeaderCategoriesMenuRequest(
     selected: Section,
     onSelect: (Section) -> Unit,
     countCourses: Int = 0,
-    countProducts: Int = 0
+    countProducts: Int = 0,
+    countServices: Int = 0
 ) {
     Row(
         modifier = Modifier
@@ -39,6 +40,13 @@ fun HeaderCategoriesMenuRequest(
             count = countProducts,
             isSelected = selected == Section.PRODUCTOS,
             onClick = { onSelect(Section.PRODUCTOS) }
+        )
+
+        CategoryBadgePill(
+            title = stringResource(R.string.services),
+            count = countServices,
+            isSelected = selected == Section.SERVICIOS,
+            onClick = { onSelect(Section.SERVICIOS) }
         )
     }
 }

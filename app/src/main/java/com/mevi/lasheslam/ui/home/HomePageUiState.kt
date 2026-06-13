@@ -28,6 +28,7 @@ data class HomePageUiState(
     val facebook: String? = null,
     val instagram: String? = null,
     val whatsApp: String? = null,
+    val cartCount: Int = 0,
 ) : UiState<HomePageUiState> {
 
     override fun copyWithLoading(isLoading: Boolean): HomePageUiState {

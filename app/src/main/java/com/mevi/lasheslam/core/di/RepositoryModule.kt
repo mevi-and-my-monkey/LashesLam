@@ -1,19 +1,25 @@
 package com.mevi.lasheslam.core.di
 
+import com.mevi.lasheslam.data.BookingRepositoryImpl
+import com.mevi.lasheslam.data.CartRepositoryImpl
 import com.mevi.lasheslam.data.CourseRequestRepositoryImpl
 import com.mevi.lasheslam.data.CoursesRepositoryImpl
 import com.mevi.lasheslam.data.DataStoreRepository
 import com.mevi.lasheslam.data.FavoritesRepositoryImpl
 import com.mevi.lasheslam.data.PlayCoreUpdateRepository
+import com.mevi.lasheslam.data.ProductOrderRepositoryImpl
 import com.mevi.lasheslam.data.ProductsRepositoryImpl
 import com.mevi.lasheslam.data.ServicesRepositoryImpl
 import com.mevi.lasheslam.data.SessionDataSourceImpl
 import com.mevi.lasheslam.data.SessionRepositoryImpl
 import com.mevi.lasheslam.data.UserCourseRepositoryImpl
 import com.mevi.lasheslam.data.UserRepositoryImpl
+import com.mevi.lasheslam.domain.repository.BookingRepository
+import com.mevi.lasheslam.domain.repository.CartRepository
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
 import com.mevi.lasheslam.domain.repository.CoursesRepository
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
+import com.mevi.lasheslam.domain.repository.ProductOrderRepository
 import com.mevi.lasheslam.domain.repository.ProductsRepository
 import com.mevi.lasheslam.domain.repository.ServicesRepository
 import com.mevi.lasheslam.domain.repository.SessionDataSource
@@ -86,4 +92,19 @@ abstract class RepositoryModule {
     abstract fun bindServicesRepository(
         impl: ServicesRepositoryImpl
     ): ServicesRepository
+
+    @Binds
+    abstract fun bindCartRepository(
+        impl: CartRepositoryImpl
+    ): CartRepository
+
+    @Binds
+    abstract fun bindProductOrderRepository(
+        impl: ProductOrderRepositoryImpl
+    ): ProductOrderRepository
+
+    @Binds
+    abstract fun bindBookingRepository(
+        impl: BookingRepositoryImpl
+    ): BookingRepository
 }

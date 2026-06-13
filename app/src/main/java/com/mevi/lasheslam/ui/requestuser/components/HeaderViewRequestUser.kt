@@ -24,6 +24,7 @@ fun HeaderViewRequestUser(
     onSelectSection: (Section) -> Unit,
     countCourses: Int = 0,
     countProducts: Int = 0,
+    countServices: Int = 0,
     photoUrl: String = "",
 ) {
     Column(
@@ -49,6 +50,7 @@ fun HeaderViewRequestUser(
         selected = selectedSection,
         onSelect = onSelectSection,
         countCourses = countCourses,
-        countProducts = countProducts
+        countProducts = countProducts,
+        countServices = countServices
     )
 }

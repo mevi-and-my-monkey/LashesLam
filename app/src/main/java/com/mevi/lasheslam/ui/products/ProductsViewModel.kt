@@ -11,11 +11,12 @@ import com.mevi.lasheslam.domain.repository.AnalyticsTracker
 import com.mevi.lasheslam.domain.usecase.CreateProductUseCase
 import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
-import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
+import com.mevi.lasheslam.domain.usecase.ObserveFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.cart.AddToCartUseCase
 import com.mevi.lasheslam.domain.usecase.products.DeleteProductUseCase
 import com.mevi.lasheslam.domain.usecase.products.GetAProductDetailUseCase
 import com.mevi.lasheslam.domain.usecase.products.UpdateProductUseCase
@@ -23,9 +24,11 @@ import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
+import com.mevi.lasheslam.network.CartItem
 import com.mevi.lasheslam.network.FavoriteItem
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -39,7 +42,7 @@ class ProductsViewModel @Inject constructor(
     private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getNameUserUseCase: GetNameUserUseCase,
     private val getEmailUserUseCase: GetEmailUserUseCase,
-    private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val observeFavoritesUseCase: ObserveFavoritesUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val getFacebookUseCase: GetFacebookUseCase,
     private val getInstagramUseCase: GetInstagramUseCase,
@@ -49,10 +52,25 @@ class ProductsViewModel @Inject constructor(
     private val createProductUseCase: CreateProductUseCase,
     private val deleteProductUseCase: DeleteProductUseCase,
     private val updateProductUseCase: UpdateProductUseCase,
+    private val addToCartUseCase: AddToCartUseCase,
     private val analytics: AnalyticsTracker,
 ) : BaseViewModel<ProductsUiState, ProductUiEvent>() {
 
     override fun createInitialState() = ProductsUiState()
+
+    fun addToCart(productId: String, quantity: Int) {
+        val detail = uiState.value.productDetail
+        addToCartUseCase(
+            CartItem(
+                productId = productId,
+                title = detail.title,
+                category = detail.category,
+                imageUrl = detail.images.firstOrNull().orEmpty(),
+                price = if (detail.actulPrice > 0) detail.actulPrice else detail.price,
+                quantity = quantity
+            )
+        )
+    }
 
     private val _favorites = MutableStateFlow<List<FavoriteItem>>(emptyList())
     val favorites = _favorites.asStateFlow()
@@ -177,14 +195,13 @@ class ProductsViewModel @Inject constructor(
     }
 
 
-    fun loadFavorites(userId: String) {
-        viewModelScope.launch {
-            when (val result = getFavoritesUseCase(userId)) {
-                is Resource.Success -> {
-                    _favorites.value = result.data
-                }
+    private var favoritesJob: Job? = null
 
-                else -> {}
+    fun loadFavorites(userId: String) {
+        favoritesJob?.cancel()
+        favoritesJob = viewModelScope.launch {
+            observeFavoritesUseCase(userId).collect { favorites ->
+                _favorites.value = favorites
             }
         }
     }
@@ -194,8 +211,7 @@ class ProductsViewModel @Inject constructor(
         trackEvent(AnalyticsEvent.FavoriteClick(type.name))
 
         viewModelScope.launch {
-            val currentFavorites = _favorites.value
-            val isFavorite = currentFavorites.any {
+            val isFavorite = _favorites.value.any {
                 it.itemId == itemId && it.type == type.name
             }
             when (
@@ -207,14 +223,7 @@ class ProductsViewModel @Inject constructor(
                 )
             ) {
                 is Resource.Success -> {
-                    _favorites.value =
-                        if (isFavorite) {
-                            currentFavorites.filterNot {
-                                it.itemId == itemId && it.type == type.name
-                            }
-                        } else {
-                            currentFavorites + FavoriteItem(itemId, type.name)
-                        }
+                    // El snapshot listener actualiza _favorites automáticamente
                 }
 
                 else -> {}

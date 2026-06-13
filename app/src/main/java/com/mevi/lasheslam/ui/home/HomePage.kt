@@ -26,6 +26,7 @@ fun HomePage(
     onNavigateToRequest: () -> Unit,
     onNavigateToRequestUser: () -> Unit,
     onNavigateToServiceDetails: (String) -> Unit,
+    onNavigateToServiceDetail: (String) -> Unit,
     onNavigateToProductsDetail: (String) -> Unit,
     onNavigateToServiceEdit: (String) -> Unit,
     onOpenWhatsApp: (String) -> Unit,
@@ -67,6 +68,7 @@ fun HomePage(
         onNavigateToRequestUser = onNavigateToRequestUser,
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToServiceDetails = onNavigateToServiceDetails,
+        onNavigateToServiceDetail = onNavigateToServiceDetail,
         onNavigateToProductsDetail = onNavigateToProductsDetail,
         onNavigateToServiceEdit = onNavigateToServiceEdit,
         onSelectedSection = { section ->

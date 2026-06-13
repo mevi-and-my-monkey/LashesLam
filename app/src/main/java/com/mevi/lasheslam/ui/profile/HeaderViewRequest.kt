@@ -33,6 +33,7 @@ fun HeaderViewRequest(
     onSelectSection: (Section) -> Unit,
     countCourses: Int = 0,
     countProducts: Int = 0,
+    countServices: Int = 0,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val photoUrl by remember { derivedStateOf { viewModel.photoUrl } }
@@ -56,6 +57,7 @@ fun HeaderViewRequest(
         selected = selectedSection,
         onSelect = onSelectSection,
         countCourses = countCourses,
-        countProducts = countProducts
+        countProducts = countProducts,
+        countServices = countServices
     )
 }

@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // IMPORTANTE: mantener esta lista igual a list_admin de Remote Config
+    function isAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email in [
+          'alex_mevi@hotmail.com','alejandromevi26@gmail.com', 'laulizbethmejiacoria@gmail.com'
+        ];
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Catálogo público: cursos (data/curse), productos (data/stock),
+    // servicios (data/service) y banners (data/banners).
+    // Lectura abierta para que los invitados puedan navegar sin cuenta.
+    match /data/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Documento del usuario: solo el dueño lo lee y escribe (admin puede leer)
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId);
+      allow delete: if false;
+
+      match /favorites/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // El admin escribe aquí al aprobar/rechazar solicitudes de cursos
+      match /cursos/{courseId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // Solicitudes de cursos: el usuario crea la suya, el admin las gestiona
+    match /course_requests/{requestId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // Alumnos inscritos: solo admin
+    match /alumnos_inscritos/{courseId} {
+      allow read, write: if isAdmin();
+
+      match /inscritos/{requestId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // Órdenes de productos: el usuario crea y consulta las suyas,
+    // el admin las lee todas y actualiza el status (aceptar/archivar)
+    match /product_orders/{orderId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // Disponibilidad de citas por servicio: lectura para usuarios autenticados
+    // (la pantalla de reserva la consulta), escritura solo admin.
+    match /service_availability/{serviceId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Reservaciones de servicios: el usuario crea y consulta las suyas.
+    // La lectura es para usuarios autenticados porque la pantalla de reserva
+    // consulta los horarios ocupados de una fecha (reservas de otros usuarios).
+    // El admin actualiza el status (completar/archivar).
+    match /service_reservations/{reservationId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn();
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+  }
+}

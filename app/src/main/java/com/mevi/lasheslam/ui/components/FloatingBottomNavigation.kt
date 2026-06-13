@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -18,6 +21,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShoppingBag
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,13 +34,17 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
 @Composable
 fun FloatingBottomNavigation(
     selectedIndex: Int,
+    cartCount: Int = 0,
+    showCart: Boolean = true,
     onItemSelected: (Int) -> Unit
 ) {
     Row(
@@ -55,12 +63,20 @@ fun FloatingBottomNavigation(
             "Favoritos",
             selectedIndex == 1
         ) { onItemSelected(1) }
+        if (showCart) {
+            BottomNavItem(
+                Icons.Outlined.ShoppingCart,
+                "Carrito",
+                selectedIndex == 2,
+                badgeCount = cartCount
+            ) { onItemSelected(2) }
+        }
         BottomNavItem(
             Icons.Outlined.ShoppingBag,
             "Ordenes",
-            selectedIndex == 2
-        ) { onItemSelected(2) }
-        BottomNavItem(Icons.Outlined.Person, "Perfil", selectedIndex == 3) { onItemSelected(3) }
+            selectedIndex == 3
+        ) { onItemSelected(3) }
+        BottomNavItem(Icons.Outlined.Person, "Perfil", selectedIndex == 4) { onItemSelected(4) }
     }
 }
 
@@ -69,6 +85,7 @@ fun BottomNavItem(
     icon: ImageVector,
     label: String,
     selected: Boolean,
+    badgeCount: Int = 0,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -92,11 +109,32 @@ fun BottomNavItem(
                 )
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = if (selected) MaterialTheme.colorScheme.primary else Color.Gray
-            )
+            Box {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = if (selected) MaterialTheme.colorScheme.primary else Color.Gray
+                )
+                if (badgeCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 9.dp, y = (-7).dp)
+                            .size(16.dp)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (badgeCount > 9) "9+" else badgeCount.toString(),
+                            color = Color.White,
+                            fontSize = 9.sp,
+                            lineHeight = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
         }
         Spacer(modifier = Modifier.height(2.dp))
         Text(
@@ -115,6 +153,6 @@ fun BottomNavItem(
 )
 fun PreviewHome() {
     LashesLamTheme {
-        FloatingBottomNavigation(0, {})
+        FloatingBottomNavigation(selectedIndex = 0, onItemSelected = {})
     }
 }

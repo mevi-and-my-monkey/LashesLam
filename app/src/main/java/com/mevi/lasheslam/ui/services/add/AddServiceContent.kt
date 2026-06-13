@@ -25,6 +25,7 @@ import com.mevi.lasheslam.ui.courses.components.AddTitleView
 import com.mevi.lasheslam.ui.services.ServiceUiState
 import com.mevi.lasheslam.ui.services.add.components.AddIProdmageView
 import com.mevi.lasheslam.ui.services.add.components.AddServCategoryFormView
+import com.mevi.lasheslam.ui.services.add.components.AddServDetailsFormView
 import com.mevi.lasheslam.ui.services.add.components.AddServCostFormView
 import com.mevi.lasheslam.ui.services.add.components.AddServTitleFormView
 
@@ -45,6 +46,8 @@ fun AddServiceContent(
     onCostChange: (String) -> Unit = {},
     onDurationChange: (String) -> Unit = {},
     onCategoryChange: (String) -> Unit = {},
+    onDescriptionChange: (String) -> Unit = {},
+    onIncludesChange: (String) -> Unit = {},
     onImageChange: (Uri?) -> Unit
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
@@ -65,6 +68,8 @@ fun AddServiceContent(
             AddServCostFormView(state, onCostChange, onDurationChange)
 
             AddServCategoryFormView(state, onCategoryChange)
+
+            AddServDetailsFormView(state, onDescriptionChange, onIncludesChange)
 
             Button(
                 modifier = Modifier

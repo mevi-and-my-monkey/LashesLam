@@ -12,6 +12,8 @@ import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
+import com.mevi.lasheslam.domain.usecase.booking.GetUserReservationsUseCase
+import com.mevi.lasheslam.domain.usecase.cart.GetUserProductOrdersUseCase
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
@@ -27,6 +29,8 @@ class AdminRequestsUserViewModel @Inject constructor(
     private val getNameUserUseCase: GetNameUserUseCase,
     private val getPhotoUserUseCase: GetPhotoUserUseCase,
     private val getAllRequestsUseCase: GetAllRequestsUseCase,
+    private val getUserProductOrdersUseCase: GetUserProductOrdersUseCase,
+    private val getUserReservationsUseCase: GetUserReservationsUseCase,
     ) : BaseViewModel<RequestUserUiState, RequestUserUiEvent>() {
 
     override fun createInitialState() = RequestUserUiState()
@@ -53,6 +57,8 @@ class AdminRequestsUserViewModel @Inject constructor(
                 }
                 if (userId.isNotEmpty()) {
                     loadRequests(userId)
+                    loadProductOrders(userId)
+                    loadReservations(userId)
                 }
             }
         }
@@ -98,6 +104,30 @@ class AdminRequestsUserViewModel @Inject constructor(
                 setState { copy(requestUserCourses = result.data) }
 
             }
+            is Resource.Error -> {
+                sendEvent(RequestUserUiEvent.ShowError(result.error))
+            }
+        }
+    }
+
+    fun loadProductOrders(userId: String) = launchWithLoading {
+        when (val result = getUserProductOrdersUseCase(userId)) {
+            is Resource.Success -> {
+                setState { copy(productOrders = result.data) }
+            }
+
+            is Resource.Error -> {
+                sendEvent(RequestUserUiEvent.ShowError(result.error))
+            }
+        }
+    }
+
+    fun loadReservations(userId: String) = launchWithLoading {
+        when (val result = getUserReservationsUseCase(userId)) {
+            is Resource.Success -> {
+                setState { copy(reservations = result.data) }
+            }
+
             is Resource.Error -> {
                 sendEvent(RequestUserUiEvent.ShowError(result.error))
             }

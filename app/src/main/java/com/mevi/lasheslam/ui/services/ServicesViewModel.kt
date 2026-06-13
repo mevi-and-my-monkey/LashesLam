@@ -53,6 +53,14 @@ class ServicesViewModel @Inject constructor(
         setState { copy(form = form.copy(category = categoryId)) }
     }
 
+    fun onDescriptionChange(description: String) {
+        setState { copy(form = form.copy(descripcion = description)) }
+    }
+
+    fun onIncludesChange(includes: String) {
+        setState { copy(form = form.copy(incluye = includes)) }
+    }
+
     fun onDurationChange(duration: String) {
         setState { copy(form = form.copy(duracion = duration)) }
     }
@@ -123,7 +131,9 @@ class ServicesViewModel @Inject constructor(
             title = form.titulo,
             image = form.image,
             id = form.id,
-            currentImageUrl = form.remoteImage
+            currentImageUrl = form.remoteImage,
+            description = form.descripcion,
+            includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() }
         )
         when (val result = createServiceUseCase(service)) {
             is Resource.Success -> {
@@ -149,7 +159,9 @@ class ServicesViewModel @Inject constructor(
             title = form.titulo,
             image = form.image,
             id = form.id,
-            currentImageUrl = form.remoteImage
+            currentImageUrl = form.remoteImage,
+            description = form.descripcion,
+            includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() }
         )
 
         when (val result = updateServiceUseCase(service)) {
@@ -191,7 +203,9 @@ class ServicesViewModel @Inject constructor(
                             subtitulo = product.subtitle,
                             duracion = product.duration.toString(),
                             category = product.category,
-                            remoteImage = product.image
+                            remoteImage = product.image,
+                            descripcion = product.description,
+                            incluye = product.includes.joinToString("\n")
                         )
                     )
                 }

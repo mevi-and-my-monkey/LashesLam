@@ -15,16 +15,17 @@ import com.mevi.lasheslam.domain.usecase.GetCategoriesProducts
 import com.mevi.lasheslam.domain.usecase.GetCategoriesServices
 import com.mevi.lasheslam.domain.usecase.GetCoursesUseCase
 import com.mevi.lasheslam.domain.usecase.GetCurrentUserIdUseCase
-import com.mevi.lasheslam.domain.usecase.GetFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsAdminUseCase
 import com.mevi.lasheslam.domain.usecase.GetIsUserInvitedUseCase
 import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
+import com.mevi.lasheslam.domain.usecase.ObserveFavoritesUseCase
 import com.mevi.lasheslam.domain.usecase.GetProductsUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.cart.GetCartUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
@@ -60,10 +61,11 @@ class HomePageViewModel @Inject constructor(
     private val getCategoriesServices: GetCategoriesServices,
     private val getServicesUseCase: GetServicesUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val getFavoritesUseCase: GetFavoritesUseCase,
+    private val observeFavoritesUseCase: ObserveFavoritesUseCase,
     private val getFacebookUseCase: GetFacebookUseCase,
     private val getInstagramUseCase: GetInstagramUseCase,
     private val getWhatsAppUseCase: GetWhatsAppUseCase,
+    private val getCartUseCase: GetCartUseCase,
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -80,6 +82,15 @@ class HomePageViewModel @Inject constructor(
     init {
         loadCourses()
         observeSession()
+        observeCart()
+    }
+
+    private fun observeCart() {
+        viewModelScope.launch {
+            getCartUseCase().collect { cartItems ->
+                setState { copy(cartCount = cartItems.sumOf { it.quantity }) }
+            }
+        }
     }
 
     private var isCoursesLoaded = false
@@ -399,14 +410,13 @@ class HomePageViewModel @Inject constructor(
         }
     }
 
-    fun loadFavorites(userId: String) {
-        viewModelScope.launch {
-            when (val result = getFavoritesUseCase(userId)) {
-                is Resource.Success -> {
-                    _favorites.value = result.data
-                }
+    private var favoritesJob: Job? = null
 
-                else -> {}
+    fun loadFavorites(userId: String) {
+        favoritesJob?.cancel()
+        favoritesJob = viewModelScope.launch {
+            observeFavoritesUseCase(userId).collect { favorites ->
+                _favorites.value = favorites
             }
         }
     }
@@ -416,30 +426,17 @@ class HomePageViewModel @Inject constructor(
         trackEvent(AnalyticsEvent.FavoriteClick(type.name))
 
         viewModelScope.launch {
-            val currentFavorites = _favorites.value
-            val isFavorite = currentFavorites.any {
+            val isFavorite = _favorites.value.any {
                 it.itemId == itemId && it.type == type.name
             }
-            when (
-                toggleFavoriteUseCase(
-                    userId = userId,
-                    itemId = itemId,
-                    type = type.name,
-                    isFavorite = isFavorite
-                )
-            ) {
-                is Resource.Success -> {
-                    _favorites.value =
-                        if (isFavorite) {
-                            currentFavorites.filterNot {
-                                it.itemId == itemId && it.type == type.name
-                            }
-                        } else {
-                            currentFavorites + FavoriteItem(itemId, type.name)
-                        }
-                }
-                else -> {}
-            }
+            // El snapshot listener actualiza _favorites en cuanto Firestore
+            // aplica el cambio local, no hace falta mutar la lista aquí
+            toggleFavoriteUseCase(
+                userId = userId,
+                itemId = itemId,
+                type = type.name,
+                isFavorite = isFavorite
+            )
         }
     }
 

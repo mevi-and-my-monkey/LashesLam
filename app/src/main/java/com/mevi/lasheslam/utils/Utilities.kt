@@ -11,6 +11,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.network.ServiceReservation
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import java.net.URLEncoder
@@ -123,6 +125,78 @@ object Utilities {
             StandardCharsets.UTF_8.toString()
         )
         return "https://wa.me/${whatsapp}?text=$encodedMessage"
+    }
+
+    fun formatMoney(value: Double): String {
+        return if (value % 1.0 == 0.0) {
+            "$${value.toInt()}"
+        } else {
+            "$" + String.format(Locale.getDefault(), "%.2f", value)
+        }
+    }
+
+    fun createOrderMessageWhatsApp(order: ProductOrder, whatsapp: String): String {
+        val itemsDetail = order.items.joinToString("\n") { item ->
+            "• ${item.quantity} x ${item.title} — ${formatMoney(item.price * item.quantity)}"
+        }
+
+        val shippingLine = if (order.shipping > 0) {
+            "\nEnvío: ${formatMoney(order.shipping)}"
+        } else {
+            ""
+        }
+
+        val message = """
+        Hola, soy ${order.nameUser} y quiero realizar el siguiente pedido:
+        Orden: #${order.orderNumber}
+
+        $itemsDetail
+
+        Subtotal: ${formatMoney(order.subtotal)}$shippingLine
+        Total: ${formatMoney(order.total)}
+
+        ¡Gracias!
+        """.trimIndent()
+
+        val encodedMessage = URLEncoder.encode(
+            message,
+            StandardCharsets.UTF_8.toString()
+        )
+        return "https://wa.me/${whatsapp}?text=$encodedMessage"
+    }
+
+    fun createReservationMessageWhatsApp(
+        reservation: ServiceReservation,
+        whatsapp: String
+    ): String {
+        val message = """
+        Hola, soy ${reservation.nameUser} y quiero reservar una cita:
+        Reserva: #${reservation.reservationNumber}
+
+        Servicio: ${reservation.serviceName}
+        Fecha: ${reservation.dateLabel}
+        Hora: ${reservation.time}
+        Duración: ${reservation.durationLabel}
+        Total: ${formatMoney(reservation.price)}
+
+        Quedo al pendiente de los datos para el anticipo. ¡Gracias!
+        """.trimIndent()
+
+        val encodedMessage = URLEncoder.encode(
+            message,
+            StandardCharsets.UTF_8.toString()
+        )
+        return "https://wa.me/${whatsapp}?text=$encodedMessage"
+    }
+
+    fun formatServiceDuration(duration: Double): String {
+        val hours = duration.toInt()
+        val minutes = ((duration - hours) * 60).toInt()
+        return when {
+            hours > 0 && minutes > 0 -> "$hours h $minutes"
+            hours > 0 -> "$hours h"
+            else -> "$minutes min"
+        }
     }
 
     fun createServiceMessageWhatsApp(titulo: String, precio: String, whatsapp: String) : String {
