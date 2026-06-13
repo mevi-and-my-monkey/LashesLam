@@ -25,6 +25,8 @@ import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.HandleCourseNotificationsUseCase
 import com.mevi.lasheslam.domain.usecase.ToggleFavoriteUseCase
+import com.mevi.lasheslam.domain.usecase.booking.HandleReservationNotificationsUseCase
+import com.mevi.lasheslam.domain.usecase.booking.ObserveScheduledReservationsUseCase
 import com.mevi.lasheslam.domain.usecase.cart.GetCartUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
@@ -66,6 +68,8 @@ class HomePageViewModel @Inject constructor(
     private val getInstagramUseCase: GetInstagramUseCase,
     private val getWhatsAppUseCase: GetWhatsAppUseCase,
     private val getCartUseCase: GetCartUseCase,
+    private val observeScheduledReservationsUseCase: ObserveScheduledReservationsUseCase,
+    private val handleReservationNotificationsUseCase: HandleReservationNotificationsUseCase,
 ) : BaseViewModel<HomePageUiState, HomeUiEvent>() {
 
     override fun createInitialState() = HomePageUiState()
@@ -170,6 +174,7 @@ class HomePageViewModel @Inject constructor(
                     loadAdminPendingRequests()
                 } else if (userId.isNotEmpty()) {
                     observeUserCourses(userId)
+                    observeUserReservations(userId)
                 }
             }
         }
@@ -217,6 +222,17 @@ class HomePageViewModel @Inject constructor(
         observeJob = viewModelScope.launch {
             observeUserCoursesUseCase(userId).collect { courses ->
                 handleCourseNotificationsUseCase(userId, courses)
+            }
+        }
+    }
+
+    private var reservationsObserveJob: Job? = null
+
+    fun observeUserReservations(userId: String) {
+        if (reservationsObserveJob?.isActive == true) return
+        reservationsObserveJob = viewModelScope.launch {
+            observeScheduledReservationsUseCase(userId).collect { reservations ->
+                handleReservationNotificationsUseCase(reservations)
             }
         }
     }

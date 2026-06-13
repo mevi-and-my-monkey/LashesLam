@@ -56,3 +56,9 @@ class UpdateReservationStatusUseCase @Inject constructor(
     suspend operator fun invoke(reservationId: String, status: String): Resource<Boolean> =
         repository.updateStatus(reservationId, status)
 }
+
+class ObserveScheduledReservationsUseCase @Inject constructor(
+    private val repository: BookingRepository
+) {
+    operator fun invoke(userId: String) = repository.observeScheduledReservations(userId)
+}

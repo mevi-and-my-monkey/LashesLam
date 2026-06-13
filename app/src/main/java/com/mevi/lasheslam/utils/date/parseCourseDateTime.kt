@@ -21,4 +21,12 @@ class CourseDateParser @Inject constructor() {
 
         return LocalDateTime.of(localDate, localTime)
     }
+
+    /** Reservas: fecha en ISO (yyyy-MM-dd) y hora en HH:mm */
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun parseIso(isoDate: String, time: String): LocalDateTime {
+        val localDate = LocalDate.parse(isoDate)
+        val localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"))
+        return LocalDateTime.of(localDate, localTime)
+    }
 }

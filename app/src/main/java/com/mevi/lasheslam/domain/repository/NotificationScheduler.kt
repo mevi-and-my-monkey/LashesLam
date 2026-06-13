@@ -8,5 +8,12 @@ interface NotificationScheduler {
         courseName: String,
         startDateTime: LocalDateTime
     ): Boolean
+
+    fun scheduleReservation(
+        reservationId: String,
+        serviceName: String,
+        startDateTime: LocalDateTime
+    ): Boolean
+
     fun notifyNow(title: String, message: String)
 }

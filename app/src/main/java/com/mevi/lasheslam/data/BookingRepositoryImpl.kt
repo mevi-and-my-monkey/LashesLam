@@ -9,6 +9,9 @@ import com.mevi.lasheslam.domain.repository.BookingRepository
 import com.mevi.lasheslam.network.BookingAvailability
 import com.mevi.lasheslam.network.BookingSlot
 import com.mevi.lasheslam.network.ServiceReservation
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
 import javax.inject.Inject
@@ -128,6 +131,21 @@ class BookingRepositoryImpl @Inject constructor(
             Resource.Error(errorMapper.map(e))
         }
     }
+
+    override fun observeScheduledReservations(userId: String): Flow<List<ServiceReservation>> =
+        callbackFlow {
+            val listener = reservationsRef
+                .whereEqualTo(FirestorePaths.Booking.USER_ID, userId)
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot == null) return@addSnapshotListener
+                    val scheduled = snapshot.documents
+                        .mapNotNull { it.toObject(ServiceReservation::class.java) }
+                        .filter { it.status == FirestorePaths.Booking.STATUS_SCHEDULED }
+                    trySend(scheduled)
+                }
+
+            awaitClose { listener.remove() }
+        }
 
     override suspend fun getReservationsByUser(
         userId: String

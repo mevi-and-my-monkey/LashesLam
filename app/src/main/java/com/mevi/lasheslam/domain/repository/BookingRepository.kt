@@ -3,8 +3,12 @@ package com.mevi.lasheslam.domain.repository
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.network.BookingAvailability
 import com.mevi.lasheslam.network.ServiceReservation
+import kotlinx.coroutines.flow.Flow
 
 interface BookingRepository {
+
+    /** Reservas del usuario en estado agendado, en tiempo real (para recordatorios) */
+    fun observeScheduledReservations(userId: String): Flow<List<ServiceReservation>>
 
     suspend fun getAvailability(serviceId: String): Resource<BookingAvailability>
 

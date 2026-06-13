@@ -60,6 +60,49 @@ class NotificationSchedulerImpl @Inject constructor(
         return scheduled
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun scheduleReservation(
+        reservationId: String,
+        serviceName: String,
+        startDateTime: LocalDateTime
+    ): Boolean {
+        val now = LocalDateTime.now()
+        var scheduled = false
+
+        val notifications = listOf(
+            startDateTime.minusDays(3) to "Tu cita de $serviceName es en 3 días",
+            startDateTime.minusDays(2) to "Tu cita de $serviceName es en 2 días",
+            startDateTime.minusDays(1) to "Tu cita de $serviceName es mañana",
+            startDateTime.minusHours(2) to "Tu cita de $serviceName es en 2 horas"
+        )
+
+        notifications.forEachIndexed { index, (time, message) ->
+            val delay = Duration.between(now, time).toMillis()
+
+            if (delay > 0) {
+                scheduled = true
+                val work = OneTimeWorkRequestBuilder<NotificationWorker>()
+                    .addTag(reservationId)
+                    .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                    .setInputData(
+                        workDataOf(
+                            "title" to "Cita próxima",
+                            "message" to message
+                        )
+                    ).build()
+
+                WorkManager.getInstance(context)
+                    .enqueueUniqueWork(
+                        "res-$reservationId-$index",
+                        ExistingWorkPolicy.REPLACE,
+                        work
+                    )
+            }
+        }
+
+        return scheduled
+    }
+
     override fun notifyNow(title: String, message: String) {
         showNotification(
             context = context,
