@@ -1,6 +1,7 @@
 package com.mevi.lasheslam.data
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,8 +11,10 @@ import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
 import com.mevi.lasheslam.network.LocationItem
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 class SessionRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
@@ -24,23 +27,44 @@ class SessionRepositoryImpl @Inject constructor(
 
     override fun getUid(): String? = firebaseAuth.currentUser?.uid
 
+    // En un arranque en frío FirebaseAuth restaura el usuario persistido de forma
+    // asíncrona, por lo que currentUser puede ser null durante unos milisegundos.
+    // El primer callback del AuthStateListener llega cuando el estado ya está
+    // inicializado, así que esperamos a él en vez de leer currentUser a ciegas.
+    private suspend fun awaitUser(): FirebaseUser? {
+        firebaseAuth.currentUser?.let { return it }
+        return suspendCancellableCoroutine { cont ->
+            lateinit var listener: FirebaseAuth.AuthStateListener
+            listener = FirebaseAuth.AuthStateListener { auth ->
+                auth.removeAuthStateListener(listener)
+                if (cont.isActive) cont.resume(auth.currentUser)
+            }
+            firebaseAuth.addAuthStateListener(listener)
+            cont.invokeOnCancellation { firebaseAuth.removeAuthStateListener(listener) }
+        }
+    }
+
     override suspend fun setName() {
 
-        val uid = getUid() ?: return
+        val user = awaitUser() ?: return
 
-        val snapshot = firestore.collection(FirestorePaths.Users.COLLECTION)
-            .document(uid)
-            .get()
-            .await()
+        // Se intenta el nombre de Firestore; si la lectura falla o el documento no
+        // lo tiene, se usa el displayName local para no dejar el perfil sin nombre.
+        val firestoreName = runCatching {
+            val snapshot = firestore.collection(FirestorePaths.Users.COLLECTION)
+                .document(user.uid)
+                .get()
+                .await()
+            cleanLegacyPasswordFields(snapshot)
+            snapshot.getString(FirestorePaths.Users.USER_NAME)
+        }.getOrNull()
 
-        cleanLegacyPasswordFields(snapshot)
+        val name = firestoreName?.takeIf { it.isNotBlank() } ?: user.displayName
 
-        val name = snapshot.getString(FirestorePaths.Users.USER_NAME)
-            ?.split(" ")
-            ?.firstOrNull()
-            .orEmpty()
-
-        sessionDataSource.setNameUser(name)
+        val firstName = name?.split(" ")?.firstOrNull()?.takeIf { it.isNotBlank() }
+        if (firstName != null) {
+            sessionDataSource.setNameUser(firstName)
+        }
     }
 
     private suspend fun cleanLegacyPasswordFields(snapshot: DocumentSnapshot) {
@@ -57,10 +81,19 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setPhoto() {
-        val uid = getUid() ?: return
+        val user = awaitUser() ?: return
+        val googlePhoto = user.photoUrl?.toString()
 
-        val userDoc = firestore.collection(FirestorePaths.Users.COLLECTION).document(uid)
-        val snapshot = userDoc.get().await()
+        val userDoc = firestore.collection(FirestorePaths.Users.COLLECTION).document(user.uid)
+        val snapshot = runCatching { userDoc.get().await() }.getOrNull()
+
+        // Si Firestore no responde, al menos se muestra la foto local de la cuenta.
+        if (snapshot == null) {
+            if (!googlePhoto.isNullOrEmpty()) {
+                sessionDataSource.setPhotoUrl(googlePhoto)
+            }
+            return
+        }
 
         val storedPhoto = snapshot.getString(FirestorePaths.Users.USER_PHOTO)
         val photoUpdatedByUser =
@@ -74,14 +107,14 @@ class SessionRepositoryImpl @Inject constructor(
             return
         }
 
-        val googlePhoto = firebaseAuth.currentUser?.photoUrl?.toString()
-
         if (!googlePhoto.isNullOrEmpty()) {
             if (googlePhoto != storedPhoto) {
-                userDoc.set(
-                    mapOf(FirestorePaths.Users.USER_PHOTO to googlePhoto),
-                    FirestoreOptions.MERGE
-                ).await()
+                runCatching {
+                    userDoc.set(
+                        mapOf(FirestorePaths.Users.USER_PHOTO to googlePhoto),
+                        FirestoreOptions.MERGE
+                    ).await()
+                }
             }
             sessionDataSource.setPhotoUrl(googlePhoto)
             return

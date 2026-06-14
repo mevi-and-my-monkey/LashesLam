@@ -1,7 +1,5 @@
 package com.mevi.lasheslam.ui.profile
 
-import androidx.navigation.NavController
-import androidx.navigation.NavOptionsBuilder
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
@@ -10,11 +8,14 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.data.DataStoreRepository
-import com.mevi.lasheslam.navigation.Screen
+import com.mevi.lasheslam.domain.usecase.UpdateUserPhotoUseCase
+import com.mevi.lasheslam.domain.usecase.cart.ClearCartUseCase
+import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.*
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -32,7 +33,8 @@ class ProfileViewModelTest {
     private val firestore: FirebaseFirestore = mockk(relaxed = true)
     private val auth: FirebaseAuth = mockk(relaxed = true)
     private val dataStoreRepository: DataStoreRepository = mockk(relaxed = true)
-    private val navController: NavController = mockk(relaxed = true)
+    private val updateUserPhotoUseCase: UpdateUserPhotoUseCase = mockk(relaxed = true)
+    private val clearCartUseCase: ClearCartUseCase = mockk(relaxed = true)
 
     private val user: FirebaseUser = mockk(relaxed = true)
 
@@ -47,7 +49,13 @@ class ProfileViewModelTest {
         // Auth user
         every { auth.currentUser } returns user
 
-        viewModel = ProfileViewModel(firestore, auth, dataStoreRepository)
+        viewModel = ProfileViewModel(
+            firestore = firestore,
+            auth = auth,
+            dataStoreRepository = dataStoreRepository,
+            updateUserPhotoUseCase = updateUserPhotoUseCase,
+            clearCartUseCase = clearCartUseCase
+        )
     }
 
     // ---------- TOGGLE DARK MODE ----------
@@ -189,14 +197,19 @@ class ProfileViewModelTest {
 
     // ---------- SIGN OUT ----------
     @Test
-    fun `signOut calls FirebaseAuth signOut and navigates to Login`() {
-        every { navController.navigate(any<String>(), any<NavOptionsBuilder.() -> Unit>()) } just Runs
+    fun `signOut clears cart, wipes session, signs out and runs navigation callback`() {
+        // Datos de la sesión previa que NO deben sobrevivir al cierre.
+        SessionManager.setNameUser("Laura")
+        SessionManager.setCurrentUserId("uid-123")
 
-        viewModel.signOut(navController as () -> Unit)
+        var navigated = false
 
+        viewModel.signOut { navigated = true }
+
+        verify { clearCartUseCase() }
         verify { auth.signOut() }
-        verify {
-            navController.navigate(Screen.Login.route, any<NavOptionsBuilder.() -> Unit>())
-        }
+        assertTrue(navigated)
+        assertNull(SessionManager.nameUser.value)
+        assertNull(SessionManager.currentUserId.value)
     }
 }
