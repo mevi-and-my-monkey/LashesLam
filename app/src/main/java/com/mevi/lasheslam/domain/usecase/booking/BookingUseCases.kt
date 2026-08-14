@@ -2,8 +2,8 @@ package com.mevi.lasheslam.domain.usecase.booking
 
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.repository.BookingRepository
-import com.mevi.lasheslam.network.BookingAvailability
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.BookingAvailability
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import javax.inject.Inject
 
 class GetAvailabilityUseCase @Inject constructor(

@@ -12,7 +12,7 @@ import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetUserReservationsUseCase
 import com.mevi.lasheslam.domain.usecase.cart.GetUserProductOrdersUseCase
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery

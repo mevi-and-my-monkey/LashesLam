@@ -7,6 +7,7 @@ data class ServicesFormState(
     val titulo: String = "",
     val subtitulo: String = "",
     val precio: String = "",
+    val anticipo: String = "",
     val image: Uri? = null,
     val duracion: String = "",
     val category: String = "",

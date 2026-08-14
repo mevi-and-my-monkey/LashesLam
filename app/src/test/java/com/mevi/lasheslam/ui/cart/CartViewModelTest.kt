@@ -2,13 +2,14 @@ package com.mevi.lasheslam.ui.cart
 
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.usecase.cart.ClearCartUseCase
 import com.mevi.lasheslam.domain.usecase.cart.CreateProductOrderUseCase
 import com.mevi.lasheslam.domain.usecase.cart.GetCartUseCase
 import com.mevi.lasheslam.domain.usecase.cart.RemoveFromCartUseCase
 import com.mevi.lasheslam.domain.usecase.cart.UpdateCartQuantityUseCase
-import com.mevi.lasheslam.network.CartItem
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.CartItem
+import com.mevi.lasheslam.domain.model.ProductOrder
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -20,6 +21,7 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -34,6 +36,7 @@ class CartViewModelTest {
     private val removeFromCartUseCase: RemoveFromCartUseCase = mockk(relaxed = true)
     private val clearCartUseCase: ClearCartUseCase = mockk(relaxed = true)
     private val createProductOrderUseCase: CreateProductOrderUseCase = mockk()
+    private val sessionDataSource: SessionDataSource = mockk(relaxed = true)
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -44,12 +47,18 @@ class CartViewModelTest {
 
     private fun buildViewModel(items: List<CartItem> = sampleItems): CartViewModel {
         every { getCartUseCase() } returns flowOf(items)
+        every { sessionDataSource.currentUserId } returns MutableStateFlow(null)
+        every { sessionDataSource.nameUser } returns MutableStateFlow(null)
+        every { sessionDataSource.email } returns MutableStateFlow(null)
+        every { sessionDataSource.whatsApp } returns MutableStateFlow(null)
+        every { sessionDataSource.shippingCost } returns MutableStateFlow(0.0)
         return CartViewModel(
             getCartUseCase,
             updateCartQuantityUseCase,
             removeFromCartUseCase,
             clearCartUseCase,
-            createProductOrderUseCase
+            createProductOrderUseCase,
+            sessionDataSource
         )
     }
 

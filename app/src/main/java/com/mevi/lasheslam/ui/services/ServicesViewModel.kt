@@ -49,6 +49,10 @@ class ServicesViewModel @Inject constructor(
         setState { copy(form = form.copy(precio = cost)) }
     }
 
+    fun onDepositChange(deposit: String) {
+        setState { copy(form = form.copy(anticipo = deposit)) }
+    }
+
     fun onCategoryChange(categoryId: String) {
         setState { copy(form = form.copy(category = categoryId)) }
     }
@@ -133,7 +137,8 @@ class ServicesViewModel @Inject constructor(
             id = form.id,
             currentImageUrl = form.remoteImage,
             description = form.descripcion,
-            includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() }
+            includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() },
+            deposit = form.anticipo.toDoubleOrNull() ?: 0.0
         )
         when (val result = createServiceUseCase(service)) {
             is Resource.Success -> {
@@ -161,7 +166,8 @@ class ServicesViewModel @Inject constructor(
             id = form.id,
             currentImageUrl = form.remoteImage,
             description = form.descripcion,
-            includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() }
+            includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() },
+            deposit = form.anticipo.toDoubleOrNull() ?: 0.0
         )
 
         when (val result = updateServiceUseCase(service)) {
@@ -200,6 +206,7 @@ class ServicesViewModel @Inject constructor(
                             id = product.id,
                             titulo = product.title,
                             precio = product.price.toString(),
+                            anticipo = if (product.deposit > 0) product.deposit.toString() else "",
                             subtitulo = product.subtitle,
                             duracion = product.duration.toString(),
                             category = product.category,

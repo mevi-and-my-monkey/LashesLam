@@ -9,7 +9,7 @@ import com.mevi.lasheslam.data.constants.FirestoreOptions
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.repository.SessionRepository
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await

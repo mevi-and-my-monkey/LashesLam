@@ -127,7 +127,8 @@ fun ProductEditView(
                 AddProdCostFormView(
                     uiState,
                     onCostChange = { viewModel.onCostChange(it) },
-                    onActualCostChange = { viewModel.onActualCostChange(it) }
+                    onActualCostChange = { viewModel.onActualCostChange(it) },
+                    onStockChange = { viewModel.onStockChange(it) }
                 )
 
                 AddProdCategoryFormView(

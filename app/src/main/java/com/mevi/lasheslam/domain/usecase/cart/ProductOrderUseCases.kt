@@ -2,7 +2,7 @@ package com.mevi.lasheslam.domain.usecase.cart
 
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.repository.ProductOrderRepository
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.ProductOrder
 import javax.inject.Inject
 
 class CreateProductOrderUseCase @Inject constructor(

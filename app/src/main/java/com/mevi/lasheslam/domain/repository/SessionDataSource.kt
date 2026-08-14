@@ -1,19 +1,21 @@
 package com.mevi.lasheslam.domain.repository
 
-import com.mevi.lasheslam.network.LocationItem
-import kotlinx.coroutines.flow.Flow
+import com.mevi.lasheslam.domain.model.LocationItem
+import kotlinx.coroutines.flow.StateFlow
 
 interface SessionDataSource {
-    val isUserAdmin: Flow<Boolean>
-    val isUserInvited: Flow<Boolean>
-    val currentUserId: Flow<String?>
-    val nameUser: Flow<String?>
-    val photoUrl: Flow<String?>
-    val email: Flow<String?>
-    val facebook: Flow<String?>
-    val instagram: Flow<String?>
-    val whatsApp: Flow<String?>
-    val locations: Flow<List<LocationItem>>
+    val isUserAdmin: StateFlow<Boolean>
+    val isUserInvited: StateFlow<Boolean>
+    val currentUserId: StateFlow<String?>
+    val nameUser: StateFlow<String?>
+    val photoUrl: StateFlow<String?>
+    val email: StateFlow<String?>
+    val facebook: StateFlow<String?>
+    val instagram: StateFlow<String?>
+    val whatsApp: StateFlow<String?>
+    val clabe: StateFlow<String?>
+    val locations: StateFlow<List<LocationItem>>
+    val shippingCost: StateFlow<Double>
 
     suspend fun refreshAdmins()
     fun isAdmin(email: String): Boolean
@@ -23,4 +25,5 @@ interface SessionDataSource {
     fun setEmailUser(email: String?)
     fun setNameUser(nameUser: String?)
     fun setPhotoUrl(photoUrl: String?)
+    fun clearUserSession()
 }

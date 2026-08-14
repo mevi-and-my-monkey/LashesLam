@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.FavoriteItem
+import com.mevi.lasheslam.domain.model.FavoriteItem
 import com.mevi.lasheslam.ui.courses.details.CourseContent
 import com.mevi.lasheslam.ui.courses.details.components.DetailDescriptionView
 import com.mevi.lasheslam.ui.courses.details.components.DetailsOptionsTop
@@ -101,9 +101,10 @@ fun ProductDetailContent(
                     )
             ) {
 
-                DetailBestSellerView(modifier = modifier)
-
-                Spacer(Modifier.height(8.dp))
+                if (uiState.productDetail.bestSelling) {
+                    DetailBestSellerView(modifier = modifier)
+                    Spacer(Modifier.height(8.dp))
+                }
 
                 CourseContent(titulo = uiState.productDetail.title)
 
@@ -122,11 +123,30 @@ fun ProductDetailContent(
                 Spacer(Modifier.height(8.dp))
 
                 if (!uiState.isUserInvited) {
-                    AddToCartSection(
-                        onAddToCart = { quantity ->
-                            viewModel.addToCart(productId, quantity)
-                        }
-                    )
+                    val stock = uiState.productDetail.stock
+                    val outOfStock = stock != null && stock <= 0
+
+                    // Solo mostramos disponibilidad cuando el stock está gestionado
+                    if (stock != null && stock > 0) {
+                        Text(
+                            text = "Disponibles: $stock",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF4E7044),
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+
+                    if (outOfStock) {
+                        OutOfStockView()
+                    } else {
+                        AddToCartSection(
+                            maxStock = stock,
+                            onAddToCart = { quantity ->
+                                viewModel.addToCart(productId, quantity)
+                            }
+                        )
+                    }
 
                     Spacer(Modifier.height(8.dp))
                 }
@@ -184,7 +204,27 @@ fun ProductDetailContent(
 }
 
 @Composable
+private fun OutOfStockView() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clip(RoundedCornerShape(23.dp))
+            .background(Color(0xFFEDEDED))
+            .padding(vertical = 14.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Sin stock disponible por el momento",
+            color = Color(0xFF8A8A8A),
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
 private fun AddToCartSection(
+    maxStock: Int?,
     onAddToCart: (Int) -> Unit
 ) {
     var quantity by remember { mutableIntStateOf(1) }
@@ -207,7 +247,10 @@ private fun AddToCartSection(
         QuantityStepper(
             quantity = quantity,
             onQuantityChange = { newQuantity ->
-                if (newQuantity >= 1) quantity = newQuantity
+                // No permitir superar el stock disponible cuando está gestionado
+                if (newQuantity >= 1 && (maxStock == null || newQuantity <= maxStock)) {
+                    quantity = newQuantity
+                }
             }
         )
 

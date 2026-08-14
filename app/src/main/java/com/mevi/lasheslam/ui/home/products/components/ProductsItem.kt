@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -35,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.domain.model.ProductItem
 import com.mevi.lasheslam.ui.theme.WarmGray
 
 @Composable
@@ -48,10 +49,14 @@ fun ProductItemView(
     onClick: () -> Unit = {}
 ) {
 
+    val outOfStock = product.stock != null && product.stock <= 0
+
     Card(
         modifier = modifier.padding(8.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = if (outOfStock) Color(0xFFF0EEEE) else Color.White
+        ),
         elevation = CardDefaults.cardElevation(8.dp),
         onClick = {
             trackEvent(AnalyticsEvent.ProductClick(product.title))
@@ -67,7 +72,9 @@ fun ProductItemView(
                 AsyncImage(
                     model = product.images.firstOrNull(),
                     contentDescription = product.title,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(if (outOfStock) 0.4f else 1f)
                 )
 
                 IconButton(
@@ -84,6 +91,23 @@ fun ProductItemView(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = stringResource(R.string.favorites),
                         tint = if (isFavorite) Color.Red else Color.White
+                    )
+                }
+
+                if (product.stock != null && product.stock <= 0) {
+                    Text(
+                        text = "Agotado",
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(6.dp)
+                            .background(
+                                Color(0xCC8A8A8A),
+                                shape = RoundedCornerShape(50)
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }

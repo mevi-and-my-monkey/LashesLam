@@ -45,8 +45,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mevi.lasheslam.data.constants.FirestorePaths
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.DeliveryType
+import com.mevi.lasheslam.domain.model.OrderStatus
+import com.mevi.lasheslam.domain.model.ProductOrder
 import com.mevi.lasheslam.utils.Utilities
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -84,7 +85,10 @@ fun AdmRequestProductsScreen(viewModel: AdminProductOrdersViewModel = hiltViewMo
                 items(items = orders, key = { it.orderId }) { order ->
                     AdminProductOrderItem(
                         order = order,
-                        onComplete = { viewModel.completeOrder(order.orderId) },
+                        onComplete = { viewModel.completeOrder(order) },
+                        onStartDelivery = { viewModel.startDelivery(order) },
+                        onMarkShipped = { viewModel.markShipped(order.orderId) },
+                        onMarkDelivered = { viewModel.markDelivered(order.orderId) },
                         onArchive = { viewModel.archiveOrder(order.orderId) }
                     )
                 }
@@ -134,15 +138,22 @@ private fun OrderFilterRow(
 fun AdminProductOrderItem(
     order: ProductOrder,
     onComplete: () -> Unit,
+    onStartDelivery: () -> Unit,
+    onMarkShipped: () -> Unit,
+    onMarkDelivered: () -> Unit,
     onArchive: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val isPending = order.status == FirestorePaths.Orders.STATUS_PENDING
-    val isArchived = order.status == FirestorePaths.Orders.STATUS_ARCHIVED
+    val isPending = order.status == OrderStatus.PENDING.value
+    val isArchived = order.status == OrderStatus.ARCHIVED.value
+    val isDelivery = order.deliveryType == DeliveryType.DELIVERY.value
 
-    val (statusColor, statusBackground, statusLabel) = when {
-        isPending -> Triple(Color(0xFF8B7355), Color(0xFFFAF3E7), "PENDIENTE")
-        isArchived -> Triple(Color(0xFF5B5B5B), Color(0xFFEDEDED), "ARCHIVADO")
+    val (statusColor, statusBackground, statusLabel) = when (order.status) {
+        OrderStatus.PENDING.value -> Triple(Color(0xFF8B7355), Color(0xFFFAF3E7), "PENDIENTE")
+        OrderStatus.PREPARING.value -> Triple(Color(0xFFB07A1E), Color(0xFFFBF0D9), "EN PREPARACIÓN")
+        OrderStatus.SHIPPED.value -> Triple(Color(0xFF2A6DB0), Color(0xFFE1EDF7), "ENVIADO")
+        OrderStatus.DELIVERED.value -> Triple(Color(0xFF4E7044), Color(0xFFE8F0E5), "ENTREGADO")
+        OrderStatus.ARCHIVED.value -> Triple(Color(0xFF5B5B5B), Color(0xFFEDEDED), "ARCHIVADO")
         else -> Triple(Color(0xFF4E7044), Color(0xFFE8F0E5), "COMPLETADO")
     }
 
@@ -243,6 +254,23 @@ fun AdminProductOrderItem(
                         color = Color.Gray
                     )
 
+                    if (order.deliveryType.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (isDelivery) "Envío a domicilio" else "Recoger en tienda",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (isDelivery && order.address.isNotBlank()) {
+                            Text(
+                                text = order.address,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.DarkGray
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     order.items.forEach { item ->
@@ -312,16 +340,33 @@ fun AdminProductOrderItem(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            if (isPending) {
+                            // Acción principal según tipo de entrega y estado actual
+                            val primaryAction: Pair<String, () -> Unit>? = when {
+                                isDelivery && order.status == OrderStatus.PENDING.value ->
+                                    "Aceptar y preparar" to onStartDelivery
+                                isDelivery && order.status == OrderStatus.PREPARING.value ->
+                                    "Marcar enviado" to onMarkShipped
+                                isDelivery && order.status == OrderStatus.SHIPPED.value ->
+                                    "Marcar entregado" to onMarkDelivered
+                                !isDelivery && isPending ->
+                                    "Completado" to onComplete
+                                else -> null
+                            }
+
+                            if (primaryAction != null) {
                                 Button(
-                                    onClick = onComplete,
+                                    onClick = primaryAction.second,
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color(0xFF4E7044)
+                                    ),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                                        horizontal = 8.dp,
+                                        vertical = 6.dp
                                     ),
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Text("Completado", color = Color.White)
+                                    Text(primaryAction.first, color = Color.White, fontSize = 13.sp)
                                 }
                             }
                             Button(
@@ -329,10 +374,14 @@ fun AdminProductOrderItem(
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF1C1C1C)
                                 ),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                                    horizontal = 8.dp,
+                                    vertical = 6.dp
+                                ),
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text("Archivar", color = Color.White)
+                                Text("Archivar", color = Color.White, fontSize = 13.sp)
                             }
                         }
                     }

@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog
 import com.mevi.lasheslam.ui.courses.components.AddCoachFormView

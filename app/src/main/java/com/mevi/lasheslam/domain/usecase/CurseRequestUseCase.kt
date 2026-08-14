@@ -2,7 +2,7 @@ package com.mevi.lasheslam.domain.usecase
 
 import com.mevi.lasheslam.core.di.IoDispatcher
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

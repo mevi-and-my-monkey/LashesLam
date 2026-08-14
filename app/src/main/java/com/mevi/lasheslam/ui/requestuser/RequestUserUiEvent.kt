@@ -5,4 +5,5 @@ import com.mevi.lasheslam.core.error.AppError
 sealed class RequestUserUiEvent {
     object ProductSaved : RequestUserUiEvent()
     data class ShowError(val error: AppError) : RequestUserUiEvent()
+    data class OpenWhatsApp(val url: String) : RequestUserUiEvent()
 }

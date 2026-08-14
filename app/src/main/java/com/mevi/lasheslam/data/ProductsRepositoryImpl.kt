@@ -8,14 +8,17 @@ import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.data.constants.StoragePaths
+import com.mevi.lasheslam.domain.model.CartItem
 import com.mevi.lasheslam.domain.model.CreateProductModel
 import com.mevi.lasheslam.domain.repository.ProductsRepository
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CreateProductDto
-import com.mevi.lasheslam.network.ProductItem
-import com.mevi.lasheslam.network.ProductItemDto
-import com.mevi.lasheslam.network.toDomain
-import com.mevi.lasheslam.network.toDto
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.data.dto.CreateProductDto
+import com.mevi.lasheslam.domain.model.ProductDetail
+import com.mevi.lasheslam.domain.model.ProductItem
+import com.mevi.lasheslam.data.dto.ProductItemDto
+import com.mevi.lasheslam.data.dto.toDetail
+import com.mevi.lasheslam.data.dto.toDomain
+import com.mevi.lasheslam.data.dto.toDto
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
@@ -90,7 +93,7 @@ class ProductsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getProductById(productId: String): Resource<CreateProductDto> {
+    override suspend fun getProductById(productId: String): Resource<ProductDetail> {
         return try {
             val snapshot = firestore
                 .collection(FirestorePaths.Products.collectionPath())
@@ -106,7 +109,7 @@ class ProductsRepositoryImpl @Inject constructor(
                 .toObject(CreateProductDto::class.java)
                 ?.copy(id = snapshot.id)
             if (course != null) {
-                Resource.Success(course)
+                Resource.Success(course.toDetail())
             } else {
                 Resource.Error(
                     errorMapper.map(Exception("Error al convertir producto"))
@@ -190,6 +193,38 @@ class ProductsRepositoryImpl @Inject constructor(
             }
 
         awaitClose { listener.remove() }
+    }
+
+    override suspend fun decrementStock(items: List<CartItem>): Resource<Unit> {
+        return try {
+            if (items.isEmpty()) return Resource.Success(Unit)
+
+            val col = firestore.collection(FirestorePaths.Products.collectionPath())
+
+            firestore.runTransaction { transaction ->
+                // Firestore exige realizar todas las lecturas antes de las escrituras
+                val reads = items.map { item ->
+                    item to transaction.get(col.document(item.productId))
+                }
+                reads.forEach { (item, snapshot) ->
+                    if (!snapshot.exists()) return@forEach
+                    // null = producto sin stock gestionado → no se toca
+                    val current = snapshot.getLong(FirestorePaths.Products.STOCK)
+                        ?: return@forEach
+                    val newStock = (current - item.quantity).coerceAtLeast(0)
+                    transaction.update(
+                        col.document(item.productId),
+                        FirestorePaths.Products.STOCK,
+                        newStock
+                    )
+                }
+                null
+            }.await()
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(errorMapper.map(e))
+        }
     }
 
     private suspend fun uploadProductsImages(

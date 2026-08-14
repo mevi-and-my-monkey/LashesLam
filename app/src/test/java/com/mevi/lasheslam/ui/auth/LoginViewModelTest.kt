@@ -11,7 +11,7 @@ import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.domain.usecase.ValidateLoginUseCase
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify

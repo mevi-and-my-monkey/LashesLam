@@ -10,12 +10,14 @@ import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.domain.model.CreateServiceModel
 import com.mevi.lasheslam.domain.repository.ServicesRepository
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CreateServiceDto
-import com.mevi.lasheslam.network.ServiceItem
-import com.mevi.lasheslam.network.ServiceItemDto
-import com.mevi.lasheslam.network.toDomain
-import com.mevi.lasheslam.network.toDto
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.data.dto.CreateServiceDto
+import com.mevi.lasheslam.domain.model.ServiceDetail
+import com.mevi.lasheslam.domain.model.ServiceItem
+import com.mevi.lasheslam.data.dto.ServiceItemDto
+import com.mevi.lasheslam.data.dto.toDetail
+import com.mevi.lasheslam.data.dto.toDomain
+import com.mevi.lasheslam.data.dto.toDto
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -47,7 +49,7 @@ class ServicesRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun getServiceId(serviceID: String): Resource<CreateServiceDto> {
+    override suspend fun getServiceId(serviceID: String): Resource<ServiceDetail> {
         return try {
             val snapshot = firestore
                 .collection(FirestorePaths.Services.collectionPath())
@@ -63,7 +65,7 @@ class ServicesRepositoryImpl @Inject constructor(
                 .toObject(CreateServiceDto::class.java)
                 ?.copy(id = snapshot.id)
             if (course != null) {
-                Resource.Success(course)
+                Resource.Success(course.toDetail())
             } else {
                 Resource.Error(
                     errorMapper.map(Exception("Error al convertir servicio"))

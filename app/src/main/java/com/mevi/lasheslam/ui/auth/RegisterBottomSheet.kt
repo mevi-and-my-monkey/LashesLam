@@ -2,6 +2,7 @@ package com.mevi.lasheslam.ui.auth
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -49,7 +50,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
+import com.mevi.lasheslam.ui.components.AddressFormFields
 import com.mevi.lasheslam.ui.components.GenericButton
 import com.mevi.lasheslam.ui.components.GenericOutlinedButton
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
@@ -71,6 +73,9 @@ fun RegisterBottomSheet(
     var phone by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var showAddress by remember { mutableStateOf(false) }
+    var address by remember { mutableStateOf("") }
+    var addressValid by remember { mutableStateOf(false) }
 
     val nameValidation = remember { mutableStateOf(ValidationResult(true)) }
     val emailValidation = remember { mutableStateOf(ValidationResult(true)) }
@@ -269,6 +274,29 @@ fun RegisterBottomSheet(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 🔹 Dirección opcional
+            Text(
+                text = if (showAddress) "Ocultar dirección" else "Agregar dirección (opcional)",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showAddress = !showAddress }
+            )
+
+            if (showAddress) {
+                Spacer(modifier = Modifier.height(12.dp))
+                AddressFormFields(
+                    onAddressChange = { fullAddress, valid ->
+                        address = fullAddress
+                        addressValid = valid
+                    }
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             // 🔹 Botones registrar y cancelar
@@ -285,7 +313,8 @@ fun RegisterBottomSheet(
                                 email = email.trim(),
                                 password = password.trim(),
                                 confirmPassword = confirmPassword.trim(),
-                                phone = phone
+                                phone = phone,
+                                address = if (addressValid) address else null
                             )
                         )
                     },

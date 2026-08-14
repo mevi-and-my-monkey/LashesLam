@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.domain.usecase.cart
 
 import com.mevi.lasheslam.domain.repository.CartRepository
-import com.mevi.lasheslam.network.CartItem
+import com.mevi.lasheslam.domain.model.CartItem
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

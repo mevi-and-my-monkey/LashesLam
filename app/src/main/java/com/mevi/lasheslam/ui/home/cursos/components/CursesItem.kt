@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.domain.model.CoursesItem
 import com.mevi.lasheslam.utils.toUiFormat
 
 @Composable

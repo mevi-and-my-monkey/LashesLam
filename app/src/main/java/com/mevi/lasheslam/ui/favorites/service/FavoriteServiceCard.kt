@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.ServiceItem
 
 @Composable
 fun FavoriteServiceCard(service: ServiceItem, onClick: () -> Unit) {

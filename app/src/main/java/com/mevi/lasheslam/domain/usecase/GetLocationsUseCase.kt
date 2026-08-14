@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.domain.usecase
 
 import com.mevi.lasheslam.domain.repository.SessionRepository
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

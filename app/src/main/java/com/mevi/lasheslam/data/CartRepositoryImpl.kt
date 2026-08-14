@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.data
 
 import com.mevi.lasheslam.domain.repository.CartRepository
-import com.mevi.lasheslam.network.CartItem
+import com.mevi.lasheslam.domain.model.CartItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject

@@ -24,8 +24,8 @@ import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
-import com.mevi.lasheslam.network.CartItem
-import com.mevi.lasheslam.network.FavoriteItem
+import com.mevi.lasheslam.domain.model.CartItem
+import com.mevi.lasheslam.domain.model.FavoriteItem
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -95,6 +95,11 @@ class ProductsViewModel @Inject constructor(
 
     fun onActualCostChange(actualCost: String) {
         setState { copy(form = form.copy(precioActual = actualCost)) }
+    }
+
+    fun onStockChange(stock: String) {
+        // Solo enteros: descartamos cualquier carácter no numérico
+        setState { copy(form = form.copy(stock = stock.filter(Char::isDigit))) }
     }
 
     fun onImagesSelected(images: List<Uri>) {
@@ -268,7 +273,8 @@ class ProductsViewModel @Inject constructor(
             price = form.precio.toDoubleOrNull() ?: 0.0,
             title = form.titulo,
             images = form.images,
-            characteristics = form.caracteristicas
+            characteristics = form.caracteristicas,
+            stock = form.stock.toIntOrNull() ?: 0
         )
         when (val result = createProductUseCase(product)) {
             is Resource.Success -> {
@@ -297,6 +303,7 @@ class ProductsViewModel @Inject constructor(
             title = form.titulo,
             images = form.images,
             characteristics = form.caracteristicas,
+            stock = form.stock.toIntOrNull() ?: 0,
             remoteImages = form.remoteImages
         )
 
@@ -341,7 +348,8 @@ class ProductsViewModel @Inject constructor(
                             actulPrice = product.actulPrice,
                             bestSelling = product.bestSelling,
                             category = product.category,
-                            images = product.images
+                            images = product.images,
+                            stock = product.stock
                         ),
                         form = form.copy(
                             id = product.id,
@@ -352,6 +360,7 @@ class ProductsViewModel @Inject constructor(
                             precioActual = product.actulPrice.toString(),
                             masVendidos = product.bestSelling,
                             category = product.category,
+                            stock = product.stock?.toString() ?: "",
                             remoteImages = product.images
                         )
                     )

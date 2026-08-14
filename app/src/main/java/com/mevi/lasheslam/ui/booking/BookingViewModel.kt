@@ -5,17 +5,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mevi.lasheslam.core.Strings
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.usecase.booking.CreateReservationUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetAvailabilityUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetTakenSlotsUseCase
+import com.mevi.lasheslam.domain.usecase.GetUserProfileUseCase
 import com.mevi.lasheslam.domain.usecase.service.GetAServiceDetailUseCase
-import com.mevi.lasheslam.network.BookingAvailability
-import com.mevi.lasheslam.network.BookingSlot
-import com.mevi.lasheslam.network.CreateServiceDto
-import com.mevi.lasheslam.network.ServiceReservation
-import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.domain.model.BookingAvailability
+import com.mevi.lasheslam.domain.model.BookingSlot
+import com.mevi.lasheslam.domain.model.ServiceDetail
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import com.mevi.lasheslam.utils.Utilities
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -38,7 +38,9 @@ class BookingViewModel @Inject constructor(
     private val getAServiceDetailUseCase: GetAServiceDetailUseCase,
     private val getAvailabilityUseCase: GetAvailabilityUseCase,
     private val getTakenSlotsUseCase: GetTakenSlotsUseCase,
-    private val createReservationUseCase: CreateReservationUseCase
+    private val createReservationUseCase: CreateReservationUseCase,
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val sessionDataSource: SessionDataSource
 ) : ViewModel() {
 
     companion object {
@@ -53,7 +55,7 @@ class BookingViewModel @Inject constructor(
     private var schedule: Map<String, List<BookingSlot>> = emptyMap()
     private var daySlots: List<BookingSlot> = emptyList()
 
-    var service by mutableStateOf<CreateServiceDto?>(null)
+    var service by mutableStateOf<ServiceDetail?>(null)
         private set
 
     var availableDays by mutableStateOf<List<BookingDay>>(emptyList())
@@ -79,6 +81,10 @@ class BookingViewModel @Inject constructor(
 
     var showError by mutableStateOf(false)
         private set
+
+    // CLABE del admin (Remote Config) para mostrar en la confirmación
+    val clabe: String?
+        get() = sessionDataSource.clabe.value
 
     private var serviceId: String = ""
 
@@ -158,7 +164,7 @@ class BookingViewModel @Inject constructor(
         showError = false
     }
 
-    fun confirmReservation(onOpenWhatsApp: (String) -> Unit) {
+    fun confirmReservation() {
         val currentService = service ?: return
         val day = selectedDate ?: return
         val time = selectedTime ?: return
@@ -167,14 +173,22 @@ class BookingViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading = true
 
+            // Teléfono del cliente para que el admin pueda contactarlo después
+            val phone = when (val profile = getUserProfileUseCase()) {
+                is Resource.Success -> profile.data.phone.orEmpty()
+                is Resource.Error -> ""
+            }
+
             val reservation = ServiceReservation(
                 serviceId = currentService.id,
                 serviceName = currentService.title,
                 durationLabel = Utilities.formatServiceDuration(currentService.duration),
                 price = currentService.price,
-                userId = SessionManager.currentUserId.value.orEmpty(),
-                nameUser = SessionManager.nameUser.value.orEmpty(),
-                emailUser = SessionManager.emailUser.value.orEmpty(),
+                deposit = currentService.deposit,
+                userId = sessionDataSource.currentUserId.value.orEmpty(),
+                nameUser = sessionDataSource.nameUser.value.orEmpty(),
+                emailUser = sessionDataSource.email.value.orEmpty(),
+                phoneUser = phone,
                 date = day.isoDate,
                 dateLabel = "${day.dayLabel} ${day.dayNumber} " +
                         day.monthLabel.lowercase().replaceFirstChar { it.uppercase() },
@@ -182,17 +196,9 @@ class BookingViewModel @Inject constructor(
             )
 
             when (val result = createReservationUseCase(reservation)) {
-                is Resource.Success -> {
-                    reservationPlaced = result.data
-
-                    val whatsapp = SessionManager.whatsApp.value
-                        ?.takeIf { it.isNotEmpty() }
-                        ?: Strings.defaultAdminWhatsapp
-                    onOpenWhatsApp(
-                        Utilities.createReservationMessageWhatsApp(result.data, whatsapp)
-                    )
-                }
-
+                // La reserva queda en "pendiente_anticipo"; el usuario enviará el
+                // comprobante desde su lista de solicitudes, no al reservar.
+                is Resource.Success -> reservationPlaced = result.data
                 is Resource.Error -> showError = true
             }
             isLoading = false

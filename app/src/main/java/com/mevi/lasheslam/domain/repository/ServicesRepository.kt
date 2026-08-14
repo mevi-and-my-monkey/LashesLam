@@ -2,14 +2,14 @@ package com.mevi.lasheslam.domain.repository
 
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.model.CreateServiceModel
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CreateServiceDto
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.domain.model.ServiceDetail
+import com.mevi.lasheslam.domain.model.ServiceItem
 import kotlinx.coroutines.flow.Flow
 
 interface ServicesRepository {
     suspend fun createService(service: CreateServiceModel): Resource<Unit>
-    suspend fun getServiceId(serviceID: String): Resource<CreateServiceDto>
+    suspend fun getServiceId(serviceID: String): Resource<ServiceDetail>
     suspend fun getServicesByIds(ids: List<String>): Resource<List<ServiceItem>>
     fun getCategories(): Flow<Resource<List<CategoryModel>>>
     fun getAllServices(): Flow<Resource<List<ServiceItem>>>

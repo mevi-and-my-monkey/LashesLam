@@ -27,8 +27,8 @@ import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
-import com.mevi.lasheslam.network.FavoriteItem
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.FavoriteItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

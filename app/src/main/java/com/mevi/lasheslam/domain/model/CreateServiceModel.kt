@@ -13,4 +13,5 @@ data class CreateServiceModel(
     val image: Uri?,
     val description: String = "",
     val includes: List<String> = emptyList(),
+    val deposit: Double = 0.0,
 )

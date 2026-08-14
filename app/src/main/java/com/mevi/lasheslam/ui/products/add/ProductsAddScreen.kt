@@ -58,6 +58,7 @@ fun ProductsAddScreen(
         onDescriptionChange = viewModel::onDescriptionChange,
         onCostChange = viewModel::onCostChange,
         onActualCostChange = viewModel::onActualCostChange,
+        onStockChange = viewModel::onStockChange,
         onCategoryChange = viewModel::onCategoryChange,
         onBestSellingChange = viewModel::onBestSellingChange,
         showSuccess = showSuccess,

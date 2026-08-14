@@ -1,8 +1,8 @@
 package com.mevi.lasheslam.domain.repository
 
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.network.BookingAvailability
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.BookingAvailability
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import kotlinx.coroutines.flow.Flow
 
 interface BookingRepository {

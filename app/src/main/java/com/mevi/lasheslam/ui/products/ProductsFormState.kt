@@ -11,6 +11,7 @@ data class ProductsFormState(
     val precio: String = "",
     val titulo: String = "",
     val caracteristicas: String = "",
+    val stock: String = "",
     val images: List<Uri> = emptyList(),
     val remoteImages: List<String> = emptyList()
 )

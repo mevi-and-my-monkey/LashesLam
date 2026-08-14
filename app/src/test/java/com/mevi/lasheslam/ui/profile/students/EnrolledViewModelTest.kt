@@ -3,9 +3,10 @@ package com.mevi.lasheslam.ui.profile.students
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.data.EnrolledRepositoryImpl
-import com.mevi.lasheslam.network.EnrolledCourse
-import com.mevi.lasheslam.network.EnrolledStudent
+import com.mevi.lasheslam.domain.usecase.GetEnrolledCoursesUseCase
+import com.mevi.lasheslam.domain.usecase.GetEnrolledStudentsUseCase
+import com.mevi.lasheslam.domain.model.EnrolledCourse
+import com.mevi.lasheslam.domain.model.EnrolledStudent
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -19,7 +20,8 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class EnrolledViewModelTest {
 
-    private val repo: EnrolledRepositoryImpl = mockk()
+    private val getEnrolledCoursesUseCase: GetEnrolledCoursesUseCase = mockk()
+    private val getEnrolledStudentsUseCase: GetEnrolledStudentsUseCase = mockk()
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -27,12 +29,15 @@ class EnrolledViewModelTest {
     @get:Rule
     val instantTaskRule = InstantTaskExecutorRule()
 
-    @Test
-    fun `loadCourses publishes the courses returned by the repository`() = runTest {
-        val courses = listOf(mockk<EnrolledCourse>())
-        coEvery { repo.getCourses() } returns Resource.Success(courses)
+    private fun buildViewModel() =
+        EnrolledViewModel(getEnrolledCoursesUseCase, getEnrolledStudentsUseCase)
 
-        val viewModel = EnrolledViewModel(repo)
+    @Test
+    fun `loadCourses publishes the courses returned by the use case`() = runTest {
+        val courses = listOf(mockk<EnrolledCourse>())
+        coEvery { getEnrolledCoursesUseCase() } returns Resource.Success(courses)
+
+        val viewModel = buildViewModel()
         viewModel.loadCourses()
         advanceUntilIdle()
 
@@ -42,9 +47,9 @@ class EnrolledViewModelTest {
 
     @Test
     fun `loadCourses leaves courses untouched on error`() = runTest {
-        coEvery { repo.getCourses() } returns Resource.Error(AppError.Network)
+        coEvery { getEnrolledCoursesUseCase() } returns Resource.Error(AppError.Network)
 
-        val viewModel = EnrolledViewModel(repo)
+        val viewModel = buildViewModel()
         viewModel.loadCourses()
         advanceUntilIdle()
 
@@ -55,9 +60,9 @@ class EnrolledViewModelTest {
     @Test
     fun `loadStudents publishes the students for the course`() = runTest {
         val students = listOf(mockk<EnrolledStudent>())
-        coEvery { repo.getStudents("course1") } returns Resource.Success(students)
+        coEvery { getEnrolledStudentsUseCase("course1") } returns Resource.Success(students)
 
-        val viewModel = EnrolledViewModel(repo)
+        val viewModel = buildViewModel()
         viewModel.loadStudents("course1")
         advanceUntilIdle()
 

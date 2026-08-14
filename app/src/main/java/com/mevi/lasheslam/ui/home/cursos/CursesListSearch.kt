@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.domain.model.CoursesItem
 import com.mevi.lasheslam.ui.home.cursos.components.AnimatedMarketplaceItem
 import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox
 

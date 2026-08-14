@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.domain.repository
 
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.ProductOrder
 
 interface ProductOrderRepository {
 

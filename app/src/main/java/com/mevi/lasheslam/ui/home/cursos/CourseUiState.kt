@@ -1,8 +1,7 @@
 package com.mevi.lasheslam.ui.home.cursos
 
-import com.mevi.lasheslam.network.CreateCourseDto
-import com.mevi.lasheslam.network.LocationItem
-import com.mevi.lasheslam.network.UpdateCourseDto
+import com.mevi.lasheslam.domain.model.CourseDetail
+import com.mevi.lasheslam.domain.model.LocationItem
 import com.mevi.lasheslam.ui.courses.CourseFormState
 import com.mevi.lasheslam.ui.common.UiState
 import com.mevi.lasheslam.utils.Constants
@@ -18,8 +17,8 @@ data class CourseUiState(
     val instagram: String? = null,
     val whatsApp: String? = null,
     val form: CourseFormState = CourseFormState(),
-    val courseDetail: CreateCourseDto = CreateCourseDto(),
-    val courseUpdate: UpdateCourseDto = UpdateCourseDto(),
+    val courseDetail: CourseDetail = CourseDetail(),
+    val courseUpdate: CourseDetail = CourseDetail(),
     val courseStatus: String = Constants.Course.STATUS_REQUESTED,
     val showSuccess: Boolean = false,
     val successMessage: String = "",

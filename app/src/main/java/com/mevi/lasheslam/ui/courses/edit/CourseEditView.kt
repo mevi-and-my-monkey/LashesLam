@@ -36,7 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
 import com.mevi.lasheslam.navigation.Screen
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import com.mevi.lasheslam.ui.common.toUserMessage
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.SuccessDialog

@@ -1,6 +1,7 @@
 package com.mevi.lasheslam.ui.profile.request
 
 import android.app.TimePickerDialog
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -52,26 +53,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mevi.lasheslam.data.constants.FirestorePaths
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.ReservationStatus
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import com.mevi.lasheslam.utils.Utilities
 import java.util.Calendar
 import java.util.Locale
 
 private val PendingColor = Color(0xFF8B7355)
+private val DepositColor = Color(0xFFB07A1E)
 private val ScheduledColor = Color(0xFF4E7044)
 private val CancelledColor = Color(0xFFB23A48)
 private val ArchivedColor = Color(0xFF5B5B5B)
+private val WhatsAppGreen = Color(0xFF25D366)
 
 @Composable
 fun AdmRequestServicesScreen(viewModel: AdminReservationsViewModel = hiltViewModel()) {
     var showAvailabilityEditor by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadReservations()
@@ -151,7 +156,18 @@ fun AdmRequestServicesScreen(viewModel: AdminReservationsViewModel = hiltViewMod
                         reservation = reservation,
                         onAccept = { viewModel.acceptReservation(reservation.reservationId) },
                         onReject = { viewModel.rejectReservation(reservation.reservationId) },
-                        onArchive = { viewModel.archiveReservation(reservation.reservationId) }
+                        onArchive = { viewModel.archiveReservation(reservation.reservationId) },
+                        onWhatsApp = {
+                            val phone = Utilities.normalizeMxPhone(reservation.phoneUser)
+                            if (phone.isNotBlank()) {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Utilities.buildWhatsAppUrl(phone).toUri()
+                                    )
+                                )
+                            }
+                        }
                     )
                 }
             }
@@ -171,24 +187,29 @@ fun AdminReservationItem(
     reservation: ServiceReservation,
     onAccept: () -> Unit,
     onReject: () -> Unit,
-    onArchive: () -> Unit
+    onArchive: () -> Unit,
+    onWhatsApp: () -> Unit = {}
 ) {
     val (statusColor, statusBackground, statusLabel) = when (reservation.status) {
-        FirestorePaths.Booking.STATUS_PENDING ->
+        ReservationStatus.PENDING_DEPOSIT.value ->
+            Triple(DepositColor, Color(0xFFFBF0D9), "PENDIENTE ANTICIPO")
+
+        ReservationStatus.PENDING.value ->
             Triple(PendingColor, Color(0xFFFAF3E7), "PENDIENTE")
 
-        FirestorePaths.Booking.STATUS_SCHEDULED ->
+        ReservationStatus.SCHEDULED.value ->
             Triple(ScheduledColor, Color(0xFFE8F0E5), "AGENDADO")
 
-        FirestorePaths.Booking.STATUS_CANCELLED ->
+        ReservationStatus.CANCELLED.value ->
             Triple(CancelledColor, Color(0xFFF7E4E6), "CANCELADO")
 
         else ->
             Triple(ArchivedColor, Color(0xFFEDEDED), "ARCHIVADO")
     }
 
-    val isPending = reservation.status == FirestorePaths.Booking.STATUS_PENDING
-    val isArchived = reservation.status == FirestorePaths.Booking.STATUS_ARCHIVED
+    val isPendingDeposit = reservation.status == ReservationStatus.PENDING_DEPOSIT.value
+    val isPending = reservation.status == ReservationStatus.PENDING.value
+    val isArchived = reservation.status == ReservationStatus.ARCHIVED.value
 
     Card(
         modifier = Modifier
@@ -286,7 +307,81 @@ fun AdminReservationItem(
                 )
             }
 
-            if (!isArchived) {
+            if (isPendingDeposit) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Anticipo: ${Utilities.formatMoney(reservation.deposit)} · " +
+                            "El cliente aún no envía su comprobante.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = DepositColor
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onWhatsApp,
+                        enabled = reservation.phoneUser.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(containerColor = WhatsAppGreen),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = 8.dp,
+                            vertical = 6.dp
+                        ),
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = if (reservation.phoneUser.isNotBlank())
+                                "WhatsApp" else "Sin teléfono",
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Button(
+                        onClick = onArchive,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1C1C1C)),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = 8.dp,
+                            vertical = 6.dp
+                        ),
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Archivar", color = Color.White, fontSize = 12.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onAccept,
+                        colors = ButtonDefaults.buttonColors(containerColor = ScheduledColor),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = 8.dp,
+                            vertical = 6.dp
+                        ),
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Agendar", color = Color.White, fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = onReject,
+                        colors = ButtonDefaults.buttonColors(containerColor = CancelledColor),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = 8.dp,
+                            vertical = 6.dp
+                        ),
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Cancelar", color = Color.White, fontSize = 12.sp)
+                    }
+                }
+            } else if (!isArchived) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),

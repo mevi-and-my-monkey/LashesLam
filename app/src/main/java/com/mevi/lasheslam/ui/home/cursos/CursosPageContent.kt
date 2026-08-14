@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.domain.model.CoursesItem
 import com.mevi.lasheslam.ui.home.components.BannerView
 import com.mevi.lasheslam.ui.home.cursos.components.AnimatedMarketplaceItem
 import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox

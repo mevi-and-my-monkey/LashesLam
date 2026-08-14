@@ -6,9 +6,9 @@ import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.BookingRepository
-import com.mevi.lasheslam.network.BookingAvailability
-import com.mevi.lasheslam.network.BookingSlot
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.BookingAvailability
+import com.mevi.lasheslam.domain.model.BookingSlot
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -121,7 +121,7 @@ class BookingRepositoryImpl @Inject constructor(
                 reservationId = doc.id,
                 reservationNumber = "LL-$year-${doc.id.takeLast(4).uppercase()}",
                 userId = uid,
-                status = FirestorePaths.Booking.STATUS_PENDING
+                status = FirestorePaths.Booking.STATUS_PENDING_DEPOSIT
             )
 
             doc.set(newReservation).await()

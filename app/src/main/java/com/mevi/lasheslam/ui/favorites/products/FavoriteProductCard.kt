@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.domain.model.ProductItem
 import com.mevi.lasheslam.ui.theme.CormorantGaramond
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 

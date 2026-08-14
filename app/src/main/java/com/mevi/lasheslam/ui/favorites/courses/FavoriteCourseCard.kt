@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.domain.model.CoursesItem
 import com.mevi.lasheslam.utils.toUiFormat
 
 

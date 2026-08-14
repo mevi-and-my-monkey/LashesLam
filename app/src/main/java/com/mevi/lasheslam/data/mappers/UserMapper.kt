@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.data.mappers
 
 import com.mevi.lasheslam.data.dto.UserDto
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
 
 fun UserDto.toDomain() = UserModel(
     name = name.orEmpty(),

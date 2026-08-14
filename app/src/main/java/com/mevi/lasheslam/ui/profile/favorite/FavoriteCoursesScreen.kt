@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.domain.model.CoursesItem
 import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.favorites.courses.FavoriteCourseCard
 

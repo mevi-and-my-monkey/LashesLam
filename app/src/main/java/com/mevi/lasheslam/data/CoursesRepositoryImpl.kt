@@ -10,13 +10,15 @@ import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.domain.model.CreateCourseModel
 import com.mevi.lasheslam.domain.repository.CoursesRepository
-import com.mevi.lasheslam.network.CourseItemDto
-import com.mevi.lasheslam.network.CoursesItem
-import com.mevi.lasheslam.network.CreateCourseDto
+import com.mevi.lasheslam.data.dto.CourseItemDto
+import com.mevi.lasheslam.domain.model.CoursesItem
+import com.mevi.lasheslam.domain.model.CourseDetail
+import com.mevi.lasheslam.data.dto.CreateCourseDto
 import com.mevi.lasheslam.domain.model.CreateCourseRequestModel
 import com.mevi.lasheslam.domain.model.UpdateCourseModel
-import com.mevi.lasheslam.network.toDomain
-import com.mevi.lasheslam.network.toDto
+import com.mevi.lasheslam.data.dto.toDetail
+import com.mevi.lasheslam.data.dto.toDomain
+import com.mevi.lasheslam.data.dto.toDto
 import com.mevi.lasheslam.utils.Constants
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -83,7 +85,7 @@ class CoursesRepositoryImpl @Inject constructor(
 
     override suspend fun getCourseById(
         courseId: String
-    ): Resource<CreateCourseDto> {
+    ): Resource<CourseDetail> {
         return try {
             val snapshot = firestore
                 .collection(FirestorePaths.Courses.collectionPath())
@@ -99,7 +101,7 @@ class CoursesRepositoryImpl @Inject constructor(
                 .toObject(CreateCourseDto::class.java)
                 ?.copy(id = snapshot.id)
             if (course != null) {
-                Resource.Success(course)
+                Resource.Success(course.toDetail())
             } else {
                 Resource.Error(
                     errorMapper.map(Exception("Error al convertir curso"))

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.ServiceItem
 
 @Composable
 fun AnimatedMarketplaceServiceItem(

@@ -5,7 +5,7 @@ import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.usecase.cart.GetProductOrdersByStatusUseCase
 import com.mevi.lasheslam.domain.usecase.cart.UpdateProductOrderStatusUseCase
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.ProductOrder
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify

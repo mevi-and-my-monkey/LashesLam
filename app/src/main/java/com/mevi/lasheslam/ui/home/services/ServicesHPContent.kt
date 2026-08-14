@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.domain.model.ServiceItem
 import com.mevi.lasheslam.ui.home.products.components.CategoriesView
 import com.mevi.lasheslam.ui.home.services.components.ServicesList
 import com.mevi.lasheslam.utils.Utilities

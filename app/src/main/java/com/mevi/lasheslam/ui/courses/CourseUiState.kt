@@ -1,6 +1,6 @@
 package com.mevi.lasheslam.ui.courses
 
-import com.mevi.lasheslam.network.CoursesItem
+import com.mevi.lasheslam.domain.model.CoursesItem
 import com.mevi.lasheslam.ui.common.UiState
 import com.mevi.lasheslam.ui.home.components.Section
 

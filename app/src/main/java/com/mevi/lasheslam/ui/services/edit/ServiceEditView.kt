@@ -126,6 +126,7 @@ fun ServiceEditView(
                 AddServCostFormView(
                     state = uiState,
                     onCostChange = { viewModel.onCostChange(it) },
+                    onDepositChange = { viewModel.onDepositChange(it) },
                     onDurationChange = { viewModel.onDurationChange(it) }
                 )
 

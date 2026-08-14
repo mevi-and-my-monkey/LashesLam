@@ -1,6 +1,11 @@
 package com.mevi.lasheslam.data.constants
 
 import com.mevi.lasheslam.data.constants.FirestorePaths.Courses.COLLECTION
+import com.mevi.lasheslam.domain.model.CategoryDefaults
+import com.mevi.lasheslam.domain.model.CourseNotificationStatus
+import com.mevi.lasheslam.domain.model.CourseRequestStatus
+import com.mevi.lasheslam.domain.model.OrderStatus
+import com.mevi.lasheslam.domain.model.ReservationStatus
 
 object FirestorePaths {
     object Users {
@@ -9,6 +14,8 @@ object FirestorePaths {
         const val COURSE = "cursos"
         const val USER_PHOTO = "userPhoto"
         const val USER_NAME = "name"
+        const val ADDRESS = "address"
+        const val PHONE = "phone"
         const val PHOTO_UPDATED_BY_USER = "photoUpdatedByUser"
         const val LEGACY_PASSWORD = "password"
         const val LEGACY_CONFIRM_PASSWORD = "confirmPassword"
@@ -20,8 +27,8 @@ object FirestorePaths {
         const val COLLECTION = "data"
         const val DOCUMENT = "curse"
         const val COLLECTION_ITEMS = "items"
-        const val STATUS_PANDING = "pendiente"
-        const val STATUS_ACCEPTED = "aceptado"
+        val STATUS_PANDING = CourseRequestStatus.PENDING.value
+        val STATUS_ACCEPTED = CourseRequestStatus.ACCEPTED.value
         const val STATUS = "status"
         const val COURSES_REQUESTS = "course_requests"
         const val COURSE_ID = "courseId"
@@ -34,8 +41,8 @@ object FirestorePaths {
         const val DATE = "date"
         const val SCHEDULE = "schedule"
         const val NOTIFICATION = "notification"
-        const val NOTIFICATION_CREATED = "created"
-        const val NOTIFICATION_NOT_CREATED = "notCreated"
+        val NOTIFICATION_CREATED = CourseNotificationStatus.CREATED.value
+        val NOTIFICATION_NOT_CREATED = CourseNotificationStatus.NOT_CREATED.value
         const val TIMESTAMP = "timestamp"
         const val PRICE = "price"
         const val LOCATION = "location"
@@ -53,10 +60,11 @@ object FirestorePaths {
         const val DOCUMENT = "stock"
         const val COLLECTION_CATEGORIES = "categories"
         const val COLLECTION_PRODUCTS_ITEMS = "products"
+        const val STOCK = "stock"
         fun collectionPath() = "$COLLECTION/${DOCUMENT}/$COLLECTION_PRODUCTS_ITEMS"
 
         // Products categories
-        const val CATEGORY_ALL = "all"
+        const val CATEGORY_ALL = CategoryDefaults.ALL
     }
 
     object Services {
@@ -86,23 +94,25 @@ object FirestorePaths {
         const val TIME = "time"
         const val STATUS = "status"
         const val USER_ID = "userId"
+        const val DEPOSIT = "deposit"
 
         // Estados específicos de reservaciones de servicios
-        const val STATUS_PENDING = "pendiente"
-        const val STATUS_SCHEDULED = "agendado"
-        const val STATUS_CANCELLED = "cancelado"
-        const val STATUS_ARCHIVED = "archivado"
+        val STATUS_PENDING_DEPOSIT = ReservationStatus.PENDING_DEPOSIT.value
+        val STATUS_PENDING = ReservationStatus.PENDING.value
+        val STATUS_SCHEDULED = ReservationStatus.SCHEDULED.value
+        val STATUS_CANCELLED = ReservationStatus.CANCELLED.value
+        val STATUS_ARCHIVED = ReservationStatus.ARCHIVED.value
     }
 
     object Orders {
         const val COLLECTION = "product_orders"
         const val STATUS = "status"
         const val USER_ID = "userId"
-        const val STATUS_PENDING = "pendiente"
-        const val STATUS_COMPLETED = "finalizado"
-        const val STATUS_ARCHIVED = "archivado"
+        val STATUS_PENDING = OrderStatus.PENDING.value
+        val STATUS_COMPLETED = OrderStatus.COMPLETED.value
+        val STATUS_ARCHIVED = OrderStatus.ARCHIVED.value
 
         // Órdenes creadas antes del cambio de "aceptado" a "finalizado"
-        const val STATUS_LEGACY_ACCEPTED = "aceptado"
+        val STATUS_LEGACY_ACCEPTED = OrderStatus.LEGACY_ACCEPTED.value
     }
 }

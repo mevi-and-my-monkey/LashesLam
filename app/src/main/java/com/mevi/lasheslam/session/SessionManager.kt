@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.mevi.lasheslam.core.Strings
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,6 +31,9 @@ object SessionManager {
 
     private val _facebook = MutableStateFlow<String?>(null)
     val facebook = _facebook.asStateFlow()
+
+    private val _clabe = MutableStateFlow<String?>(null)
+    val clabe = _clabe.asStateFlow()
 
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId = _currentUserId.asStateFlow()
@@ -70,6 +73,10 @@ object SessionManager {
 
     fun setFacebook(value: String) {
         _facebook.value = value
+    }
+
+    fun setClabe(value: String) {
+        _clabe.value = value
     }
 
     fun setCurrentUserId(uid: String?) {
@@ -123,9 +130,11 @@ object SessionManager {
                 .ifEmpty { Strings.defaultAdminFacebook }
             val instagram = remoteConfig.getString(Strings.keyRemoteConfigInstagramAdmin)
                 .ifEmpty { Strings.defaultAdminIntagram }
+            val clabe = remoteConfig.getString(Strings.keyRemoteConfigClabe)
             setWhatsApp(whatsApp)
             setInstagram(instagram)
             setFacebook(facebook)
+            setClabe(clabe)
             _shippingCost.value = remoteConfig.getDouble(Strings.keyRemoteConfigShippingCost)
             //Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {

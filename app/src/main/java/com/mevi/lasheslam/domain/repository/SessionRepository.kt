@@ -1,6 +1,6 @@
 package com.mevi.lasheslam.domain.repository
 
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import kotlinx.coroutines.flow.Flow
 
 interface SessionRepository {

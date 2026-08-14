@@ -94,12 +94,12 @@
     <string name="book_appointment">Reservar cita</string>
     <string name="choose_day">Elige el día</string>
     <string name="available_times">Horarios disponibles</string>
-    <string name="booking_deposit_notice">Para apartar tu cita se solicita un anticipo. Te enviamos los datos por WhatsApp al confirmar.</string>
+    <string name="booking_deposit_notice">Para apartar tu cita se solicita un anticipo. Al confirmar, en la sección de Órdenes verás la cuenta CLABE y el monto del anticipo para enviar tu comprobante.</string>
     <string name="confirm_booking">Confirmar reserva</string>
     <string name="choose_date_time">Elige fecha y hora</string>
     <string name="booking_confirmed_badge">Cita reservada</string>
     <string name="booking_thanks">¡Te esperamos!</string>
-    <string name="booking_confirmed_message">Tu reserva quedó pre-confirmada. Te enviamos un mensaje por WhatsApp con los datos para apartar.</string>
+    <string name="booking_confirmed_message">Tu reserva quedó registrada. Realiza tu anticipo a la siguiente cuenta CLABE y envía tu comprobante desde la sección de Órdenes.</string>
     <string name="booking_create_error">No se pudo crear la reserva, inténtalo de nuevo</string>
     <string name="no_availability">Por el momento no hay días disponibles para reservar</string>
     <string name="requests">Solicitudes</string>

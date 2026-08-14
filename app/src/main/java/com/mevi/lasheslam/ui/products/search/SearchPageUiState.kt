@@ -1,9 +1,9 @@
 package com.mevi.lasheslam.ui.products.search
 
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CoursesItem
-import com.mevi.lasheslam.network.ProductItem
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.domain.model.CoursesItem
+import com.mevi.lasheslam.domain.model.ProductItem
+import com.mevi.lasheslam.domain.model.ServiceItem
 import com.mevi.lasheslam.ui.common.UiState
 import com.mevi.lasheslam.ui.home.components.Section
 

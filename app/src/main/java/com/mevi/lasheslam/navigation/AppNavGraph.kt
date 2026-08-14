@@ -391,9 +391,6 @@ fun AppNavGraph(
                         route = Screen.Home.route,
                         inclusive = false
                     )
-                },
-                onOpenWhatsApp = { whatsapp ->
-                    context.startActivity(Intent(Intent.ACTION_VIEW, whatsapp.toUri()))
                 }
             )
         }

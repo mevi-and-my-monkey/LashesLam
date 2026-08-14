@@ -11,8 +11,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.mevi.lasheslam.core.error.AppError
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.network.ProductOrder
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.ProductOrder
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import java.net.URLEncoder
@@ -98,6 +98,15 @@ object Utilities {
         }
     }
 
+    /** Abre el chat de WhatsApp del admin sin ningún mensaje pre-cargado. */
+    fun buildWhatsAppUrl(whatsapp: String): String = "https://wa.me/$whatsapp"
+
+    /** Antepone la lada de México (52) a números locales de 10 dígitos para wa.me. */
+    fun normalizeMxPhone(phone: String): String {
+        val digits = phone.filter(Char::isDigit)
+        return if (digits.length == 10) "52$digits" else digits
+    }
+
     fun createMessageWhatsApp(titulo: String, fecha: String, horaInicio: String, horaFin: String, whatsapp: String) : String {
         val message = """
         Hola, me gustaría recibir más información sobre el curso ${titulo}.
@@ -146,6 +155,12 @@ object Utilities {
             ""
         }
 
+        val deliveryLine = when (order.deliveryType) {
+            "domicilio" -> "\nEntrega: Domicilio\nDirección: ${order.address}"
+            "recoger" -> "\nEntrega: Recoger en tienda"
+            else -> ""
+        }
+
         val message = """
         Hola, soy ${order.nameUser} y quiero realizar el siguiente pedido:
         Orden: #${order.orderNumber}
@@ -153,7 +168,7 @@ object Utilities {
         $itemsDetail
 
         Subtotal: ${formatMoney(order.subtotal)}$shippingLine
-        Total: ${formatMoney(order.total)}
+        Total: ${formatMoney(order.total)}$deliveryLine
 
         ¡Gracias!
         """.trimIndent()

@@ -5,7 +5,10 @@ import com.mevi.lasheslam.data.CartRepositoryImpl
 import com.mevi.lasheslam.data.CourseRequestRepositoryImpl
 import com.mevi.lasheslam.data.CoursesRepositoryImpl
 import com.mevi.lasheslam.data.DataStoreRepository
+import com.mevi.lasheslam.data.EnrolledRepositoryImpl
 import com.mevi.lasheslam.data.FavoritesRepositoryImpl
+import com.mevi.lasheslam.data.local.NotificationCacheImpl
+import com.mevi.lasheslam.data.local.ReservationNotificationStoreImpl
 import com.mevi.lasheslam.data.PlayCoreUpdateRepository
 import com.mevi.lasheslam.data.ProductOrderRepositoryImpl
 import com.mevi.lasheslam.data.ProductsRepositoryImpl
@@ -17,7 +20,10 @@ import com.mevi.lasheslam.data.UserRepositoryImpl
 import com.mevi.lasheslam.domain.repository.BookingRepository
 import com.mevi.lasheslam.domain.repository.CartRepository
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
+import com.mevi.lasheslam.domain.repository.NotificationCache
+import com.mevi.lasheslam.domain.repository.ReservationNotificationStore
 import com.mevi.lasheslam.domain.repository.CoursesRepository
+import com.mevi.lasheslam.domain.repository.EnrolledRepository
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
 import com.mevi.lasheslam.domain.repository.ProductOrderRepository
 import com.mevi.lasheslam.domain.repository.ProductsRepository
@@ -107,4 +113,19 @@ abstract class RepositoryModule {
     abstract fun bindBookingRepository(
         impl: BookingRepositoryImpl
     ): BookingRepository
+
+    @Binds
+    abstract fun bindEnrolledRepository(
+        impl: EnrolledRepositoryImpl
+    ): EnrolledRepository
+
+    @Binds
+    abstract fun bindNotificationCache(
+        impl: NotificationCacheImpl
+    ): NotificationCache
+
+    @Binds
+    abstract fun bindReservationNotificationStore(
+        impl: ReservationNotificationStoreImpl
+    ): ReservationNotificationStore
 }

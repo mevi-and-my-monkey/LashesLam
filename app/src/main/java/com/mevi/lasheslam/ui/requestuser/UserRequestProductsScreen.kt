@@ -37,8 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mevi.lasheslam.data.constants.FirestorePaths
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.DeliveryType
+import com.mevi.lasheslam.domain.model.OrderStatus
+import com.mevi.lasheslam.domain.model.ProductOrder
 import com.mevi.lasheslam.ui.theme.CormorantGaramond
 import com.mevi.lasheslam.utils.Utilities
 import java.text.SimpleDateFormat
@@ -73,16 +74,27 @@ fun UserRequestProductsScreen(productOrders: List<ProductOrder>) {
 @Composable
 fun RequestUserProductItem(item: ProductOrder) {
     val (statusColor, statusBackground, statusText) = when (item.status) {
-        FirestorePaths.Orders.STATUS_COMPLETED,
-        FirestorePaths.Orders.STATUS_LEGACY_ACCEPTED ->
+        OrderStatus.PREPARING.value ->
+            Triple(Color(0xFFB07A1E), Color(0xFFFBF0D9), "En preparación")
+
+        OrderStatus.SHIPPED.value ->
+            Triple(Color(0xFF2A6DB0), Color(0xFFE1EDF7), "Enviado")
+
+        OrderStatus.DELIVERED.value ->
+            Triple(Color(0xFF4E7044), Color(0xFFE8F0E5), "Entregado")
+
+        OrderStatus.COMPLETED.value,
+        OrderStatus.LEGACY_ACCEPTED.value ->
             Triple(Color(0xFF4E7044), Color(0xFFE8F0E5), "Completado")
 
-        FirestorePaths.Orders.STATUS_ARCHIVED ->
+        OrderStatus.ARCHIVED.value ->
             Triple(Color(0xFF5B5B5B), Color(0xFFEDEDED), "Archivado")
 
         else ->
             Triple(Color(0xFF8B7355), Color(0xFFFAF3E7), "Pendiente")
     }
+
+    val isDelivery = item.deliveryType == DeliveryType.DELIVERY.value
 
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
@@ -164,6 +176,25 @@ fun RequestUserProductItem(item: ProductOrder) {
                         style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
                         color = Color.Gray
                     )
+                }
+
+                if (item.deliveryType.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = if (isDelivery) "Envío a domicilio" else "Recoger en tienda",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        ),
+                        color = Color(0xFFD97D8C)
+                    )
+                    if (isDelivery && item.address.isNotBlank()) {
+                        Text(
+                            text = item.address,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                            color = Color.Gray
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

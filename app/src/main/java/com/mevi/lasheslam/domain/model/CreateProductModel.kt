@@ -11,6 +11,7 @@ data class CreateProductModel(
     val price: Double,
     val title: String,
     val characteristics: String,
+    val stock: Int? = null,
     val images: List<Uri> = emptyList(),
     val remoteImages: List<String> = emptyList()
 )

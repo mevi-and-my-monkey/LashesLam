@@ -2,9 +2,9 @@ package com.mevi.lasheslam.domain.usecase
 
 import android.os.Build
 import android.util.Log
-import com.mevi.lasheslam.data.constants.FirestorePaths
-import com.mevi.lasheslam.data.local.NotificationCache
+import com.mevi.lasheslam.domain.model.CourseNotificationStatus
 import com.mevi.lasheslam.domain.model.UserCourse
+import com.mevi.lasheslam.domain.repository.NotificationCache
 import com.mevi.lasheslam.domain.repository.NotificationScheduler
 import com.mevi.lasheslam.domain.repository.UserCourseRepository
 import com.mevi.lasheslam.utils.date.CourseDateParser
@@ -25,7 +25,7 @@ class HandleCourseNotificationsUseCase @Inject constructor(
 
         courses.forEach { course ->
 
-            if (course.notification == FirestorePaths.Courses.NOTIFICATION_CREATED) return@forEach
+            if (course.notification == CourseNotificationStatus.CREATED.value) return@forEach
             if (!cache.shouldProcess(course.id)) return@forEach
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@forEach
 

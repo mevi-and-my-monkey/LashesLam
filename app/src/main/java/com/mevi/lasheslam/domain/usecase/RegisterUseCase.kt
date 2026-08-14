@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.domain.usecase
 
 import com.mevi.lasheslam.domain.repository.UserRepository
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
 import javax.inject.Inject
 
 class RegisterUseCase @Inject constructor(

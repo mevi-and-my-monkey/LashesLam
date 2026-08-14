@@ -5,16 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.data.EnrolledRepositoryImpl
-import com.mevi.lasheslam.network.EnrolledCourse
-import com.mevi.lasheslam.network.EnrolledStudent
+import com.mevi.lasheslam.domain.usecase.GetEnrolledCoursesUseCase
+import com.mevi.lasheslam.domain.usecase.GetEnrolledStudentsUseCase
+import com.mevi.lasheslam.domain.model.EnrolledCourse
+import com.mevi.lasheslam.domain.model.EnrolledStudent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class EnrolledViewModel @Inject constructor(
-    private val repo: EnrolledRepositoryImpl
+    private val getEnrolledCoursesUseCase: GetEnrolledCoursesUseCase,
+    private val getEnrolledStudentsUseCase: GetEnrolledStudentsUseCase
 ) : ViewModel() {
 
     private val _courses = MutableLiveData<List<EnrolledCourse>>()
@@ -30,7 +32,7 @@ class EnrolledViewModel @Inject constructor(
     fun loadCourses() {
         viewModelScope.launch {
             _loading.value = true
-            when (val result = repo.getCourses()) {
+            when (val result = getEnrolledCoursesUseCase()) {
                 is Resource.Success -> _courses.value = result.data
                 else -> {}
             }
@@ -41,7 +43,7 @@ class EnrolledViewModel @Inject constructor(
     fun loadStudents(courseId: String) {
         viewModelScope.launch {
             _loading.value = true
-            when (val result = repo.getStudents(courseId)) {
+            when (val result = getEnrolledStudentsUseCase(courseId)) {
                 is Resource.Success -> _students.value = result.data
                 else -> {}
             }

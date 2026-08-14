@@ -7,7 +7,7 @@ import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.CourseRequestRepository
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 

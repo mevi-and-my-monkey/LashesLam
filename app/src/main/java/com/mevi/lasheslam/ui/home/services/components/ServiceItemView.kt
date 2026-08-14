@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.ServiceItem
 import com.mevi.lasheslam.ui.theme.CormorantGaramond
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 
@@ -141,6 +141,16 @@ fun ServiceItemView(
                             fontFamily = CormorantGaramond
                         ),
                         color = Color(0xFFD97D8C)
+                    )
+                }
+
+                if (service.deposit > 0) {
+                    Text(
+                        text = "Anticipo: $${service.deposit.toInt()}",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color(0xFFC19A6B)
                     )
                 }
             }

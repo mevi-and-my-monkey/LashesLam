@@ -5,7 +5,7 @@ import com.mevi.lasheslam.domain.usecase.session.GetEmailUserUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
-import com.mevi.lasheslam.network.LocationItem
+import com.mevi.lasheslam.domain.model.LocationItem
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertSame

@@ -14,7 +14,7 @@ import com.mevi.lasheslam.domain.usecase.RegisterUseCase
 import com.mevi.lasheslam.domain.usecase.SaveSessionUseCase
 import com.mevi.lasheslam.domain.usecase.SignInWithGoogleUseCase
 import com.mevi.lasheslam.domain.usecase.ValidateLoginUseCase
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

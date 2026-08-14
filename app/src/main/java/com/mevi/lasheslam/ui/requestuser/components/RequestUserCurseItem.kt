@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 import com.mevi.lasheslam.ui.theme.CormorantGaramond
 import com.mevi.lasheslam.ui.theme.LashesLamTheme
 import com.mevi.lasheslam.utils.Constants

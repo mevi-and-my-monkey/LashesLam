@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 
 @Composable
 fun AdmRequestCursesScreen(viewModel: AdminRequestsViewModel = hiltViewModel()) {

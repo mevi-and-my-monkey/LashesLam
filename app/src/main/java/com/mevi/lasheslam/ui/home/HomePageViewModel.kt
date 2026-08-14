@@ -6,8 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.BaseViewModel
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
+import com.mevi.lasheslam.domain.model.CategoryDefaults
+import com.mevi.lasheslam.domain.model.CourseRequestStatus
 import com.mevi.lasheslam.domain.model.SessionData
 import com.mevi.lasheslam.domain.notifications.ObserveUserCoursesUseCase
 import com.mevi.lasheslam.domain.repository.AnalyticsTracker
@@ -31,10 +32,10 @@ import com.mevi.lasheslam.domain.usecase.cart.GetCartUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.FavoriteItem
-import com.mevi.lasheslam.network.ProductItem
-import com.mevi.lasheslam.network.ServiceItem
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.domain.model.FavoriteItem
+import com.mevi.lasheslam.domain.model.ProductItem
+import com.mevi.lasheslam.domain.model.ServiceItem
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.components.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,10 +75,10 @@ class HomePageViewModel @Inject constructor(
 
     override fun createInitialState() = HomePageUiState()
 
-    var selectedCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
+    var selectedCategoryId by mutableStateOf<String?>(CategoryDefaults.ALL)
         private set
 
-    var selectedServiceCategoryId by mutableStateOf<String?>(FirestorePaths.Products.CATEGORY_ALL)
+    var selectedServiceCategoryId by mutableStateOf<String?>(CategoryDefaults.ALL)
         private set
 
     private val _favorites = MutableStateFlow<List<FavoriteItem>>(emptyList())
@@ -135,7 +136,7 @@ class HomePageViewModel @Inject constructor(
 
     fun loadAdminPendingRequests() {
         viewModelScope.launch {
-            val result = getRequestsUseCase(FirestorePaths.Courses.STATUS_PANDING)
+            val result = getRequestsUseCase(CourseRequestStatus.PENDING.value)
 
             when (result) {
                 is Resource.Success -> {
@@ -331,7 +332,7 @@ class HomePageViewModel @Inject constructor(
 
     private fun applyFilter(products: List<ProductItem>) {
         val filtered =
-            if (selectedCategoryId == FirestorePaths.Products.CATEGORY_ALL || selectedCategoryId == null) {
+            if (selectedCategoryId == CategoryDefaults.ALL || selectedCategoryId == null) {
                 products
             } else {
                 products.filter {
@@ -413,7 +414,7 @@ class HomePageViewModel @Inject constructor(
 
     private fun applyFilterServices(services: List<ServiceItem>) {
         val filtered =
-            if (selectedServiceCategoryId == FirestorePaths.Products.CATEGORY_ALL || selectedServiceCategoryId == null) {
+            if (selectedServiceCategoryId == CategoryDefaults.ALL || selectedServiceCategoryId == null) {
                 services
             } else {
                 services.filter {

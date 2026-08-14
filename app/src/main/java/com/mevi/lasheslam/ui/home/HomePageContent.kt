@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.domain.model.CategoryModel
 import com.mevi.lasheslam.ui.components.BottomSheetOption
 import com.mevi.lasheslam.ui.components.GenericOptionsBottomSheet
 import com.mevi.lasheslam.ui.home.components.CourseAddView

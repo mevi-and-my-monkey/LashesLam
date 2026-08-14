@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.domain.model.ProductItem
 import com.mevi.lasheslam.ui.home.cursos.components.ShimmerBox
 import com.mevi.lasheslam.ui.home.products.components.AnimatedMarketplaceProductItem
 import com.mevi.lasheslam.ui.home.products.components.BestSellingRow

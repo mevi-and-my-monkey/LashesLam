@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.domain.model.ProductItem
 import com.mevi.lasheslam.ui.components.views.EmptyViewScreen
 import com.mevi.lasheslam.ui.favorites.products.FavoriteProductCard
 

@@ -1,22 +1,25 @@
 package com.mevi.lasheslam.ui.booking
 
 import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.repository.SessionDataSource
 import com.mevi.lasheslam.domain.usecase.booking.CreateReservationUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetAvailabilityUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetTakenSlotsUseCase
 import com.mevi.lasheslam.domain.usecase.service.GetAServiceDetailUseCase
-import com.mevi.lasheslam.network.BookingAvailability
-import com.mevi.lasheslam.network.BookingSlot
-import com.mevi.lasheslam.network.CreateServiceDto
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.BookingAvailability
+import com.mevi.lasheslam.domain.model.BookingSlot
+import com.mevi.lasheslam.domain.model.ServiceDetail
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -29,21 +32,29 @@ class BookingViewModelTest {
     private val getAvailabilityUseCase: GetAvailabilityUseCase = mockk()
     private val getTakenSlotsUseCase: GetTakenSlotsUseCase = mockk(relaxed = true)
     private val createReservationUseCase: CreateReservationUseCase = mockk()
+    private val sessionDataSource: SessionDataSource = mockk(relaxed = true)
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val service = CreateServiceDto(id = "s1", title = "Lash Lifting", price = 350.0, duration = 1.0)
+    private val service = ServiceDetail(id = "s1", title = "Lash Lifting", price = 350.0, duration = 1.0)
 
     // Fecha lejana para que siempre pase el filtro "de hoy en adelante".
     private val futureDate = "2999-12-31"
 
-    private fun buildViewModel() = BookingViewModel(
-        getAServiceDetailUseCase,
-        getAvailabilityUseCase,
-        getTakenSlotsUseCase,
-        createReservationUseCase
-    )
+    private fun buildViewModel(): BookingViewModel {
+        every { sessionDataSource.currentUserId } returns MutableStateFlow(null)
+        every { sessionDataSource.nameUser } returns MutableStateFlow(null)
+        every { sessionDataSource.email } returns MutableStateFlow(null)
+        every { sessionDataSource.whatsApp } returns MutableStateFlow(null)
+        return BookingViewModel(
+            getAServiceDetailUseCase,
+            getAvailabilityUseCase,
+            getTakenSlotsUseCase,
+            createReservationUseCase,
+            sessionDataSource
+        )
+    }
 
     @Test
     fun `load fills service and available days from use cases`() = runTest {

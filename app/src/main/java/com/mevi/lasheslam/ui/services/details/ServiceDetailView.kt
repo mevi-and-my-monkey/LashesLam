@@ -77,6 +77,7 @@ fun ServiceDetailView(
 
     val price = form.precio.toDoubleOrNull() ?: 0.0
     val duration = form.duracion.toDoubleOrNull() ?: 0.0
+    val deposit = form.anticipo.toDoubleOrNull() ?: 0.0
     val includes = form.incluye.lines().map { it.trim() }.filter { it.isNotEmpty() }
 
     Box(
@@ -149,6 +150,16 @@ fun ServiceDetailView(
                             label = "CATEGORÍA",
                             value = categoryName,
                             modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    if (deposit > 0) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Anticipo para apartar: ${Utilities.formatMoney(deposit)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFB07A1E)
                         )
                     }
                 }

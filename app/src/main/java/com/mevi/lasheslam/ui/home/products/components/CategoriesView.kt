@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.mevi.lasheslam.network.CategoryModel
+import com.mevi.lasheslam.domain.model.CategoryModel
 
 @Composable
 fun CategoriesView(

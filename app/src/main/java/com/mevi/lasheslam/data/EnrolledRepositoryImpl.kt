@@ -3,8 +3,9 @@ package com.mevi.lasheslam.data
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.network.EnrolledCourse
-import com.mevi.lasheslam.network.EnrolledStudent
+import com.mevi.lasheslam.domain.repository.EnrolledRepository
+import com.mevi.lasheslam.domain.model.EnrolledCourse
+import com.mevi.lasheslam.domain.model.EnrolledStudent
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -14,12 +15,12 @@ import javax.inject.Inject
 class EnrolledRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val errorMapper: ErrorMapper
-) {
+) : EnrolledRepository {
     private val inscritosRef = firestore.collection("alumnos_inscritos")
     private val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
 
     /** Obtiene cursos ordenados por fecha más reciente */
-    suspend fun getCourses(): Resource<List<EnrolledCourse>> {
+    override suspend fun getCourses(): Resource<List<EnrolledCourse>> {
         return try {
             val snap = inscritosRef.get().await()
             val cursos = mutableListOf<EnrolledCourse>()
@@ -68,7 +69,7 @@ class EnrolledRepositoryImpl @Inject constructor(
     }
 
     /** Obtiene alumnos de un curso */
-    suspend fun getStudents(courseId: String): Resource<List<EnrolledStudent>> {
+    override suspend fun getStudents(courseId: String): Resource<List<EnrolledStudent>> {
         return try {
             val snap = inscritosRef.document(courseId)
                 .collection("inscritos")

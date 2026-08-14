@@ -11,7 +11,7 @@ import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.domain.usecase.ApproveRequestUseCase
 import com.mevi.lasheslam.domain.usecase.GetRequestsUseCase
 import com.mevi.lasheslam.domain.usecase.RejectRequestUseCase
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 import com.mevi.lasheslam.ui.courses.CourseUiState
 import com.mevi.lasheslam.ui.courses.CoursesUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel

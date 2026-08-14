@@ -14,7 +14,7 @@ import com.mevi.lasheslam.data.constants.StoragePaths
 import com.mevi.lasheslam.data.dto.UserDto
 import com.mevi.lasheslam.data.mappers.toDto
 import com.mevi.lasheslam.domain.repository.UserRepository
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
@@ -121,4 +121,55 @@ class UserRepositoryImpl @Inject constructor(
                 Resource.Error(errorMapper.map(e))
             }
         }
+
+    override suspend fun getUserProfile(): Resource<UserModel> =
+        withContext(Dispatchers.IO) {
+            try {
+                val user = auth.currentUser
+                    ?: return@withContext Resource.Error(AppError.Unknown(null))
+
+                val providerPhoto = user.photoUrl?.toString().orEmpty()
+                val snapshot = firestore.document(FirestorePaths.Users.document(user.uid))
+                    .get().await()
+                val model = snapshot.toObject(UserModel::class.java) ?: UserModel()
+
+                // Prioridad de la foto: personalizada por el usuario > proveedor > almacenada
+                val stored = model.userPhoto.orEmpty()
+                val resolvedPhoto = when {
+                    model.photoUpdatedByUser && stored.isNotEmpty() -> stored
+                    providerPhoto.isNotEmpty() -> providerPhoto
+                    else -> stored
+                }
+
+                Resource.Success(model.copy(userPhoto = resolvedPhoto))
+            } catch (e: Exception) {
+                Resource.Error(errorMapper.map(e))
+            }
+        }
+
+    override suspend fun updateAddress(address: String): Resource<Unit> =
+        updateUserField(FirestorePaths.Users.ADDRESS, address)
+
+    override suspend fun updatePhone(phone: String): Resource<Unit> =
+        updateUserField(FirestorePaths.Users.PHONE, phone)
+
+    private suspend fun updateUserField(field: String, value: String): Resource<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val userId = auth.currentUser?.uid
+                    ?: return@withContext Resource.Error(AppError.Unknown(null))
+
+                firestore.document(FirestorePaths.Users.document(userId))
+                    .update(field, value)
+                    .await()
+
+                Resource.Success(Unit)
+            } catch (e: Exception) {
+                Resource.Error(errorMapper.map(e))
+            }
+        }
+
+    override fun signOut() {
+        auth.signOut()
+    }
 }

@@ -23,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.UserModel
+import com.mevi.lasheslam.domain.model.UserModel
 import com.mevi.lasheslam.ui.components.AnimatedLogo
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.GenericButton

@@ -38,6 +38,7 @@ fun AddProductsContent(
     onDescriptionChange: (String) -> Unit = {},
     onCostChange: (String) -> Unit = {},
     onActualCostChange: (String) -> Unit = {},
+    onStockChange: (String) -> Unit = {},
     onCategoryChange: (String) -> Unit = {},
     onBestSellingChange: (Boolean) -> Unit = {},
     onImagesSelected: (List<Uri>) -> Unit = {},
@@ -77,7 +78,7 @@ fun AddProductsContent(
                 onCharacteristicsChange = onCharacteristicsChange
             )
 
-            AddProdCostFormView(state, onCostChange, onActualCostChange)
+            AddProdCostFormView(state, onCostChange, onActualCostChange, onStockChange)
 
             AddProdCategoryFormView(state, onCategoryChange, onBestSellingChange)
 

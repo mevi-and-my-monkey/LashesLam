@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mevi.lasheslam.navigation.Screen
-import com.mevi.lasheslam.network.EnrolledCourse
+import com.mevi.lasheslam.domain.model.EnrolledCourse
 import com.mevi.lasheslam.ui.components.GenericLoading
 
 @Composable

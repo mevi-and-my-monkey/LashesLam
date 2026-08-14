@@ -44,6 +44,7 @@ fun AddServiceContent(
     onTitleChange: (String) -> Unit = {},
     onSubtitleChange: (String) -> Unit = {},
     onCostChange: (String) -> Unit = {},
+    onDepositChange: (String) -> Unit = {},
     onDurationChange: (String) -> Unit = {},
     onCategoryChange: (String) -> Unit = {},
     onDescriptionChange: (String) -> Unit = {},
@@ -65,7 +66,7 @@ fun AddServiceContent(
 
             AddServTitleFormView(state, onTitleChange, onSubtitleChange)
 
-            AddServCostFormView(state, onCostChange, onDurationChange)
+            AddServCostFormView(state, onCostChange, onDepositChange, onDurationChange)
 
             AddServCategoryFormView(state, onCategoryChange)
 

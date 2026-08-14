@@ -7,16 +7,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.data.constants.FirestorePaths
+import com.mevi.lasheslam.domain.model.ReservationStatus
 import com.mevi.lasheslam.domain.usecase.GetServicesUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetAvailabilityUseCase
 import com.mevi.lasheslam.domain.usecase.booking.GetReservationsByStatusUseCase
 import com.mevi.lasheslam.domain.usecase.booking.SaveAvailabilityUseCase
 import com.mevi.lasheslam.domain.usecase.booking.UpdateReservationStatusUseCase
-import com.mevi.lasheslam.network.BookingAvailability
-import com.mevi.lasheslam.network.BookingSlot
-import com.mevi.lasheslam.network.ServiceItem
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.model.BookingAvailability
+import com.mevi.lasheslam.domain.model.BookingSlot
+import com.mevi.lasheslam.domain.model.ServiceItem
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -27,6 +27,7 @@ import javax.inject.Inject
 
 enum class ReservationFilter(val label: String) {
     TODOS("Todos"),
+    ANTICIPO("Anticipo"),
     PENDIENTE("Pendiente"),
     AGENDADO("Agendado"),
     CANCELADO("Cancelado"),
@@ -96,25 +97,31 @@ class AdminReservationsViewModel @Inject constructor(
         isLoading = true
 
         val statuses = when (filter) {
-            // "Todos" muestra pendiente, agendado y cancelado (sin archivadas)
+            // "Todos" muestra anticipo, pendiente, agendado y cancelado (sin archivadas)
             ReservationFilter.TODOS -> listOf(
-                FirestorePaths.Booking.STATUS_PENDING,
-                FirestorePaths.Booking.STATUS_SCHEDULED,
-                FirestorePaths.Booking.STATUS_CANCELLED
+                ReservationStatus.PENDING_DEPOSIT.value,
+                ReservationStatus.PENDING.value,
+                ReservationStatus.SCHEDULED.value,
+                ReservationStatus.CANCELLED.value
             )
 
-            ReservationFilter.PENDIENTE -> listOf(FirestorePaths.Booking.STATUS_PENDING)
-            ReservationFilter.AGENDADO -> listOf(FirestorePaths.Booking.STATUS_SCHEDULED)
-            ReservationFilter.CANCELADO -> listOf(FirestorePaths.Booking.STATUS_CANCELLED)
-            ReservationFilter.ARCHIVADO -> listOf(FirestorePaths.Booking.STATUS_ARCHIVED)
+            ReservationFilter.ANTICIPO -> listOf(ReservationStatus.PENDING_DEPOSIT.value)
+            ReservationFilter.PENDIENTE -> listOf(ReservationStatus.PENDING.value)
+            ReservationFilter.AGENDADO -> listOf(ReservationStatus.SCHEDULED.value)
+            ReservationFilter.CANCELADO -> listOf(ReservationStatus.CANCELLED.value)
+            ReservationFilter.ARCHIVADO -> listOf(ReservationStatus.ARCHIVED.value)
         }
 
         when (val result = getReservationsByStatusUseCase(statuses)) {
             is Resource.Success -> {
                 reservations = result.data
-                if (statuses.contains(FirestorePaths.Booking.STATUS_PENDING)) {
+                // Cuenta las que requieren atención del admin: anticipo + pendiente
+                if (statuses.contains(ReservationStatus.PENDING.value) ||
+                    statuses.contains(ReservationStatus.PENDING_DEPOSIT.value)
+                ) {
                     pendingCount = result.data.count {
-                        it.status == FirestorePaths.Booking.STATUS_PENDING
+                        it.status == ReservationStatus.PENDING.value ||
+                                it.status == ReservationStatus.PENDING_DEPOSIT.value
                     }
                 }
             }
@@ -125,13 +132,13 @@ class AdminReservationsViewModel @Inject constructor(
     }
 
     fun acceptReservation(reservationId: String) =
-        updateStatus(reservationId, FirestorePaths.Booking.STATUS_SCHEDULED)
+        updateStatus(reservationId, ReservationStatus.SCHEDULED.value)
 
     fun rejectReservation(reservationId: String) =
-        updateStatus(reservationId, FirestorePaths.Booking.STATUS_CANCELLED)
+        updateStatus(reservationId, ReservationStatus.CANCELLED.value)
 
     fun archiveReservation(reservationId: String) =
-        updateStatus(reservationId, FirestorePaths.Booking.STATUS_ARCHIVED)
+        updateStatus(reservationId, ReservationStatus.ARCHIVED.value)
 
     private fun updateStatus(reservationId: String, status: String) = viewModelScope.launch {
         isLoading = true

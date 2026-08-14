@@ -2,10 +2,10 @@ package com.mevi.lasheslam.domain.usecase.booking
 
 import android.os.Build
 import android.util.Log
-import com.mevi.lasheslam.data.local.NotificationCache
-import com.mevi.lasheslam.data.local.ReservationNotificationStore
+import com.mevi.lasheslam.domain.repository.NotificationCache
 import com.mevi.lasheslam.domain.repository.NotificationScheduler
-import com.mevi.lasheslam.network.ServiceReservation
+import com.mevi.lasheslam.domain.repository.ReservationNotificationStore
+import com.mevi.lasheslam.domain.model.ServiceReservation
 import com.mevi.lasheslam.utils.date.CourseDateParser
 import javax.inject.Inject
 

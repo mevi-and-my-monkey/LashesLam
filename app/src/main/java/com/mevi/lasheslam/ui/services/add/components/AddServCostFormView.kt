@@ -25,6 +25,7 @@ import java.util.Locale
 fun AddServCostFormView(
     state: ServiceUiState,
     onCostChange: (String) -> Unit,
+    onDepositChange: (String) -> Unit,
     onDurationChange: (String) -> Unit,
 ) {
     val precioDouble = remember(state.form.precio) { state.form.precio.toDoubleOrNull() }
@@ -57,6 +58,18 @@ fun AddServCostFormView(
             modifier = Modifier.padding(top = 4.dp)
         )
     }
+    Spacer(modifier = Modifier.height(8.dp))
+
+    OutlinedTextField(
+        value = state.form.anticipo,
+        onValueChange = onDepositChange,
+        label = { Text("Anticipo (opcional)") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+    )
+
     Spacer(modifier = Modifier.height(8.dp))
 
     OutlinedTextField(

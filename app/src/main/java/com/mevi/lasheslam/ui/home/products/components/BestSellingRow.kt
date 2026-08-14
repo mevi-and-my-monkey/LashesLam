@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.mevi.lasheslam.domain.analytics.AnalyticsEvent
-import com.mevi.lasheslam.network.ProductItem
+import com.mevi.lasheslam.domain.model.ProductItem
 
 @Composable
 fun BestSellingRow(

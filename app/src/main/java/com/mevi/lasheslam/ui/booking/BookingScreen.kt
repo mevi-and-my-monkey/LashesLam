@@ -63,7 +63,6 @@ fun BookingScreen(
     serviceId: String,
     onBackToHome: () -> Unit,
     popBack: () -> Unit,
-    onOpenWhatsApp: (String) -> Unit,
     viewModel: BookingViewModel = hiltViewModel()
 ) {
     LaunchedEffect(serviceId) {
@@ -81,8 +80,7 @@ fun BookingScreen(
         } else {
             BookingContent(
                 viewModel = viewModel,
-                popBack = popBack,
-                onOpenWhatsApp = onOpenWhatsApp
+                popBack = popBack
             )
         }
 
@@ -105,8 +103,7 @@ fun BookingScreen(
 @Composable
 private fun BookingContent(
     viewModel: BookingViewModel,
-    popBack: () -> Unit,
-    onOpenWhatsApp: (String) -> Unit
+    popBack: () -> Unit
 ) {
     val service = viewModel.service
     val canConfirm = viewModel.selectedDate != null && viewModel.selectedTime != null
@@ -208,6 +205,14 @@ private fun BookingContent(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray
                             )
+                            if (service.deposit > 0) {
+                                Text(
+                                    text = "Anticipo: ${Utilities.formatMoney(service.deposit)}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GoldAccent
+                                )
+                            }
                         }
                     }
                 }
@@ -287,7 +292,7 @@ private fun BookingContent(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Button(
-                onClick = { viewModel.confirmReservation(onOpenWhatsApp) },
+                onClick = { viewModel.confirmReservation() },
                 enabled = canConfirm,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -554,6 +559,10 @@ private fun BookingConfirmationView(
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        DepositInfoCard(deposit = reservation.deposit, clabe = viewModel.clabe)
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
@@ -569,6 +578,63 @@ private fun BookingConfirmationView(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
+        }
+    }
+}
+
+@Composable
+private fun DepositInfoCard(deposit: Double, clabe: String?) {
+    if (deposit <= 0.0 && clabe.isNullOrBlank()) return
+
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFBF0D9)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (deposit > 0.0) {
+                Text(
+                    text = "Anticipo: ${Utilities.formatMoney(deposit)}",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color(0xFF1C1C1C)
+                )
+            }
+            if (!clabe.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "CLABE interbancaria",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = clabe,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        ),
+                        color = Color(0xFF1C1C1C),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "Copiar",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = Color(0xFFD97D8C),
+                        modifier = Modifier.clickable {
+                            clipboard.setText(androidx.compose.ui.text.AnnotatedString(clabe))
+                            android.widget.Toast.makeText(context, "CLABE copiada", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
         }
     }
 }

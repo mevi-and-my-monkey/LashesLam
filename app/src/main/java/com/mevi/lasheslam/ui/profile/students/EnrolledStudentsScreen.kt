@@ -49,7 +49,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.EnrolledStudent
+import com.mevi.lasheslam.domain.model.EnrolledStudent
 import com.mevi.lasheslam.ui.components.GenericLoading
 
 @Composable

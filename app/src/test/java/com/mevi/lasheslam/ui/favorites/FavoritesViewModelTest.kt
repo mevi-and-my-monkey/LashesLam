@@ -12,8 +12,8 @@ import com.mevi.lasheslam.domain.usecase.GetNameUserUseCase
 import com.mevi.lasheslam.domain.usecase.GetPhotoUserUseCase
 import com.mevi.lasheslam.domain.usecase.products.GetFavoriteProductsUseCase
 import com.mevi.lasheslam.domain.usecase.service.GetFavoriteServicesUseCase
-import com.mevi.lasheslam.network.CoursesItem
-import com.mevi.lasheslam.network.FavoriteItem
+import com.mevi.lasheslam.domain.model.CoursesItem
+import com.mevi.lasheslam.domain.model.FavoriteItem
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify

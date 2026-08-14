@@ -5,7 +5,7 @@ import com.mevi.lasheslam.core.error.ErrorMapper
 import com.mevi.lasheslam.core.results.Resource
 import com.mevi.lasheslam.data.constants.FirestorePaths
 import com.mevi.lasheslam.domain.repository.FavoritesRepository
-import com.mevi.lasheslam.network.FavoriteItem
+import com.mevi.lasheslam.domain.model.FavoriteItem
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

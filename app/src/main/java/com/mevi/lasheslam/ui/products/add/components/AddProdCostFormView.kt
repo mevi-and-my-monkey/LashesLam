@@ -25,7 +25,8 @@ import java.util.Locale
 fun AddProdCostFormView(
     state: ProductsUiState,
     onCostChange: (String) -> Unit,
-    onActualCostChange: (String) -> Unit
+    onActualCostChange: (String) -> Unit,
+    onStockChange: (String) -> Unit
 ) {
     val numberFormat = remember {
         NumberFormat.getCurrencyInstance(
@@ -86,5 +87,17 @@ fun AddProdCostFormView(
             modifier = Modifier.padding(top = 4.dp)
         )
     }
+    Spacer(modifier = Modifier.height(8.dp))
+
+    OutlinedTextField(
+        value = state.form.stock,
+        onValueChange = onStockChange,
+        label = { Text("Stock disponible") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+    )
+
     Spacer(modifier = Modifier.height(8.dp))
 }

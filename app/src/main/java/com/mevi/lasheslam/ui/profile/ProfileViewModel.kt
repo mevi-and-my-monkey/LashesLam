@@ -6,25 +6,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.data.DataStoreRepository
+import com.mevi.lasheslam.domain.repository.SessionDataSource
+import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
+import com.mevi.lasheslam.domain.usecase.GetUserProfileUseCase
+import com.mevi.lasheslam.domain.usecase.SignOutUseCase
+import com.mevi.lasheslam.domain.usecase.UpdateAddressUseCase
+import com.mevi.lasheslam.domain.usecase.UpdatePhoneUseCase
 import com.mevi.lasheslam.domain.usecase.UpdateUserPhotoUseCase
 import com.mevi.lasheslam.domain.usecase.cart.ClearCartUseCase
-import com.mevi.lasheslam.network.UserModel
-import com.mevi.lasheslam.session.SessionManager
+import com.mevi.lasheslam.domain.model.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth,
-    private val dataStoreRepository: DataStoreRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val updateAddressUseCase: UpdateAddressUseCase,
+    private val updatePhoneUseCase: UpdatePhoneUseCase,
+    private val signOutUseCase: SignOutUseCase,
     private val updateUserPhotoUseCase: UpdateUserPhotoUseCase,
-    private val clearCartUseCase: ClearCartUseCase
+    private val clearCartUseCase: ClearCartUseCase,
+    private val sessionDataSource: SessionDataSource
 ) : ViewModel() {
 
     var userModel by mutableStateOf(UserModel())
@@ -33,31 +38,26 @@ class ProfileViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
         private set
 
-    val isDarkMode = dataStoreRepository.darkMode
+    val isDarkMode = userPreferencesRepository.darkMode
 
     var photoUser by mutableStateOf("")
         private set
 
     fun toggleDarkMode(enabled: Boolean) = viewModelScope.launch {
-        dataStoreRepository.setDarkMode(enabled)
+        userPreferencesRepository.setDarkMode(enabled)
     }
 
     fun loadUserData() {
-        val user = auth.currentUser ?: return
-        photoUser = user.photoUrl?.toString() ?: ""
-        firestore.collection("users").document(user.uid)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                snapshot.toObject(UserModel::class.java)?.let {
-                    userModel = it
-                    val storedPhoto = it.userPhoto.orEmpty()
-                    if (it.photoUpdatedByUser && storedPhoto.isNotEmpty()) {
-                        photoUser = storedPhoto
-                    } else if (photoUser.isEmpty()) {
-                        photoUser = storedPhoto
-                    }
+        viewModelScope.launch {
+            when (val result = getUserProfileUseCase()) {
+                is Resource.Success -> {
+                    userModel = result.data
+                    photoUser = result.data.userPhoto.orEmpty()
                 }
+
+                is Resource.Error -> {}
             }
+        }
     }
 
     fun updateProfilePhoto(imageUri: Uri, onResult: (Boolean, String?) -> Unit) {
@@ -70,7 +70,7 @@ class ProfileViewModel @Inject constructor(
                         userPhoto = result.data,
                         photoUpdatedByUser = true
                     )
-                    SessionManager.setPhotoUrl(result.data)
+                    sessionDataSource.setPhotoUrl(result.data)
                     isLoading = false
                     onResult(true, null)
                 }
@@ -83,44 +83,38 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun updateAddress(newAddress: String,onResult: (Boolean, String?) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return
+    fun updateAddress(newAddress: String, onResult: (Boolean, String?) -> Unit) {
         if (newAddress.isBlank()) {
-            onResult(false,"La dirección no puede estar vacía")
+            onResult(false, "La dirección no puede estar vacía")
             return
         }
-        isLoading = true
-        firestore.collection("users").document(uid)
-            .update("address", newAddress)
-            .addOnSuccessListener {
-                isLoading = false
-                onResult(true, null)
+        viewModelScope.launch {
+            isLoading = true
+            val result = updateAddressUseCase(newAddress)
+            isLoading = false
+            when (result) {
+                is Resource.Success -> onResult(true, null)
+                is Resource.Error -> onResult(false, "Error al actualizar dirección")
             }
-            .addOnFailureListener {
-                isLoading = false
-                onResult(false,"Error al actualizar dirección")
-            }
+        }
     }
 
     fun updatePhone(newPhone: String, onResult: (Boolean, String?) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return
-        isLoading = true
-        firestore.collection("users").document(uid)
-            .update("phone", newPhone)
-            .addOnSuccessListener {
-                isLoading = false
-                onResult(true, null)
+        viewModelScope.launch {
+            isLoading = true
+            val result = updatePhoneUseCase(newPhone)
+            isLoading = false
+            when (result) {
+                is Resource.Success -> onResult(true, null)
+                is Resource.Error -> onResult(false, "Error al actualizar el numero telefonico")
             }
-            .addOnFailureListener {
-                isLoading = false
-                onResult(false, "Error al actualizar el numero telefonico")
-            }
+        }
     }
 
     fun signOut(onNavigateToLogOut: () -> Unit) {
         clearCartUseCase()
-        SessionManager.clearUserSession()
-        auth.signOut()
+        sessionDataSource.clearUserSession()
+        signOutUseCase()
         onNavigateToLogOut()
     }
 }

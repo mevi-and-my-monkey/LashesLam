@@ -25,18 +25,32 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,17 +59,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mevi.lasheslam.R
-import com.mevi.lasheslam.network.CartItem
-import com.mevi.lasheslam.network.ProductOrder
+import com.mevi.lasheslam.domain.model.CartItem
+import com.mevi.lasheslam.domain.model.DeliveryType
+import com.mevi.lasheslam.domain.model.ProductOrder
+import com.mevi.lasheslam.ui.components.AddressFormFields
 import com.mevi.lasheslam.ui.components.ErrorDialog
 import com.mevi.lasheslam.ui.components.GenericLoading
 import com.mevi.lasheslam.ui.theme.CormorantGaramond
+import com.mevi.lasheslam.utils.InputValidator
 import com.mevi.lasheslam.utils.Utilities
 
 private val WhatsAppGreen = Color(0xFF25D366)
@@ -69,6 +87,7 @@ fun CartScreen(
 ) {
     val items by viewModel.items.collectAsState()
     val orderPlaced = viewModel.orderPlaced
+    var showDeliverySheet by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (orderPlaced != null) {
@@ -109,10 +128,23 @@ fun CartScreen(
                     CartSummary(
                         items = items,
                         shipping = viewModel.shippingCost,
-                        onFinalize = { viewModel.finalizeOrder(onOpenWhatsApp) }
+                        onFinalize = { showDeliverySheet = true }
                     )
                 }
             }
+        }
+
+        if (showDeliverySheet) {
+            DeliveryOptionsSheet(
+                savedAddress = viewModel.userAddress,
+                savedPhone = viewModel.userPhone,
+                shippingCost = viewModel.shippingCost,
+                onDismiss = { showDeliverySheet = false },
+                onConfirm = { deliveryType, address, phone ->
+                    showDeliverySheet = false
+                    viewModel.finalizeOrder(deliveryType, address, phone, onOpenWhatsApp)
+                }
+            )
         }
 
         GenericLoading(
@@ -431,6 +463,202 @@ private fun SummaryRow(label: String, value: String) {
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DeliveryOptionsSheet(
+    savedAddress: String?,
+    savedPhone: String?,
+    shippingCost: Double,
+    onDismiss: () -> Unit,
+    onConfirm: (DeliveryType, String, String) -> Unit
+) {
+    val hasSavedAddress = !savedAddress.isNullOrBlank()
+
+    var selected by remember { mutableStateOf<DeliveryType?>(null) }
+    var useNewAddress by remember { mutableStateOf(!hasSavedAddress) }
+    var newAddress by remember { mutableStateOf("") }
+    var newAddressValid by remember { mutableStateOf(false) }
+
+    // El teléfono es obligatorio para ambos tipos de entrega
+    var phone by remember { mutableStateOf(savedPhone.orEmpty()) }
+    val phoneValid = InputValidator.validatePhone(phone).isValid && phone.isNotBlank()
+
+    val addressOk = when (selected) {
+        DeliveryType.PICKUP -> true
+        DeliveryType.DELIVERY -> if (useNewAddress) newAddressValid else hasSavedAddress
+        null -> false
+    }
+    val canConfirm = selected != null && phoneValid && addressOk
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp)
+        ) {
+            Text(
+                text = "¿Cómo quieres recibir tu pedido?",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            DeliveryOptionRow(
+                icon = Icons.Default.Store,
+                title = "Recoger en tienda",
+                subtitle = "Sin costo de envío",
+                selected = selected == DeliveryType.PICKUP,
+                onClick = { selected = DeliveryType.PICKUP }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            DeliveryOptionRow(
+                icon = Icons.Default.Home,
+                title = "Enviar a domicilio",
+                subtitle = if (shippingCost > 0)
+                    "Envío: ${Utilities.formatMoney(shippingCost)}" else "Envío a domicilio",
+                selected = selected == DeliveryType.DELIVERY,
+                onClick = { selected = DeliveryType.DELIVERY }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { if (it.length <= 10) phone = it.filter(Char::isDigit) },
+                label = { Text("Teléfono de contacto") },
+                singleLine = true,
+                isError = phone.isNotBlank() && !phoneValid,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            if (selected == DeliveryType.DELIVERY) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (hasSavedAddress && !useNewAddress) {
+                    Text(
+                        text = "Domicilio guardado",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = savedAddress.orEmpty(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Usar otra dirección",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { useNewAddress = true }
+                    )
+                } else {
+                    if (hasSavedAddress) {
+                        Text(
+                            text = "Usar domicilio guardado",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clickable { useNewAddress = false }
+                                .padding(bottom = 8.dp)
+                        )
+                    }
+                    AddressFormFields(
+                        onAddressChange = { address, valid ->
+                            newAddress = address
+                            newAddressValid = valid
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    val type = selected ?: return@Button
+                    val address = if (type == DeliveryType.DELIVERY) {
+                        if (useNewAddress) newAddress else savedAddress.orEmpty()
+                    } else ""
+                    onConfirm(type, address, phone)
+                },
+                enabled = canConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = WhatsAppGreen),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(26.dp)
+            ) {
+                Text(
+                    text = "Continuar",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun DeliveryOptionRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .border(
+                width = if (selected) 2.dp else 1.dp,
+                color = if (selected) MaterialTheme.colorScheme.primary else Color.LightGray,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+        RadioButton(selected = selected, onClick = onClick)
     }
 }
 

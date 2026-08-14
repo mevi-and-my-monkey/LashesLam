@@ -1,21 +1,19 @@
 package com.mevi.lasheslam.ui.profile
 
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.mevi.lasheslam.data.DataStoreRepository
+import com.mevi.lasheslam.core.error.AppError
+import com.mevi.lasheslam.core.results.Resource
+import com.mevi.lasheslam.domain.repository.SessionDataSource
+import com.mevi.lasheslam.domain.repository.UserPreferencesRepository
+import com.mevi.lasheslam.domain.usecase.GetUserProfileUseCase
+import com.mevi.lasheslam.domain.usecase.SignOutUseCase
+import com.mevi.lasheslam.domain.usecase.UpdateAddressUseCase
+import com.mevi.lasheslam.domain.usecase.UpdatePhoneUseCase
 import com.mevi.lasheslam.domain.usecase.UpdateUserPhotoUseCase
 import com.mevi.lasheslam.domain.usecase.cart.ClearCartUseCase
-import com.mevi.lasheslam.session.SessionManager
 import com.mevi.lasheslam.utils.MainDispatcherRule
 import io.mockk.*
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -30,43 +28,43 @@ class ProfileViewModelTest {
     private lateinit var viewModel: ProfileViewModel
 
     // Mocks
-    private val firestore: FirebaseFirestore = mockk(relaxed = true)
-    private val auth: FirebaseAuth = mockk(relaxed = true)
-    private val dataStoreRepository: DataStoreRepository = mockk(relaxed = true)
+    private val userPreferencesRepository: UserPreferencesRepository = mockk(relaxed = true)
+    private val getUserProfileUseCase: GetUserProfileUseCase = mockk(relaxed = true)
+    private val updateAddressUseCase: UpdateAddressUseCase = mockk(relaxed = true)
+    private val updatePhoneUseCase: UpdatePhoneUseCase = mockk(relaxed = true)
+    private val signOutUseCase: SignOutUseCase = mockk(relaxed = true)
     private val updateUserPhotoUseCase: UpdateUserPhotoUseCase = mockk(relaxed = true)
     private val clearCartUseCase: ClearCartUseCase = mockk(relaxed = true)
-
-    private val user: FirebaseUser = mockk(relaxed = true)
+    private val sessionDataSource: SessionDataSource = mockk(relaxed = true)
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     @Before
     fun setup() {
-        // DataStore dark mode
-        every { dataStoreRepository.darkMode } returns flowOf(false)
-
-        // Auth user
-        every { auth.currentUser } returns user
+        every { userPreferencesRepository.darkMode } returns flowOf(false)
 
         viewModel = ProfileViewModel(
-            firestore = firestore,
-            auth = auth,
-            dataStoreRepository = dataStoreRepository,
+            userPreferencesRepository = userPreferencesRepository,
+            getUserProfileUseCase = getUserProfileUseCase,
+            updateAddressUseCase = updateAddressUseCase,
+            updatePhoneUseCase = updatePhoneUseCase,
+            signOutUseCase = signOutUseCase,
             updateUserPhotoUseCase = updateUserPhotoUseCase,
-            clearCartUseCase = clearCartUseCase
+            clearCartUseCase = clearCartUseCase,
+            sessionDataSource = sessionDataSource
         )
     }
 
     // ---------- TOGGLE DARK MODE ----------
     @Test
     fun `toggleDarkMode calls repository with correct value`() = runTest {
-        coEvery { dataStoreRepository.setDarkMode(true) } just Runs
+        coEvery { userPreferencesRepository.setDarkMode(true) } just Runs
 
         viewModel.toggleDarkMode(true)
         advanceUntilIdle()
 
-        coVerify { dataStoreRepository.setDarkMode(true) }
+        coVerify { userPreferencesRepository.setDarkMode(true) }
     }
 
     // ---------- UPDATE ADDRESS ----------
@@ -85,19 +83,8 @@ class ProfileViewModelTest {
     }
 
     @Test
-    fun `updateAddress success updates state and calls onResult true`() {
-        val documentRef = mockk<DocumentReference>(relaxed = true)
-        val voidTask = mockk<Task<Void>>(relaxed = true)
-
-        every { user.uid } returns "123"
-        every { firestore.collection("users").document("123") } returns documentRef
-        every { documentRef.update("address", any()) } returns voidTask
-        every { voidTask.addOnSuccessListener(any<OnSuccessListener<Void>>()) } answers {
-            val listener = firstArg<OnSuccessListener<Void>>()
-            listener.onSuccess(mockk())
-            voidTask
-        }
-        every { voidTask.addOnFailureListener(any<OnFailureListener>()) } answers { voidTask }
+    fun `updateAddress success updates state and calls onResult true`() = runTest {
+        coEvery { updateAddressUseCase("Calle 1 #23") } returns Resource.Success(Unit)
 
         var success = false
         var message: String? = null
@@ -106,6 +93,7 @@ class ProfileViewModelTest {
             success = s
             message = m
         }
+        advanceUntilIdle()
 
         assertTrue(success)
         assertEquals(null, message)
@@ -113,19 +101,8 @@ class ProfileViewModelTest {
     }
 
     @Test
-    fun `updateAddress failure calls onResult false`() {
-        val documentRef = mockk<DocumentReference>(relaxed = true)
-        val voidTask = mockk<Task<Void>>(relaxed = true)
-
-        every { user.uid } returns "123"
-        every { firestore.collection("users").document("123") } returns documentRef
-        every { documentRef.update("address", any()) } returns voidTask
-        every { voidTask.addOnSuccessListener(any<OnSuccessListener<Void>>()) } returns voidTask
-        every { voidTask.addOnFailureListener(any<OnFailureListener>()) } answers {
-            val listener = firstArg<OnFailureListener>()
-            listener.onFailure(Exception("Firestore error"))
-            voidTask
-        }
+    fun `updateAddress failure calls onResult false`() = runTest {
+        coEvery { updateAddressUseCase("Calle 2 #45") } returns Resource.Error(AppError.Network)
 
         var success = true
         var message: String? = null
@@ -134,6 +111,7 @@ class ProfileViewModelTest {
             success = s
             message = m
         }
+        advanceUntilIdle()
 
         assertFalse(success)
         assertEquals("Error al actualizar dirección", message)
@@ -141,19 +119,8 @@ class ProfileViewModelTest {
 
     // ---------- UPDATE PHONE ----------
     @Test
-    fun `updatePhone success updates phone and calls onResult true`() {
-        val documentRef = mockk<DocumentReference>(relaxed = true)
-        val voidTask = mockk<Task<Void>>(relaxed = true)
-
-        every { user.uid } returns "123"
-        every { firestore.collection("users").document("123") } returns documentRef
-        every { documentRef.update("phone", any()) } returns voidTask
-        every { voidTask.addOnSuccessListener(any<OnSuccessListener<Void>>()) } answers {
-            val listener = firstArg<OnSuccessListener<Void>>()
-            listener.onSuccess(mockk())
-            voidTask
-        }
-        every { voidTask.addOnFailureListener(any<OnFailureListener>()) } answers { voidTask }
+    fun `updatePhone success updates phone and calls onResult true`() = runTest {
+        coEvery { updatePhoneUseCase("5551234567") } returns Resource.Success(Unit)
 
         var success = false
         var message: String? = null
@@ -162,6 +129,7 @@ class ProfileViewModelTest {
             success = s
             message = m
         }
+        advanceUntilIdle()
 
         assertTrue(success)
         assertEquals(null, message)
@@ -169,19 +137,8 @@ class ProfileViewModelTest {
     }
 
     @Test
-    fun `updatePhone failure calls onResult false`() {
-        val documentRef = mockk<DocumentReference>(relaxed = true)
-        val voidTask = mockk<Task<Void>>(relaxed = true)
-
-        every { user.uid } returns "123"
-        every { firestore.collection("users").document("123") } returns documentRef
-        every { documentRef.update("phone", any()) } returns voidTask
-        every { voidTask.addOnSuccessListener(any<OnSuccessListener<Void>>()) } returns voidTask
-        every { voidTask.addOnFailureListener(any<OnFailureListener>()) } answers {
-            val listener = firstArg<OnFailureListener>()
-            listener.onFailure(Exception("Error"))
-            voidTask
-        }
+    fun `updatePhone failure calls onResult false`() = runTest {
+        coEvery { updatePhoneUseCase("5559876543") } returns Resource.Error(AppError.Network)
 
         var success = true
         var message: String? = null
@@ -190,6 +147,7 @@ class ProfileViewModelTest {
             success = s
             message = m
         }
+        advanceUntilIdle()
 
         assertFalse(success)
         assertEquals("Error al actualizar el numero telefonico", message)
@@ -198,18 +156,13 @@ class ProfileViewModelTest {
     // ---------- SIGN OUT ----------
     @Test
     fun `signOut clears cart, wipes session, signs out and runs navigation callback`() {
-        // Datos de la sesión previa que NO deben sobrevivir al cierre.
-        SessionManager.setNameUser("Laura")
-        SessionManager.setCurrentUserId("uid-123")
-
         var navigated = false
 
         viewModel.signOut { navigated = true }
 
         verify { clearCartUseCase() }
-        verify { auth.signOut() }
+        verify { sessionDataSource.clearUserSession() }
+        verify { signOutUseCase() }
         assertTrue(navigated)
-        assertNull(SessionManager.nameUser.value)
-        assertNull(SessionManager.currentUserId.value)
     }
 }

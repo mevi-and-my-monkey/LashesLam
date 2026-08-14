@@ -25,9 +25,9 @@ import com.mevi.lasheslam.domain.usecase.cart.GetCartUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetFacebookUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetInstagramUseCase
 import com.mevi.lasheslam.domain.usecase.session.GetWhatsAppUseCase
-import com.mevi.lasheslam.network.CartItem
-import com.mevi.lasheslam.network.CategoryModel
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CartItem
+import com.mevi.lasheslam.domain.model.CategoryModel
+import com.mevi.lasheslam.domain.model.CourseRequest
 import com.mevi.lasheslam.ui.favorites.FavoriteType
 import com.mevi.lasheslam.ui.home.components.Section
 import com.mevi.lasheslam.utils.MainDispatcherRule

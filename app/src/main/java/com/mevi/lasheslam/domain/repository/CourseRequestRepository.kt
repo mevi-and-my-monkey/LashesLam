@@ -1,7 +1,7 @@
 package com.mevi.lasheslam.domain.repository
 
 import com.mevi.lasheslam.core.results.Resource
-import com.mevi.lasheslam.network.CourseRequest
+import com.mevi.lasheslam.domain.model.CourseRequest
 
 interface CourseRequestRepository {
 

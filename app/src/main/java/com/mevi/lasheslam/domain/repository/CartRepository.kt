@@ -1,6 +1,6 @@
 package com.mevi.lasheslam.domain.repository
 
-import com.mevi.lasheslam.network.CartItem
+import com.mevi.lasheslam.domain.model.CartItem
 import kotlinx.coroutines.flow.Flow
 
 interface CartRepository {
