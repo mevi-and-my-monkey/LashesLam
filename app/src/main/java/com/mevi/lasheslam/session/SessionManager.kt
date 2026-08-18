@@ -35,6 +35,12 @@ object SessionManager {
     private val _clabe = MutableStateFlow<String?>(null)
     val clabe = _clabe.asStateFlow()
 
+    private val _bank = MutableStateFlow<String?>(null)
+    val bank = _bank.asStateFlow()
+
+    private val _beneficiary = MutableStateFlow<String?>(null)
+    val beneficiary = _beneficiary.asStateFlow()
+
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId = _currentUserId.asStateFlow()
 
@@ -77,6 +83,14 @@ object SessionManager {
 
     fun setClabe(value: String) {
         _clabe.value = value
+    }
+
+    fun setBank(value: String) {
+        _bank.value = value
+    }
+
+    fun setBeneficiary(value: String) {
+        _beneficiary.value = value
     }
 
     fun setCurrentUserId(uid: String?) {
@@ -131,10 +145,14 @@ object SessionManager {
             val instagram = remoteConfig.getString(Strings.keyRemoteConfigInstagramAdmin)
                 .ifEmpty { Strings.defaultAdminIntagram }
             val clabe = remoteConfig.getString(Strings.keyRemoteConfigClabe)
+            val bank = remoteConfig.getString(Strings.keyRemoteConfigBank)
+            val beneficiary = remoteConfig.getString(Strings.keyRemoteConfigBeneficiary)
             setWhatsApp(whatsApp)
             setInstagram(instagram)
             setFacebook(facebook)
             setClabe(clabe)
+            setBank(bank)
+            setBeneficiary(beneficiary)
             _shippingCost.value = remoteConfig.getDouble(Strings.keyRemoteConfigShippingCost)
             //Log.i("EMAIL_ADMIN", adminEmailsCache.toString())
         } catch (e: Exception) {

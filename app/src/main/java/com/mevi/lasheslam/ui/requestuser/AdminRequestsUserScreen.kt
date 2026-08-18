@@ -60,6 +60,8 @@ fun AdminRequestsUserScreen(
                 Section.SERVICIOS -> UserRequestServicesScreen(
                     reservations = uiState.reservations,
                     clabe = uiState.clabe,
+                    bank = uiState.bank,
+                    beneficiary = uiState.beneficiary,
                     onSendReceipt = { viewModel.onSendReceipt(it) }
                 )
             }

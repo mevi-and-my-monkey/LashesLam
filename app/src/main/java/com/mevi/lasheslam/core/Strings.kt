@@ -10,6 +10,8 @@ object Strings {
     const val keyRemoteConfigLocations = "sucursales"
     const val keyRemoteConfigShippingCost = "costo_envio"
     const val keyRemoteConfigClabe = "clabe_admi"
+    const val keyRemoteConfigBank = "banco_admi"
+    const val keyRemoteConfigBeneficiary = "beneficiario_admi"
     const val defaultAdminWhatsapp = "5514023853"
     const val defaultAdminIntagram = "https://instagram.com/"
     const val defaultAdminFacebook = "https://facebook.com/"

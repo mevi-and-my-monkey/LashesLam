@@ -14,6 +14,8 @@ interface SessionDataSource {
     val instagram: StateFlow<String?>
     val whatsApp: StateFlow<String?>
     val clabe: StateFlow<String?>
+    val bank: StateFlow<String?>
+    val beneficiary: StateFlow<String?>
     val locations: StateFlow<List<LocationItem>>
     val shippingCost: StateFlow<Double>
 

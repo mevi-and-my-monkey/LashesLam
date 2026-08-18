@@ -82,9 +82,15 @@ class BookingViewModel @Inject constructor(
     var showError by mutableStateOf(false)
         private set
 
-    // CLABE del admin (Remote Config) para mostrar en la confirmación
+    // Datos bancarios del admin (Remote Config) para mostrar en la confirmación
     val clabe: String?
         get() = sessionDataSource.clabe.value
+
+    val bank: String?
+        get() = sessionDataSource.bank.value
+
+    val beneficiary: String?
+        get() = sessionDataSource.beneficiary.value
 
     private var serviceId: String = ""
 

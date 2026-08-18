@@ -561,7 +561,12 @@ private fun BookingConfirmationView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DepositInfoCard(deposit = reservation.deposit, clabe = viewModel.clabe)
+        DepositInfoCard(
+            deposit = reservation.deposit,
+            clabe = viewModel.clabe,
+            bank = viewModel.bank,
+            beneficiary = viewModel.beneficiary
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -583,7 +588,12 @@ private fun BookingConfirmationView(
 }
 
 @Composable
-private fun DepositInfoCard(deposit: Double, clabe: String?) {
+private fun DepositInfoCard(
+    deposit: Double,
+    clabe: String?,
+    bank: String?,
+    beneficiary: String?
+) {
     if (deposit <= 0.0 && clabe.isNullOrBlank()) return
 
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
@@ -600,6 +610,32 @@ private fun DepositInfoCard(deposit: Double, clabe: String?) {
                 Text(
                     text = "Anticipo: ${Utilities.formatMoney(deposit)}",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color(0xFF1C1C1C)
+                )
+            }
+            if (!bank.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Banco",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = bank,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color(0xFF1C1C1C)
+                )
+            }
+            if (!beneficiary.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Beneficiario",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = beneficiary,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     color = Color(0xFF1C1C1C)
                 )
             }

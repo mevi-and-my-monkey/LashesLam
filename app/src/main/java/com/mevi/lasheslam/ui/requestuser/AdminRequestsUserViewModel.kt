@@ -88,11 +88,20 @@ class AdminRequestsUserViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 sessionDataSource.clabe,
-                sessionDataSource.whatsApp
-            ) { clabe, whatsApp ->
-                clabe to whatsApp
-            }.collect { (clabe, whatsApp) ->
-                setState { copy(clabe = clabe, whatsApp = whatsApp) }
+                sessionDataSource.whatsApp,
+                sessionDataSource.bank,
+                sessionDataSource.beneficiary
+            ) { clabe, whatsApp, bank, beneficiary ->
+                listOf(clabe, whatsApp, bank, beneficiary)
+            }.collect { (clabe, whatsApp, bank, beneficiary) ->
+                setState {
+                    copy(
+                        clabe = clabe,
+                        whatsApp = whatsApp,
+                        bank = bank,
+                        beneficiary = beneficiary
+                    )
+                }
             }
         }
     }

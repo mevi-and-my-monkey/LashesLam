@@ -19,6 +19,8 @@ data class RequestUserUiState(
     val instagram: String? = null,
     val whatsApp: String? = null,
     val clabe: String? = null,
+    val bank: String? = null,
+    val beneficiary: String? = null,
     val requestUserCourses: List<CourseRequest> = emptyList(),
     val productOrders: List<ProductOrder> = emptyList(),
     val reservations: List<ServiceReservation> = emptyList()

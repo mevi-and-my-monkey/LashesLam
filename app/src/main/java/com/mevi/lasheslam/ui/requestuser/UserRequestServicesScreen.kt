@@ -52,6 +52,8 @@ import com.mevi.lasheslam.utils.Utilities
 fun UserRequestServicesScreen(
     reservations: List<ServiceReservation>,
     clabe: String? = null,
+    bank: String? = null,
+    beneficiary: String? = null,
     onSendReceipt: (ServiceReservation) -> Unit = {}
 ) {
     if (reservations.isEmpty()) {
@@ -75,6 +77,8 @@ fun UserRequestServicesScreen(
             RequestUserReservationItem(
                 item = reservation,
                 clabe = clabe,
+                bank = bank,
+                beneficiary = beneficiary,
                 onSendReceipt = onSendReceipt
             )
         }
@@ -85,6 +89,8 @@ fun UserRequestServicesScreen(
 fun RequestUserReservationItem(
     item: ServiceReservation,
     clabe: String? = null,
+    bank: String? = null,
+    beneficiary: String? = null,
     onSendReceipt: (ServiceReservation) -> Unit = {}
 ) {
     val isPendingDeposit = item.status == ReservationStatus.PENDING_DEPOSIT.value
@@ -221,6 +227,8 @@ fun RequestUserReservationItem(
                     DepositSection(
                         deposit = item.deposit,
                         clabe = clabe,
+                        bank = bank,
+                        beneficiary = beneficiary,
                         onSendReceipt = { onSendReceipt(item) }
                     )
                 }
@@ -233,6 +241,8 @@ fun RequestUserReservationItem(
 private fun DepositSection(
     deposit: Double,
     clabe: String?,
+    bank: String?,
+    beneficiary: String?,
     onSendReceipt: () -> Unit
 ) {
     val clipboard = LocalClipboardManager.current
@@ -260,6 +270,34 @@ private fun DepositSection(
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
+                color = Color(0xFF1C1C1C)
+            )
+        }
+
+        if (!bank.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Banco",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
+            Text(
+                text = bank,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color(0xFF1C1C1C)
+            )
+        }
+
+        if (!beneficiary.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Beneficiario",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
+            Text(
+                text = beneficiary,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = Color(0xFF1C1C1C)
             )
         }

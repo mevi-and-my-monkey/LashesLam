@@ -21,7 +21,18 @@
 #-renamesourcefileattribute SourceFile
 
 # 🔥 Firestore models (MUY IMPORTANTE)
+# Estas clases se (de)serializan con toObject()/set(); si R8 las ofusca o
+# elimina sus propiedades, Firestore lanza "No properties to serialize".
+-keep class com.mevi.lasheslam.domain.model.** { *; }
+-keep class com.mevi.lasheslam.data.dto.** { *; }
+# Paquete anterior (por compatibilidad con builds antiguas)
 -keep class com.mevi.lasheslam.network.** { *; }
 
 # Mantener anotaciones (Firebase usa reflection)
 -keepattributes *Annotation*
+
+# Firestore: conservar miembros anotados con @PropertyName y constructores sin args
+-keepclassmembers class * {
+    @com.google.firebase.firestore.PropertyName <fields>;
+    @com.google.firebase.firestore.PropertyName <methods>;
+}

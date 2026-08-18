@@ -28,6 +28,10 @@ class SessionDataSourceImpl @Inject constructor() : SessionDataSource {
 
     override val clabe = SessionManager.clabe
 
+    override val bank = SessionManager.bank
+
+    override val beneficiary = SessionManager.beneficiary
+
     override val shippingCost = SessionManager.shippingCost
 
     override suspend fun refreshAdmins() {
